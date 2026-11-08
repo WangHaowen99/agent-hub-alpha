@@ -1,0 +1,1988 @@
+{
+  "source_repository": "https://github.com/chaosxingxc-orion/nga",
+  "source_commit": "fad91b05b70805a7f4b3910c6f355dc79c700d95",
+  "expert_head": "25ab91e18a11dca44b511f74ae5d62f7e8ad9000",
+  "method": "Exact blob snapshot; original commit and review history remain at source links. No model experiment assets copied.",
+  "roots": [
+    "achitecture design",
+    "design",
+    "agent-festival",
+    "impl-2026-10-31",
+    "impl-2026-11-01",
+    "replies"
+  ],
+  "files": [
+    {
+      "path": "achitecture design/05-architecture-brief-and-decisions.md",
+      "blob": "d29fc909571400528c3532aac46670d948f33b62",
+      "mode": "100644"
+    },
+    {
+      "path": "achitecture design/06-architecture-diagrams-md.md",
+      "blob": "9de93f4d6176f228dbb88a3f00478704e466a280",
+      "mode": "100644"
+    },
+    {
+      "path": "achitecture design/07-nga-architecture-proposal.md",
+      "blob": "73e05c8559dd02aa64fcf18c1706b74213ae4b8f",
+      "mode": "100644"
+    },
+    {
+      "path": "achitecture design/08-r1-r6-acceptance-and-open-items.md",
+      "blob": "befc3e15bcb95fa2957bffd3c9f47ada5eaac4d8",
+      "mode": "100644"
+    },
+    {
+      "path": "achitecture design/README.md",
+      "blob": "dec1e97bf2be041347de59b47821ade30756c1b9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/.gitignore",
+      "blob": "31d5a74c678310821c49ee37aea436f01a35b311",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/README.md",
+      "blob": "e78d843e8fb0284e264451b8c23355164c58b0c3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/2026-11-01-collision-response-archived.md",
+      "blob": "255a18429afbc24850e765b391689bd261bd8b70",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/attack-corpus.md",
+      "blob": "cc6fc230ee05411499bb9cf2316d7b3875ded00e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/conformance-fixture-format.md",
+      "blob": "8bc19261372af7eee8611603cf58cd8b4923eeb0",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/fixture-guard-pattern.md",
+      "blob": "9352fd0da9d67e77a21dc2ae703e5f6760d55767",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/minor-ledger.md",
+      "blob": "8d4e0b7e2474c293b055ba9484905ed1f67beec7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/docs/review-loop-runbook.md",
+      "blob": "0d5c935f94e107053372688093f4aab80559dd83",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/.gitignore",
+      "blob": "d18ad53e115e42c787ec2944e6305559737cce20",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/README.md",
+      "blob": "6b5fc12628d1bef479a9158f45e06b0466024ae7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/pom.xml",
+      "blob": "e22f435da963db2465e315da3754d5031e59ab8b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/run.sh",
+      "blob": "92664287bf76f078ade4e631423c5337486038cb",
+      "mode": "100755"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/FixtureLoader.java",
+      "blob": "1d35a2c8a85f9b1c4658a347a114ddab28a8ebe4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/LedgerChecker.java",
+      "blob": "cbc479fb002dc3a9caa0c93a5b6204c150a930ae",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/Main.java",
+      "blob": "f9cc7b6ce220c8b4486c1bac024309bc90988c17",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/PinAudit.java",
+      "blob": "3f83fa3e15a5155081e7588350083d2e965ae4b9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/SchemaChecker.java",
+      "blob": "1ee16d555cd06d5608b40f1064c361cd70f70e93",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/examples/java-consumer/src/main/java/spike/SuiteRunner.java",
+      "blob": "61af34ba0d4dde2114d1a4f88dc92fc6b34677d5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/00-priors-compose-sign.md",
+      "blob": "b5ae44bd4cff8dd608c6e24216bf231debf14759",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/adopt/main.go",
+      "blob": "ed952e3c14c41f1948a0cbd8093890e3210cf731",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/adopt/main_test.go",
+      "blob": "e9d7144aead2a96b0d2ae98c36e9d562b61eebf4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/compose/main.go",
+      "blob": "5b97b69b5fd103a7ef5a29cad26406d90022f62d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/compose/main_test.go",
+      "blob": "782e2917427bf7c392d5c50f61cf8a438bb7af3d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/evidlog/main.go",
+      "blob": "f31fc30301400ba464ce57a1b5be35bbe8c1b519",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/evidlog/main_test.go",
+      "blob": "101f1f673485eb2929f5a858286f8b7d2847c3fa",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/judgment/main.go",
+      "blob": "db9129182528e5c8ef875e7eeda6d85f0b84d1b2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/judgment/main_test.go",
+      "blob": "5648865bbeb208f740853f373132bac633531b15",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/ledger/main.go",
+      "blob": "e372e327de035b5d48a1e44e51d7cf0e32d63912",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/ledger/main_test.go",
+      "blob": "13a0927716322c0e2d84418129543316fad0d1b8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/release/main.go",
+      "blob": "baedd1ba2e6727bfacfad69ae1b156e3783d24d7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/release/main_test.go",
+      "blob": "88e01741b2e41f237bd85af8c87d510b858a8042",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/replay/main.go",
+      "blob": "741313541ec7459d822fd8b7f029e7c53b5a93e6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/replay/main_test.go",
+      "blob": "f2ae82f0e19c3a40c234f4f8e5cd3acb56a111fb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/sign/main.go",
+      "blob": "909b003c5210e6ac3315d03ebf01fad933c9e3b3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/sign/main_test.go",
+      "blob": "27381be4350a3a73a0e61624e18ea4d660f38a4b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/validate/main.go",
+      "blob": "56f767a40c3a8fe4ec0d5dc89c030fb7a1b32d69",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/cmd/validate/main_test.go",
+      "blob": "86e667c88ce828f7b560d550ec63be0feadd84b0",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/go.mod",
+      "blob": "174c21456b7344c94ec42059e42d1f79be8bc456",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/go.sum",
+      "blob": "2e994671ffecca27343cc3ae9663d3a211e7974c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/adopt/adopt.go",
+      "blob": "bd611197fa3886bd83419d3c086f30f7266425d7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/adopt/adopt_test.go",
+      "blob": "41a8aa54deca9970cf3ca4f3ac83deb500e04506",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/adopt/check.go",
+      "blob": "8c8231c5ee1e31e3f5301f951a04b32727c06908",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/compose/compose.go",
+      "blob": "590a6f491f23b3cdadc724a6f79558f59d536629",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/compose/compose_test.go",
+      "blob": "1c57989184304243d6e27c0b3b5cef96e3d60b56",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/compose/wiring_test.go",
+      "blob": "7b39ad7ff327a6c8951a1914ae54758fa2898b27",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/correctness_probe_test.go",
+      "blob": "6646f4310bbc73a5c0bc8e8075710271488b8cd6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/doc.go",
+      "blob": "a98f9d3d850eb018e872d3f551795b29c3c6c060",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/e2e_test.go",
+      "blob": "033c8ab7e5f3d35876dc970541c1b62c9862b632",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/e7_canary_test.go",
+      "blob": "7d12a3901184df1041c412384d9df2b76414649e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/health_test.go",
+      "blob": "c9742cf5d0d956daba1c9faa1abc0604a1a26d25",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/p0a_window_test.go",
+      "blob": "270b1e21a6601c7a274b1f586f0fcd9d442b61a1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/t1_llm_test.go",
+      "blob": "523ebbdb1a9d114a8c3bd1d5d6a995322f9550e8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/t2host_rk_test.go",
+      "blob": "15307cce02f4401b2d44907aa72e02f2f15bea1e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/t2host_test.go",
+      "blob": "e69cb7dd9fc66a4cd2bdd73985ba436b2879ceff",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/testdata/p0a_scan.tsv",
+      "blob": "25ba57cceb88909fdc2e1b0a5edbaddebaa457bb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/verifier_test.go",
+      "blob": "d7c6596b1ae9c5a1e621405a3ad4e64e0dd68614",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/e2e/zz_xs2_demo_test.go",
+      "blob": "6c85956369f4619f1d4da3e69c5f411235e87eec",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/evidlog/evidlog.go",
+      "blob": "025edfb38c24fc38fcd51a12fcc34017a004dc00",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/evidlog/evidlog_test.go",
+      "blob": "f0328e69352a3a49d758bc356a850fce3be7b284",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/judgment/check.go",
+      "blob": "46db687a62e8915f56960a652d5d93926229fcb4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/judgment/judgment_test.go",
+      "blob": "928084398133687e713291ceb390f37d71764382",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/docstring_pin_test.go",
+      "blob": "887985b59e8852f838c851b23ee14ba6b9f062fc",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/grant_lockstep_test.go",
+      "blob": "72a46aad84b0a16958fd3bc330d52ffe9f37de87",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/ledger.go",
+      "blob": "33339254d135338ff98a091ed8817aa60e6a281e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/ledger_test.go",
+      "blob": "43445e71d121fe331b3b35a0a21fee6e82051d44",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/load.go",
+      "blob": "7e7619f60c54ac6ed167a0df58774d12be9aaa9c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/ledger/readme_pin_test.go",
+      "blob": "3b305ebaa0015e021d1b9a718d4cc666978f369f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/release/check.go",
+      "blob": "1799e7e3c79c954f53e60193276a5b508f77e44b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/release/release_test.go",
+      "blob": "a2fe6adf3f924832d4b37789ee00d5536317de7f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/replay/replay.go",
+      "blob": "e6dfffc3c8cde31c3d9c27d4659db9eb4c73b184",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/replay/replay_test.go",
+      "blob": "c38844ce5463690ddbd39d0c307b25a1725fd4e3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/rfc8785/differential_test.go",
+      "blob": "9396a8e20e0c4053ea1ad65e0e3d109869ba5c60",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/rfc8785/rfc8785.go",
+      "blob": "d95a0f66ac467da3a8f266680af8e5a70ed6900f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/schemalib/schemalib.go",
+      "blob": "265bc754f60f2c6c3bd02d1eae3f5a47a286ab0e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/schemalib/schemalib_test.go",
+      "blob": "6eaeb2f1b76e33507e3eebdf4e643717a5d3ba6f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/suite/suite.go",
+      "blob": "3eb8855e8869394b8eddbf9270df9bbc655b0e47",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/suite/suite_test.go",
+      "blob": "80122dd7cf4ecdf414f64630b331a4f7b714e30b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/validate/helpers.go",
+      "blob": "8c6c209ef2a44aa173eccb037662d0ee36d91e7b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/validate/schemalib.go",
+      "blob": "3756f580a4f6934cfa3c66df186784d7af7015c9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/validate/schemalib_test.go",
+      "blob": "5faaef4ff63d9d13af185c1470b2e45b8ef7a6fb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/validate/validate.go",
+      "blob": "787c9e35a2a0b869eeb429e33571a897546ddb57",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/go/internal/validate/wire_test.go",
+      "blob": "c2399b18d1389f441ffcd0a80aa22d6842bdd6f7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/review/2026-11-08/README.md",
+      "blob": "9d38df9da2283ff51c65f4dfc3ced8b5756318ff",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/review/2026-11-08/run_probes.py",
+      "blob": "f3dd2d6937666c09cfb0a64523e83e7fd50c1343",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/review/2026-11-08/system_contract_probes.go.txt",
+      "blob": "a63388e3926c2985943d48631ab39c637ae36be8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/.gitkeep",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/README.md",
+      "blob": "f26cdb1492bc4734b3b4f816dbf7d03d8836bbd9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/_suite.py",
+      "blob": "4c85aa6f63b4ec630fa19e32b8fc81083e82b069",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/adoption.py",
+      "blob": "8c4d37e8e2cd7812d64ab9969f2c5241b17c6f1b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/adoption.schema.json",
+      "blob": "25fe698c047f3fc13f0524c1dc7219c855eeacf2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/capability-contract.schema.json",
+      "blob": "4d28830d528d1b53b54c55c291efc7f0075d13cd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/compose.py",
+      "blob": "0606a1c42762775d4cb458c2eced094de85474a5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/contract-envelope.schema.json",
+      "blob": "504458a2396b451be67d63cb720ee20fee1c724a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/event-ledger.schema.json",
+      "blob": "3c2dd96928f81321b8ea6af87b05e2f605b9a914",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/evidlog.py",
+      "blob": "c33edb039ebc5d6c77a66286d23dc71574612ba0",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/evidlog.schema.json",
+      "blob": "371e8f42873ffe14a6dd715bee3ed0a20f396bde",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/invalid/bad-grant-effect.json",
+      "blob": "0cbf32b74b5a83d541ee275d34badf2c0dfebda4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/invalid/empty-grants.json",
+      "blob": "a98c87883b865feebb4a26a13d4d8cb6ce3ba182",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/invalid/malformed-digest.json",
+      "blob": "710fa273c3c42673743c6c63b3113325299835b2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/invalid/missing-versions.json",
+      "blob": "78ca5ac557c46a05b8d65fb5d5e5b4499f83dc59",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/invalid/unknown-extra-field.json",
+      "blob": "b0cb9fe599c9a8cd7427f3267c263b89e38028dd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/valid/adoption-request-credit.json",
+      "blob": "a635808a3e35fc8b808e7f4fb15ced1ac8d3451d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/adoption/valid/adoption-request-minimal.json",
+      "blob": "e5a6b390958661ce14cceaf8809da262dc7a58eb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/caller-holds-absent.json",
+      "blob": "aa56684659d60dbe3272efb65e61deb567a2d721",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/caller-holds-encoded-unreserved.json",
+      "blob": "4a5a87941bf3240686abac83a37b044d71df2b24",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/caller-holds-invalid-utf8.json",
+      "blob": "208a7ab1e04627a364f2675a24d0b0fc8158d3f1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/caller-holds-noncanonical-escape.json",
+      "blob": "32572f3cb59655e0159c7b69ad48f2a8559a0ff1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/chain-false-declarations.json",
+      "blob": "6e5513a60f8dac97e02d38060252b731162448b6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/cost-not-exactly-summable.json",
+      "blob": "34d6074e7fa50b68efa14c58182f31e687532aee",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/credit-budget-exceeds-parent.json",
+      "blob": "520cdc38144227d775b24dd43b02a6f0f2d8e07b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/credit-op1-effect-escalation.json",
+      "blob": "462bd37f70a35ecb0ccb13dd13976c8c54055970",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/credit-op1-grant-not-held.json",
+      "blob": "a6bd31570534063d373a3c04ed0c67de4edf0127",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/credit-s1-judge-not-read-only.json",
+      "blob": "cd0c01669309f68d538a3f791032d89d1246e101",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/delegate-outside-graph.json",
+      "blob": "f97308aa5b5a7301b26f51c0709edf2245f43540",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/edge-three-items.json",
+      "blob": "6e75b8704f03e6932f5506e4befc5cd0b5fd4cbd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/effect-escalation.json",
+      "blob": "12b68965fc79c85137cb9b1d104d3e4de39d698b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/empty-par-group.json",
+      "blob": "03a9c4621c510288202a32e13d68ac16ecb32252",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/extra-action.json",
+      "blob": "0f9f77d21b8305ef6d942bc7035c7fddbae2ca3a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/governance-pipeline-not-held.json",
+      "blob": "88d0c1a1e6519879ddaa5025eb803f4c11c65ede",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/infinite-parent-budget.json",
+      "blob": "6f8d6679e4230a15e70ed7874f9f3d4e32a9320c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/mixed-cost-units.json",
+      "blob": "62d54c9f97e625054d1576764f903360d8c238e7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/node-fails-contract-gate.json",
+      "blob": "ba814c0f5a8e1a694f07bcbf7de5e38f37c2bfca",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/node-scheduled-twice.json",
+      "blob": "e556c8214660cdcb0824352ba1565a529b8d948e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/orphan-in-edge.json",
+      "blob": "17f158ba75076de5e5d692eb587128a5a2a59a46",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/orphan-node.json",
+      "blob": "b5b66ed1bac7ef99f6ca78e657d5fd97e7909770",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/parent-cost-unit-mismatch.json",
+      "blob": "b3d324305e66efbcb5c6e36d0f420c5e1c665779",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/phantom-upstream.json",
+      "blob": "f9af002ed74255f02f081b86f3119b70b06d1361",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/plan-dual-mode-nested.json",
+      "blob": "8f48fb572dd01f9379dda6ae54870e5cbeea5486",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/plan-two-modes.json",
+      "blob": "62ab771c088aa45b1b42103b5fdb135d306ebea6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/selector-not-held.json",
+      "blob": "bc083f06f4627ab61b1f41fefd440437dd35195b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/seq-time-overflow.json",
+      "blob": "2206680bcdd824150ae27c2bbeb3ca9b9468e7c5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/split-budget-overflow.json",
+      "blob": "de05f12fb0b19babeb6398c80ceeb3b75e7bdb2c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/split-count-not-exactly-divisible.json",
+      "blob": "e28444f2ab816c37623d93b14826358860282759",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/split-rounding-edge.json",
+      "blob": "d021d564f3a5dbe5e13674e99ddca124953f4e03",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/supply-edge-backwards.json",
+      "blob": "73e99a3bb9bb7cefe154bd26cc3b0a16d568df1d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/supply-edge-in-par.json",
+      "blob": "d317e0964aeaf735f54be3db4f6ee3cdf8fa1a94",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/upstream-action-escalation.json",
+      "blob": "8c796d6ba4a685f8dea0b812997ae4307fc59dbd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/upstream-effect-escalation.json",
+      "blob": "2ab6c56b6c7b8d4a7309aa75ad82386563ab9556",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/invalid/upstream-without-edge.json",
+      "blob": "20c80c73d51ee54b4bc9b504f188ece33597f674",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/chain-closure-held.json",
+      "blob": "5e7a3dd8841c8cabbfcffff9c779b45e347363d7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/chain-transitive-upstream.json",
+      "blob": "fd12901eda62d84040fe92781ad2745590b09261",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/compensation-any-none.json",
+      "blob": "bd25daf497b6c087c252aec51e9d25354331f78e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/credit-slice-a001.json",
+      "blob": "a3132a2d35962ee7e9053b61c88a75ac7a175ca9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/governance-publish-contract.json",
+      "blob": "3ba4fd7aaaf3639e451f35d65b18b638dc99fda8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/integer-bound-with-decimal-point.json",
+      "blob": "8115922d490c673e59f9eedff61bf30fb15c70dc",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/node-id-trailing-newline.json",
+      "blob": "bfc8d65d3a6167f73265bc575163d9d0496c7052",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/parallel-split-budget-ok.json",
+      "blob": "44f90a7026227629331f154a642f7230ab01791d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/parallel-split-inexact-share.json",
+      "blob": "196a16b4e322b03a1fd4bc00a194b04596b4048d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/compose/valid/same-key-worst-effect.json",
+      "blob": "04310a6f517bfa530efe39a29ccfba16834c3949",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/alg-mismatch.json",
+      "blob": "8a0e24dd2e73bdee84d5b913f3d461af1e0156a5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/alg-none.json",
+      "blob": "5616eaa6ea2535c202f24f2b5f5dc405a039fb5a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/bad-typ.json",
+      "blob": "caccad982506db12edb7a346553c22c35b4d7a56",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/crit-header.json",
+      "blob": "4517df32cdceb4c1217d0257b2c31ac02abf59c8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/duplicate-signer.json",
+      "blob": "19db915b60c01f77d503a53aa6a982f3fce86ed8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/enc-key.json",
+      "blob": "e944b4a280497d067d34c6f5c4cc0f3b19d42f66",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/endorser-only.json",
+      "blob": "f3691de6dd766898ef101dd52fe46325db662510",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/hash-mismatch.json",
+      "blob": "f2612aba818da0de3d0a4dc849cfcc27c5887355",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/key-ops-no-verify.json",
+      "blob": "4e4228b9e5000842aa190cc74248fa9de900d86b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/lone-surrogate.json",
+      "blob": "839b7c39bd0ce2ec8b804c98a90292d01d083065",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/no-signatures.json",
+      "blob": "b070046e2ed7ac3cc4f3d0e705885dbde03458f0",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/one-of-two-bad.json",
+      "blob": "5e733817269a0baa7a8e894b494f0a51cf4e4ee8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/signed-but-invalid-contract.json",
+      "blob": "c70dfa273f9e9ca70229910f359e127d3558bc7d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/tampered-contract.json",
+      "blob": "a9ac22d77239a9281418749dbbbee2fd671fc8e1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/unknown-kid.json",
+      "blob": "ff4193f0054d2234f14873c72a2bd75db8096679",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/invalid/wrong-owner.json",
+      "blob": "c9eb49e32bc35407ca96e44ac9139be114dc2fd8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/valid/compliance-filer.envelope.json",
+      "blob": "ce250396fc64965f743d7a0b70867a22c03d5acf",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/valid/doc-extractor.envelope.json",
+      "blob": "a1985a11f96914308558b8b4ef5c1cffda0f1954",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/valid/literal-fffd-header-surrogate.envelope.json",
+      "blob": "920145c845462aaa2aa9ff82ce1cbdfb794ed3ee",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/envelopes/valid/literal-fffd.envelope.json",
+      "blob": "3180beeba22ad8e75dc6a706384b7b59a2aa3ecf",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/bad-timestamp.json",
+      "blob": "e57bf6067fedd3ef133dfefe2d11b369bcd8d7fb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/seq-float-beyond-2e53.json",
+      "blob": "658d38b42dc0c8398efedba75c79d152077d67e2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/seq-float-syntax.json",
+      "blob": "1983dc6107a076e0f297cc292911db9c663503b2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/seq-gap.json",
+      "blob": "3b1a44db2f7ed1aaa054f9da1ede712244ea0ade",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/seq-int64-overflow.json",
+      "blob": "811899d8fe489a262a4f0473cd6de7e5106eb403",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/invalid/unknown-field.json",
+      "blob": "6efcfbeb2473c8e6de425cd33dca22e18d82e2f6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/evidlog/valid/dense-seq.json",
+      "blob": "23be6d1ab97023c09f4525b665f9eeeececaf3de",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/actions-duplicated.json",
+      "blob": "fd8a0001b95172c78e65d1ccd2bdb883378feed9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/assurance-as-fifth-section.json",
+      "blob": "979298d69bb7824de352e62cb4b1096cba22c919",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/bound-negative.json",
+      "blob": "8186e595795b3a3750edb724e8f4690ee3413b50",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/bound-zero-seconds.json",
+      "blob": "76218954a87db4d0535b9edc155fd6f680a4b245",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/delegate-non-agent.json",
+      "blob": "1806776267690becd2d6bdf727e307011c154874",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/effect-not-in-vocabulary.json",
+      "blob": "9c34a4713ea7becc11178f1a4fb863eace39a4d3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/effects-below-requires.json",
+      "blob": "bf2e2dd09aef531526395e7130c66a08f803411e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/encoded-unreserved.json",
+      "blob": "9d1a6ba56324b2fccbe2a7a708750245e3d59640",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/encoded-wildcard-lowercase.json",
+      "blob": "1614724ecddeeabe15a58c275595a3fef29eecf4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/encoded-wildcard.json",
+      "blob": "5465b4262654b509898c122f26a7e6faf4868938",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/fixture-pin-injection.json",
+      "blob": "938033cefa6dbe7915a61a2500fc06fac9a68fe6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/fullwidth-wildcard.json",
+      "blob": "cff94eaf3e1d258aa6ebac8f8bfcd091a464b2fd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/grant-extra-key.json",
+      "blob": "115f23c46e0e00bf528d6b01197429d57e0816fe",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/invalid-utf8-escape.json",
+      "blob": "767a7e2f0030199087c760f4d2281a81404672bb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/missing-compensation.json",
+      "blob": "61b6830a065756aa0b6d3f4f4de0f8eba98c92e9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/nan-cost.json",
+      "blob": "9a5ed34d583546f7a352083e327e78e4ad7b135d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/noncanonical-percent-escape.json",
+      "blob": "27bb4d7f7ae036bead431be66c1122669174b438",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/padded-wildcard.json",
+      "blob": "fb52e12f580bcc2b542943cf9ab631c3161ba2c8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/read-only-with-effect.json",
+      "blob": "f81775c10c195a946de00aa51c8704d854ac93cb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/selector-double-trailing-newline.json",
+      "blob": "0f4823ae95e7d36c60c71d3085c957f35d2b448f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/subject-id-empty.json",
+      "blob": "dca99057a639e94b54c141a5306c27e11c05fe3b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/wildcard-selector.json",
+      "blob": "98c55528ca66ebfb77cf14aab21c571cdc3ec44e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/invalid/zero-width-wildcard.json",
+      "blob": "5b1fd7561ddcebde55bf2fbfd13cb95cf4ce08cb",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/bad-candidate-semantics.json",
+      "blob": "85a8f89bc91407a453c6246d1325d2d6764c89f5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/bad-example-kind.json",
+      "blob": "b6cda18e2f651408c4702e1b348b3322c87c08e5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/bad-level-type.json",
+      "blob": "7bc465c2a48f96b693b8265a5375f3bfb12ad255",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/empty-levels.json",
+      "blob": "f41687790e4c24407d67217d29024e90af8dc0ef",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/empty-term-name.json",
+      "blob": "316e8e9ee7a2f605155938be3b5f88e7019d9a2b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/empty-terms.json",
+      "blob": "0fbec089363eb4fa32b8e8d18df2b2bcb05724d6",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/extra-field-in-ownership.json",
+      "blob": "b892373e713a5bbce3f0d61dbb63e331e402bbff",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-candidate-set.json",
+      "blob": "cf3b62214a955bffb49bb3774174952fd83ecbf8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-conventions.json",
+      "blob": "ae23e402c976860b729f73abd4ca94a149ca1c0c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-evidence-sources.json",
+      "blob": "7e8668921e0d1c6a64835fdeb60ad1c2b574352b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-examples.json",
+      "blob": "9175eff58de5dbb26703bfe0b4f6c718a3664d8a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-levels.json",
+      "blob": "2b98c2c8462b6fa72d6be81f925aeeaa2d31fee1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-ownership.json",
+      "blob": "69e85c0e6755e322c1317611a88f155b37414097",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-question-id.json",
+      "blob": "2bc85e9303703b53be1fd13eae575338c54c30b7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-question.json",
+      "blob": "c74bea5a8c1c18268ca22aa6c6d0983dbd676b55",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-resolution.json",
+      "blob": "89467dab3f9e545b0ab53250b39971f6b486576c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-rules.json",
+      "blob": "80665fbce8ac9b5cf4bd2a9422390aaadac7a75a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/missing-scope.json",
+      "blob": "25aad7d73901dd4130332a01f4b2ff7baae53b07",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/invalid/unknown-extra-field.json",
+      "blob": "2d1ed2054d042823a67670177c50a8c245060b9b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/valid/judgment-spec-credit.json",
+      "blob": "24d6fed0d575a40185ba902dc0c500ca4dd8da00",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/judgment/valid/judgment-spec-minimal.json",
+      "blob": "4ce7ad1ed1930d19d06c68eb2e509217484bbbe4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/keys/invalid/binding-unknown-kid.jwks.json",
+      "blob": "8bdf0696a4010433ec755f00d8034fce263a0d24",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/keys/invalid/duplicate-kid.jwks.json",
+      "blob": "052f584cf44d348a678391a5645f0a4b0dc45822",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/keys/invalid/missing-kid.jwks.json",
+      "blob": "e8383aa56eb21c00bf70026cfc11ce5c28823bd2",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/keys/trusted.jwks.json",
+      "blob": "375127a10033a81ce385f8ba76d758eeac751a13",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/adopted-without-grants.json",
+      "blob": "9a941b6bbd086aa15ea3a14f98c627d0ae79ae79",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/adopted-without-idempotency.json",
+      "blob": "ea92f171d104e12b542a37ab61c0c141cb195f60",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/bad-grant-in-event.json",
+      "blob": "de205ec548fa4fcddefa93e9de16fc5b23cb21f3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/bypass-effect-without-adoption.json",
+      "blob": "b87120230e1529e80a64a8c0c4d1fff33ef7a57a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/conflict-with-idempotency.json",
+      "blob": "583c670347c25c76efa3cfe03b909527f8006c6d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/control-before-adoption.json",
+      "blob": "cec305f102eba954920e986fcc1669bf707b24de",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/control-effect-status-transition.json",
+      "blob": "cfcd4d3e6c5a9b7ab612d2c84d84250bd37b9818",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/control-forged-attribution.json",
+      "blob": "b20040aa483ba9de3443b5ed1049bdd9b4c754b7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/control-with-idempotency.json",
+      "blob": "b6cb4b4592b76e7ea10a1276e521b60654e9f4b3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/double-adopted.json",
+      "blob": "1533aa0fa7f1b3341f84646057951d3e874569a8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-attribution-mismatch.json",
+      "blob": "9dff107b4445ac7e1d583af9c8a8f6d06c4589e4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-completed-without-dispatched.json",
+      "blob": "43bc2772e27008b4441f735d3318524104743421",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-dispatched-after-unresolved.json",
+      "blob": "2087f8042464b6f4329dc6a6177097be75ba999d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-double-completed.json",
+      "blob": "a211eb7a23a7c11cb9710cba7eb51bd3efe69e8f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-reunresolved.json",
+      "blob": "9789e6b70ed97914a89c4c3c68dd9f5aa049975e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-revive-after-terminal.json",
+      "blob": "657b2286afe8573ab754236a708cb1b1e8f410a3",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-with-grants.json",
+      "blob": "f8e851b8a5f91d901f5558389d843e7308b058e1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-with-rejected-status.json",
+      "blob": "9835b6d53c8436c54c646081e6cbf2e961f3ef2b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/effect-without-idempotency.json",
+      "blob": "eb35ba381a8d518972e95fd432c0d2776bd7d544",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/event-missing-outcome.json",
+      "blob": "1ce2603c9c763308dedc2ce1897df8d5d18e389f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/idem-key-mismatch.json",
+      "blob": "e03e32caec02a8d55f5362f64fb8c39b291bd3cd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/malformed-digest.json",
+      "blob": "752b2c76db04f25397891724de58c69a1624c8ea",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/missing-model-version.json",
+      "blob": "267ac38d949033de63b115926d994a2a1d985513",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/non-monotonic-seq.json",
+      "blob": "8bd941161465ad821f0445e797ae12664359a5b7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/orphan-reused.json",
+      "blob": "8465ff4aee68b26f7f8a3245bd5671c2d2ad6124",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/reused-with-grants.json",
+      "blob": "65b7f9c7682ecaa58f6cb67a4656fba474380420",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/same-key-different-digest.json",
+      "blob": "74480260200417efc86a35edb22268ddea46ce5b",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/seq-2e53-adjacent.json",
+      "blob": "7b5882c563a3a8b04663e53c269bed4206667ae8",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/seq-float-beyond-2e53.json",
+      "blob": "ea51bc739a3e8dabafc1d5ba15f531797f76d7d1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/seq-float-syntax.json",
+      "blob": "707d2e2dfc084c34a215fc0175a197a83d9997e4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/seq-int64-overflow.json",
+      "blob": "5f41b3fd2ccdeb714e1c0ffdde3587458e327af4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/seq-odd-float-twin.json",
+      "blob": "ffca5b7b002a384dc314e16f7d75eca009bb5c7f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/invalid/status-family-mismatch.json",
+      "blob": "2fda5f457699f8f1fefcb20355c5098f45f55e8f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/chain-dispatched-failed.json",
+      "blob": "6e9c7f4f5d79a4aef974e8a4645bb2f62a6008cd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/chain-dispatched-unresolved.json",
+      "blob": "bbb3c80948a10bc2c8c3d049fc433eda8dc68476",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/chain-unresolved-failed.json",
+      "blob": "441a13426aabac197c3ec43657ad2e4991e4abac",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/concurrent-double-adoption.json",
+      "blob": "7400b0040577654aa1aa5a1cff5b5d893a88f16d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/crash-unresolved-then-complete.json",
+      "blob": "b8841287d4c9bb37404cb9290d1cdddc1d56ce10",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/credit-a001-chain.json",
+      "blob": "0b49101fbba65d122a2367ed130dc3cf1a897581",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/dispatch-refused-then-dispatched.json",
+      "blob": "f88ec6b0398e422d9c00df2b9dce5a1c6b19ceea",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/high-seq-across-2e53.json",
+      "blob": "3e06729a63e339e28a37194ac39c5f21538f7fd1",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/ledger/valid/retry-reuse.json",
+      "blob": "89a7e6a0140b558d83b8b640230cc2b10f1541b0",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/empty-model-versions.json",
+      "blob": "1cd5f249eed92d9854ef8163fc29cc17c8f346bc",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/empty-release-id.json",
+      "blob": "9419a488dfc96a9411fe6c357b4e43eba21d7649",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/invented-in-flight-mode.json",
+      "blob": "550e1d5dd4bd87522526952c77dbf9a181a35412",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-agent-identity.json",
+      "blob": "caeabcff52e8692bb1ba848ba6f2ccd562f7d678",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-correction-contract.json",
+      "blob": "25e90141075b65e5a8fdea4ec2b2b46a85c46f67",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-evidence-separation.json",
+      "blob": "958de0f1f11f2bb84cb0b4aa48880931dbb400bc",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-evidence.json",
+      "blob": "733c019199ceb4b214d5611de0d229b1743963ae",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-in-flight-choice.json",
+      "blob": "f62cc72d7f5b9e1e956aedbd73c7afcc7070bce9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-references.json",
+      "blob": "ce57d3a17de12e6ff676718c203e672ab65990f9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-release-id.json",
+      "blob": "be6d210392a63a05b8c456744f25c9294abf3176",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-rollback.json",
+      "blob": "438b84083152fd97a50a83217e7db9c91b24a857",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/missing-rollout.json",
+      "blob": "11c13f917a713fc5ed3769c9894ffb213ad1856f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/nested-smuggle-in-references.json",
+      "blob": "b6585bfab1eda0233213960d03cdb038733bcffd",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/invalid/unknown-extra-field.json",
+      "blob": "78005d0a187b5198f466f8be81f9219cb968c487",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/valid/release-credit-v2.json",
+      "blob": "e6b5c9ab808061ebcc1176145061c761914e6f97",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/valid/release-hold-variant.json",
+      "blob": "c1e3c69f212fd049b6bcbdfddd0616972056ccc9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/release/valid/release-minimal.json",
+      "blob": "a80fec331b6b58b9c2e8257c780d56c938391a4d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/divergence-float-syntax.json",
+      "blob": "77ca20c9a871efdf3d01652ff602a54ed1ce1652",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/divergence-int64-overflow.json",
+      "blob": "c0965ac266e20e1b5194023d07f4374974c8581a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/divergence-without-at.json",
+      "blob": "906090a9a62bd19cb8005622d07d242c29048810",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/invented-op.json",
+      "blob": "63db813b830548c56070a9ff38705a9adb333ef7",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/match-with-at.json",
+      "blob": "2f5b21f56445be52bf24ed5d6ed3b695628ced25",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/missing-conformance-pin.json",
+      "blob": "9616d3ae8e36b4fe272356b68c466064a528c9ce",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/negative-divergence-at.json",
+      "blob": "85f074a7df01001c7b40cc340fa22115309be588",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/unknown-case-field.json",
+      "blob": "9a5c47ae1b709787d9fa23324e8ac954c411112e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/invalid/wrong-case-version.json",
+      "blob": "8bc56836c7cb5f73664f5f28bb1fb00e2994782e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/happy-chain.json",
+      "blob": "8fe74aacf7816f676f301e4a90cee8a33862618d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/mutated-input-located.json",
+      "blob": "510c4e8542ee88e14038f15e0de9a158d581d781",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/race-outcome-a-first.json",
+      "blob": "c00aa75fb40e05f0f90e9df8802a42f0673b91d4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/race-outcome-b-first.json",
+      "blob": "0fbb4c30ee94cbbb818998592259ea4e86f9a1fa",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/recorded-violation-forks.json",
+      "blob": "85aa8e2b39eafa8159f73dcf469c1bc004935033",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/tampered-conclusion.json",
+      "blob": "428d54da97c413c01bcd7ef56e15b9bbeb227fff",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/unexpected-parameter-refused.json",
+      "blob": "2e44f26cdb3c8059dd1e1be1bc2f95c48e59f023",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/replay/valid/unknown-field-in-record.json",
+      "blob": "b09dd9d6705637eddfed3b467baac40c04459e41",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/compliance-filer.json",
+      "blob": "ef5922cf205a1b689620aa7e29c157d84788b575",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/doc-extractor.json",
+      "blob": "128c22b42a227fa3d1115faf9ad51c82f4c778d5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/encoded-iri-path.json",
+      "blob": "e33235e3c77826e596d3c1723b99089c25e64210",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/encoded-opaque-segments.json",
+      "blob": "8a23d999f9dd1202fa7aaf2c47c95f2cc225341a",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/notes-nan-string.json",
+      "blob": "6920f210c662b9fe06cbc8e99df82722b11219f9",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/owned-side-effect.json",
+      "blob": "a1ae851526de16a4073d34cde853baced5be7268",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/examples/valid/selector-trailing-newline.json",
+      "blob": "f543cfb1f0ef0fa00705b3de0c35364b7811d786",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/execution-graph.schema.json",
+      "blob": "ca2f0017080d3e6dc5224b9e5964beb33ecb713f",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/judgment.py",
+      "blob": "0420dc044770048f79c6966a55ac08763e41507d",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/judgment.schema.json",
+      "blob": "9471c5357766340eabaac8db924116dfc139d7de",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/ledger.py",
+      "blob": "405d6f38089d13b925416f38bec050da2813b2fa",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/release.py",
+      "blob": "c9ddcdf68974168effd5816f4dd98de2c8aedc88",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/release.schema.json",
+      "blob": "35a677311492f5a72a3fd1dd1754f733444d087e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/replay-case.schema.json",
+      "blob": "9df52f105a8fb3d6f12b2cf9f821c9782ab9dd20",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/replay.py",
+      "blob": "c21668b32d9e308b437cdd3725ce405e5967f07e",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/requirements.txt",
+      "blob": "53658658a54103b70138f9ad1847974f1aa0f9b4",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/rfc8785_min.py",
+      "blob": "e4f93ce57cd67015d07bea0bff89e8a1221b149c",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/sign.py",
+      "blob": "afffb3600a137e28fad8edad296bcc873a21c9a5",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/schema/validate.py",
+      "blob": "571db1f3a23f48695d4a4872dc64e2c600d55006",
+      "mode": "100644"
+    },
+    {
+      "path": "agent-festival/tools/corpus_manifest.py",
+      "blob": "c68ed845841e9b08520826b9bc591c3d6a15c7a6",
+      "mode": "100644"
+    },
+    {
+      "path": "design/nga-overall-design.md",
+      "blob": "5abc3b9ea2217cb296231c85cb874a7e1ca16ce8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-10-31/00-priors-six-pieces.md",
+      "blob": "0ce73631b0fb1b814dca5051b9d76fa935e057ad",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-10-31/01-piece0-identity-contract.md",
+      "blob": "dfbc55d01ca04af1da09ba8161ac38b0c8d04808",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/00-priors-alignment-batch.md",
+      "blob": "7939014cb724f17898b2405aa80668c016fc8c9f",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/01-priors-piece6-replay.md",
+      "blob": "30dd369a3453f9183a623a1ad034abf5b656e4f9",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/03-priors-exec-batch.md",
+      "blob": "3ce1abf5d5728423ababd29e268adc305bdba80d",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/04-collision.md",
+      "blob": "0caa7ba155aa5cc6ccc8a3a2da8de376fa18dad4",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/04-exec-redteam.md",
+      "blob": "0ff1025937561c50a166cdaa498981ef86365bf3",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/05-edge-grammar-prior.md",
+      "blob": "76777727de53e188a96dc3aee71af16c37be9ed2",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/06-xingchao-comments-collision.md",
+      "blob": "062431ab844959241e78931ebab4ee94864f4f58",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/07-response-draft.md",
+      "blob": "b41fc1121affbbbbc623e431e26bc002de61a02c",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/08-blank-collision-round2.md",
+      "blob": "68c386d29cdc11b231af83e6007a88097552afd2",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/09-reconciliation.md",
+      "blob": "452f3559c0be885f152c6520d9ee5cca8b868174",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/10-blank-collision-round3.md",
+      "blob": "cab32f7df2582c0ae227fbb418445fc7d0ff4e52",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/11-reconciliation-round3.md",
+      "blob": "e006cd08aafd700a494b47eba1874643f5eb921a",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/12-fix-round-prior.md",
+      "blob": "634a867226a9780a3b1421d4039e278a8b8b058f",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/13-c4-revision-ordering-note.md",
+      "blob": "51fb4574c9a16f727e49ab58c3d6b0f5ee5f5fee",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/14-audit-loop-log.md",
+      "blob": "914c72cdc9f7331e60a415df2971e60e910cdba8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/15-t1-readout.md",
+      "blob": "d6f5bd2db588c23c7688d6b12fda9cbeb8d19657",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/16-t1-run2.md",
+      "blob": "c5328e451fc4ecd504ccbf28b9638c4660cdf7c3",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/17-blank-r6.md",
+      "blob": "8afbc19bbf3e69981345a1e8864a275214ab0752",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/18-blank-r9.md",
+      "blob": "aac73f5d6fc60cf6e5b966f4cc8af8cc0e8e774e",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/19-artifact-a-draft.md",
+      "blob": "9cc01a35a81a460f551ecbf9862a488e0f69bb8b",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/19-artifact-a-sent.md",
+      "blob": "b2801cb2779aad7d8367a79c18f578c56f1d2428",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/20-xingchao-f02abc.md",
+      "blob": "a487c456f7de5494fe57f6ad387dab0e07155264",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/21-f02abc-reply-sent.md",
+      "blob": "5a079ef6ec4a49de86c7b0b0a3e197fa451e8269",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/22-briefing-to-xia.md",
+      "blob": "fafcde474ffd5e3097c23e832ab8b472040f60bb",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/23-collision-xingchao-round4.md",
+      "blob": "eb04229e991c7898b39ac2660e5377ffad8cb60a",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/24-blank-collision-round4.md",
+      "blob": "a7acea9f171c3366947b2dbc3b1c96ac73379567",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/25-reconciliation-round4.md",
+      "blob": "014d855fb773fb76876aa9c6e8c3e9abb55ec031",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/26-d01-05-reply-sent.md",
+      "blob": "26381d0daaa41bd4e3523e3ad8596b7720b2bcfc",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/27-blank-collision-correctness.md",
+      "blob": "23cb352e77c0db5f4e15c3c923e408c0ee11137c",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/28-blank-collision-correctness-r2.md",
+      "blob": "63c21f2165eaca5610e4fb242e4ecc1e4a1d45c6",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/29-reconciliation-correctness.md",
+      "blob": "a5ce671f0c4d6339361b9954763cfbc64b46a4b4",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/30-blank-r14.md",
+      "blob": "f8a83d5b1a970667a2c1279550e53cdf2456a27f",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/31-rk-scope-prior.md",
+      "blob": "5a3a78640f55cfa092436c0788d839e91a63781a",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/32-blank-r14p.md",
+      "blob": "ba7a7c8ac82dc172e9bb1991ad100dac21576ecc",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/33-fullstate-collision.md",
+      "blob": "41e98ea2738feb0aaa1c0d5756ac0f46130fc4c9",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/34-firstbatch-scope-prior.md",
+      "blob": "3c2a5fa01ba8a7f8bdb82418372db46f55e0b48f",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/35-r19-battlefield-freeze.md",
+      "blob": "9a6f251ceb5d8fb0bd75b84f50fd13e4f355c172",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/36-sixexperiments-scope-prior.md",
+      "blob": "0d6fbf091013e6cff096a16aeef85c9e9370787c",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/37-sixexperiments-readout.md",
+      "blob": "959467d3f8408afeb48cc5fba8b1214ecb5b5527",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/38-issue1-five-questions-reply-draft.md",
+      "blob": "95158ea03c79bafda9930a75684a553250882ce8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/39-xia-receipt-draft.md",
+      "blob": "140d63102d90668f2138b05edf8c2916762aff63",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/40-liu-questions-draft.md",
+      "blob": "19712ea7669672846c68fcad32020a65a067c3a1",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/41-xia-r4-collision-report.md",
+      "blob": "76bb211f61460ff18dea7e8862085a1cf6f249fa",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/42-review-meta-analysis-draft.md",
+      "blob": "49bff65f7a0da60a2e285cc0ee7101ba827c7dc9",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/42-review-meta-analysis-v2.md",
+      "blob": "addca6ff395fc441ac5f85040a80e49bd7288fb1",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/43-experiment-proposal-matrix.md",
+      "blob": "30af513ff2e75d3493506f5ec50ded625ea415f1",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/44-collision-xingchao-xia-experiments.md",
+      "blob": "de54492baa7223fe4fae611e880b9a01a44b92e8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/45-collision-round2-blank.md",
+      "blob": "bfc6017fe378b208272aa23c5cb66d8f5e227478",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/46-collision-integrated.md",
+      "blob": "4b140188eac455d200b08932c0381d00c1b47a01",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/47-reply-xingchao-r5-archived.md",
+      "blob": "c2919a9ab41b8dec331c6b8741d1f12853c9bc28",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/48-receipt-xia-r4-draft.md",
+      "blob": "ecee680e23ec0795ac7e90014fc2d6179a71ba27",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/49-receipt-xia-r4-formal.md",
+      "blob": "6ce82fa4be9ea70897aef15fd8474b17d7dc2578",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/50-p0a-scope-prior.md",
+      "blob": "baef0a0907f697c401291a6dcd0fd727dd939e2f",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/51-architecture-collision-round3.md",
+      "blob": "6e8d5310be06c4753b8eb0f77c0bdd7bd65332c8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/52-architecture-collision-round4.md",
+      "blob": "04f934fa1a7c9f4f73c2af296c6bfdbea9bbbaac",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/53-collision-merged-51-52.md",
+      "blob": "6888b9db33547ce03f9969076440c063fc62398c",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/54-singularity-elevation.md",
+      "blob": "4ac8f8503f547d5aa6dbba9f50bb4be74981d958",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/55-experiment-backlog-from-54.md",
+      "blob": "8c4b4a06c3b9a9ede8dc289b5fdc914c60663288",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/56-reply-xingchao-r6-draft.md",
+      "blob": "ef1e34f4650c7cc22388479bb1ec7cade7bc7a0b",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/57-receipt-xia-r5-draft.md",
+      "blob": "80088c498acd951afafac266d37b1db0a5faa841",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/58-receipt-xia-r5-formal.md",
+      "blob": "cf81ebd88bb201a8a2517bfe3c12808de76d6b91",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/BATTLEFIELD.md",
+      "blob": "11d3a51657187ac3303c8fd0752299a7a4b88bf8",
+      "mode": "100644"
+    },
+    {
+      "path": "impl-2026-11-01/r1-exec-review.md",
+      "blob": "0b1f310eb1d5436001f13e3a9f25f022b96e656b",
+      "mode": "100644"
+    },
+    {
+      "path": "replies/2026-11-01-festival-collision-response.md",
+      "blob": "f3c8da8cd4d65b5be63653eb9695dcd1fc8b8e67",
+      "mode": "100644"
+    }
+  ],
+  "migration_edits": [
+    {
+      "path": "achitecture design/README.md",
+      "destination_blob": "335e94d3d4b50eda763809d3e5a7f16ddf1ec206",
+      "reason": "Migration link/index update; source blob retained in files list"
+    },
+    {
+      "path": "design/nga-overall-design.md",
+      "destination_blob": "c38a7cff07ce5e601fc766e5fd25be32f1548c7a",
+      "reason": "Migration link/index update; source blob retained in files list"
+    }
+  ]
+}
