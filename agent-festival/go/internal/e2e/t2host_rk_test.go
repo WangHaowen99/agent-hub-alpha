@@ -24,10 +24,11 @@ func t2Digest(ch byte) string {
 
 // TestT2R_PersistedReceiptAcrossRestart is the full R scenario: first pass
 // runs the chain and stores the receipt; the host restarts (fresh machine +
-// fresh resultStore, file-backed); all adapters (model seats, business API)
-// are replaced with failing probes; the same node execution is re-submitted
-// and MUST return the original result from the persisted record — zero seat
-// calls, zero adapter calls.
+// fresh resultStore, file-backed); the same node execution is re-submitted
+// through the UNIFIED ENTRY (N3) with a counting Model port injected and
+// MUST return the original result from the persisted record — zero model
+// port calls (the wired-counter form; the pre-N3 failing probes were never
+// wired to any adapter seam and are retired).
 func TestT2R_PersistedReceiptAcrossRestart(t *testing.T) {
 	dir := t.TempDir()
 
@@ -49,35 +50,35 @@ func TestT2R_PersistedReceiptAcrossRestart(t *testing.T) {
 	// RESTART: fresh machine (from ledger) + fresh resultStore (from file)
 	h2 := h1.reopen()
 
-	// Replace ALL adapters with failing probes
-	pS1 := h2.addProbe("s1-model-seat")
-	pS2 := h2.addProbe("s2-investigation")
-	pAPI := h2.addProbe("business-api")
+	// N3: re-submit through the UNIFIED ENTRY. The counting Model port is
+	// the zero-invocation probe in WIRED form — the old failing probes were
+	// never wired to any adapter seam (registration ≠ consumption, the
+	// Xingchao overlay finding); the port counter IS on the exercised path
+	// (X3-4's positive control proves it triggers when reached).
+	cm := newCountingModel(nil)
 
-	// RE-SUBMIT the same node execution: the host checks the record first.
-	// The machine state is "completed" (from the ledger) — the host's node
-	// entry queries the machine, finds it complete, and returns the stored
-	// result WITHOUT calling any adapter.
+	// The machine state is "completed" (from the ledger) — the entry takes
+	// branch A and serves the stored result WITHOUT calling the port.
 	if s := h2.machine.State("op-t2r"); s != adopt.StateCompleted {
 		t.Fatalf("R restart: state = %q, want completed (the ledger remembers)", s)
 	}
 
-	// The host returns the stored result — from the file, not re-derived
-	stored, ok := h2.store.get("op-t2r")
-	if !ok {
-		t.Fatal("R restart: stored result not found — the result store did not survive restart")
+	// The entry returns the stored result — from the file, not re-derived
+	out, err := h2.nodeEntryExec("op-t2r", fullGrantsN3(), "history-verification", nil, nil, Ports{Model: cm})
+	if err != nil {
+		t.Fatalf("R restart: entry error: %v", err)
 	}
-	if stored.Receipt != receipt1 {
-		t.Fatalf("R restart: receipt = %q, want %q — must be the ORIGINAL receipt (persisted, not re-derived)", stored.Receipt, receipt1)
+	if out.Branch != "A-retry" {
+		t.Fatalf("R restart: branch = %q, want A-retry (completed + stored → serve the original)", out.Branch)
+	}
+	if out.Result.Receipt != receipt1 {
+		t.Fatalf("R restart: receipt = %q, want %q — must be the ORIGINAL receipt (persisted, not re-derived)", out.Result.Receipt, receipt1)
 	}
 
-	// Zero-invocation assertion: all probes must be silent
-	pS1.assertNotCalled(t)
-	pS2.assertNotCalled(t)
-	pAPI.assertNotCalled(t)
-	_ = pS1
-	_ = pS2
-	_ = pAPI
+	// Zero-invocation assertion: the wired port counter must be silent
+	if cm.calls != 0 {
+		t.Fatalf("R restart: model port calls = %d, want 0 — retry reuse must not invoke the model", cm.calls)
+	}
 
 	// No new events in the ledger (the reuse is a read, not a write)
 	events1, err := h1.machine.Events()
@@ -316,11 +317,11 @@ func TestT2K_NewTaskZeroModelCalls(t *testing.T) {
 		Valid:       true,
 	})
 
-	// Replace ALL model seats with failing probes
-	pS1 := h.addProbe("s1-model-seat")
-	pS2 := h.addProbe("s2-investigation")
-	_ = pS1
-	_ = pS2
+	// N3: the new task goes through the UNIFIED ENTRY — branch B routes to
+	// the published method. The counting Model port is the zero-invocation
+	// probe in WIRED form (the old failing probes were never wired to the
+	// seats — registration ≠ consumption).
+	cm := newCountingModel(nil)
 
 	// A NEW task arrives — no prior operation, no prior result
 	brID := "br-t2k-new"
@@ -329,20 +330,23 @@ func TestT2K_NewTaskZeroModelCalls(t *testing.T) {
 		t.Fatalf("K: prior result found for new task (op %q) — this should be a fresh task", priorOp)
 	}
 
-	// The host finds the published method for this node kind
-	method, ok := h.registry.findForNode("history-verification")
-	if !ok {
-		t.Fatal("K: no valid method found for 'history-verification' node")
-	}
-
-	// Execute the method with the new task's inputs — ZERO model calls
-	result, err := method.execute(map[string]string{
-		"overdue_months":      "0",
-		"business_request_id": brID,
-	})
+	// The entry finds the published method for this node kind and executes
+	// it with the new task's inputs — ZERO model calls
+	out, err := h.nodeEntryExec("op-t2k-new", fullGrantsN3(), "history-verification",
+		map[string]string{
+			"overdue_months":      "0",
+			"business_request_id": brID,
+		}, nil, Ports{Model: cm})
 	if err != nil {
-		t.Fatalf("K: method execute failed: %v", err)
+		t.Fatalf("K: entry error: %v", err)
 	}
+	if out.Branch != "B-method" {
+		t.Fatalf("K: branch = %q, want B-method (valid method for a new task)", out.Branch)
+	}
+	if cm.calls != 0 {
+		t.Fatalf("K: model port calls = %d, want 0 — method execution is knowledge reuse, not a model call", cm.calls)
+	}
+	result := out.Result
 
 	// The result is the NEW task's own (not another task's receipt)
 	if result.BusinessReqID != brID {
@@ -360,10 +364,6 @@ func TestT2K_NewTaskZeroModelCalls(t *testing.T) {
 	if o := h.machine.Adopt(requestForT2("op-t2k-new", "er-1", "ev-1", t2Digest('f'), "br-t2k-new")); o.Status != "adopted" {
 		t.Fatalf("K: adopt = %q: %s", o.Status, o.Detail)
 	}
-
-	// Zero-invocation: all model probes must be silent
-	pS1.assertNotCalled(t)
-	pS2.assertNotCalled(t)
 }
 
 // TestT2K_ExpiredKnowledgeNotConsumed is K variant 1: the knowledge method

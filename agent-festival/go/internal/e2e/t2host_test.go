@@ -21,9 +21,12 @@ package e2e
 //   consume a published method with zero model calls and produce its OWN
 //   result (not another task's receipt).
 //
-//   failingAdapter: replaces model seats and the business API with probes
-//   that FAIL if called — proving zero-invocation by construction, not by
-//   counter (the counter can be bypassed; the adapter cannot).
+//   Ports (N3): execution resources are INJECTED into the unified entry
+//   (nodeEntryExec), never constructed inside. Zero-invocation is proven by
+//   the counting port (countingModel below) — a counter ON the exercised
+//   path, whose positive control (X3-4) proves it triggers when reached.
+//   (The pre-N3 failingAdapter probes were never wired to any adapter seam
+//   — registration without consumption; retired, see the RETIRED note.)
 
 import (
 	"encoding/json"
@@ -157,33 +160,12 @@ func sortedKeys[V any](m map[string]V) []string {
 }
 
 // ---------------------------------------------------------------------------
-// failingAdapter: replaces a model seat or the business API with a probe
-// that FAILS the test if invoked. Zero-invocation is proven by construction
-// (the probe panics the test), not by counter.
-
-type failingProbe struct {
-	t      *testing.T
-	name   string
-	called bool
-}
-
-func newFailingProbe(t *testing.T, name string) *failingProbe {
-	return &failingProbe{t: t, name: name}
-}
-
-func (p *failingProbe) invoke(args ...string) string {
-	p.called = true
-	p.t.Fatalf("T2 probe %q was invoked — zero-invocation contract violated (args: %v)", p.name, args)
-	return "" // unreachable in tests (Fatalf exits)
-}
-
-func (p *failingProbe) assertNotCalled(t *testing.T) {
-	t.Helper()
-	if p.called {
-		t.Fatalf("T2 probe %q was called during the test — zero-invocation contract violated", p.name)
-	}
-}
-
+// RETIRED (N3, 60号 §一.5): the failingProbe apparatus — probe registration
+// with zero consumers (invoke had no call sites, the probes map was never
+// read for dispatch). Zero-invocation is now proven by the WIRED port
+// counter (countingModel, below near the entry): the counter sits on the
+// exercised path, and X3-4's positive control proves it triggers when
+// reached.
 // ---------------------------------------------------------------------------
 // knowledgeMethod: a registered, versioned method with declared
 // applicability. The K scenario's "published knowledge" — consumed by node
@@ -421,7 +403,6 @@ type t2Host struct {
 	machine  *adopt.Machine
 	store    *resultStore
 	registry *knowledgeRegistry
-	probes   map[string]*failingProbe
 }
 
 func newT2Host(t *testing.T, dir string) *t2Host {
@@ -440,7 +421,6 @@ func newT2Host(t *testing.T, dir string) *t2Host {
 		machine:  m,
 		store:    rs,
 		registry: newKnowledgeRegistry(),
-		probes:   map[string]*failingProbe{},
 	}
 }
 
@@ -466,16 +446,7 @@ func (h *t2Host) reopen() *t2Host {
 		// process restart would re-publish into a FRESH registry — the R22
 		// redeclaration gate only forbids re-publishing into the LIVE one)
 		registry: h.registry,
-		probes:   h.probes,
 	}
-}
-
-// addProbe registers a failing probe under a name — the test replaces a
-// model seat or the business API with this probe to prove zero invocation.
-func (h *t2Host) addProbe(name string) *failingProbe {
-	p := newFailingProbe(h.t, name)
-	h.probes[name] = p
-	return p
 }
 
 // requestForT2 builds the adoption request with the T2 scenario's OWN
@@ -560,6 +531,169 @@ func (h *t2Host) nodeEntry(opID string, callerGrants []ledger.Grant) (storedResu
 		return storedResult{}, fmt.Errorf("[T2.NODE_ENTRY] %s: no stored result found", opID)
 	}
 	return r, nil
+}
+
+// ---------------------------------------------------------------------------
+// N3 (60号 scope): unified execution entry + ports — the three-way router
+// that makes R (retry reuse) and K (method reuse) pass through ONE entry,
+// with injectable ports so port-call counts MEASURE the reuse/execute split.
+// Paradigm: xuefanfan layer law — the ROUTING is semantic (this file), the
+// EXECUTION RESOURCES (model / business API) are injected by the caller,
+// never constructed inside the entry.
+
+// ModelPort is the model-seat injection point (branch C). Implementations
+// count their own invocations (the T0 standinCalls precedent form).
+type ModelPort interface {
+	// Invoke performs ONE model call and returns the verdict.
+	Invoke(opID string, evidence creditEvidence) s1Verdict
+}
+
+// Ports bundles the execution resources a caller injects into the entry.
+// A nil Model is legal for retry/method routes (A/B never reach it) but
+// the entry fail-louds on branch C with a nil Model (an explicit error,
+// never a panic — 60号 先验攻击面 #2).
+type Ports struct {
+	Model ModelPort
+}
+
+// firstExecInput bundles the caller-side semantics a FIRST EXECUTION
+// (branch C) needs: the adoption request feeding the machine flow and the
+// business evidence the model port consumes (R74 B-1: the frozen spec's
+// "Invoke → Adopt→Dispatch→store.put 全流程" — the entry must leave a
+// reusable artifact, or the C path can never reach branch A and the
+// unified-entry premise is hollow on first executions).
+// A/B routes never read it (nil is legal there); branch C fail-louds on
+// nil — same guard family as the nil-Model check.
+type firstExecInput struct {
+	req      *adopt.Request
+	evidence creditEvidence
+}
+
+// NodeOutcome is the entry's unified return: either a served/executed
+// result (with the branch that produced it) or an error.
+type NodeOutcome struct {
+	Branch  string // "A-retry" | "B-method" | "C-model"
+	Result  storedResult
+	Verdict s1Verdict // branch C only: the model-port verdict
+}
+
+// countingModel wraps a ModelPort implementation with a call counter —
+// the pattern X3 uses for the port-behaviour assertions. It also records
+// the projection of the LAST evidence it received, so tests can pin that
+// the caller's evidence actually FLOWED to the port (R74 iter-2 m-2: an
+// entry that swallows the evidence and passes the zero value stays green
+// without this). The projection covers ALL THREE legs of creditEvidence
+// (R74 iter-3 M-1: the overdue slice is the veto carrier — a scalar-only
+// projection let a surgical slice-swallow pass green).
+// lastVerdict records what the port ACTUALLY returned (R75 iter-3 B-1):
+// tests pin the entry's returned Verdict to it — a joint hardcode (the
+// entry fabricating both the products AND the verdict to the same
+// fixture-predictable constant) survives product-only relative pins.
+// KNOWN BOUNDARY (R74 iter-4 m-1 / clause ⑩): the slice leg records LEN —
+// presence is discriminable, CONTENT fidelity is not (a same-len swap of a
+// non-veto event for a veto event passes green; the verdicts map is
+// precomputed and never consumes the received evidence). Veto-carrier
+// slices that need content fidelity must use element projection or a
+// consumption-face live verdict.
+type countingModel struct {
+	verdicts          map[string]s1Verdict
+	calls             int
+	lastAssetMillions int
+	lastReportOK      bool
+	lastOverdueLen    int
+	lastVerdict       s1Verdict
+}
+
+func (cm *countingModel) Invoke(opID string, evidence creditEvidence) s1Verdict {
+	cm.calls++
+	cm.lastAssetMillions = evidence.assetMillions
+	cm.lastReportOK = evidence.assetReportOK
+	cm.lastOverdueLen = len(evidence.overdueOnRecord)
+	if v, ok := cm.verdicts[opID]; ok {
+		cm.lastVerdict = v
+		return v
+	}
+	cm.lastVerdict = cm.verdicts["*"]
+	return cm.lastVerdict
+}
+
+// nodeEntryExec is the UNIFIED EXECUTION ENTRY (N3): three-way routing
+// with port counting. The old nodeEntry (:542) remains as the read-only
+// result-serving face (authorization + completed check + store read) —
+// different responsibility, different name, different callers.
+//
+// Branches:
+//
+//	A (same-instance retry): op is completed + stored → serve the original
+//	  receipt; port calls = 0.
+//	B (new task, method applies): registry has a valid method for this
+//	  node kind → method.execute; Model port calls = 0 (the method's own
+//	  execution is a deterministic reproduction of published knowledge —
+//	  declared boundary, 60号 先验 #1: if a method implementation ever
+//	  calls a model internally, that is the method's boundary, not this
+//	  entry's counting domain).
+//	C (first execution): neither → ports.Model.Invoke exactly once, then
+//	  the full machine flow Adopt→Dispatch→store.put (inlined below — the
+//	  same steps as adoptAndDispatch, on the entry's own error channel).
+//
+// Authorization (E5 semantics preserved): the entry checks grants BEFORE
+// any branch is taken — unauthorized callers get zero port calls.
+func (h *t2Host) nodeEntryExec(opID string, callerGrants []ledger.Grant, nodeKind string, inputs map[string]string, first *firstExecInput, ports Ports) (NodeOutcome, error) {
+	// authorization gate first (the E5/D-04 face — same check as the old entry)
+	if !grantsCoverRead(callerGrants, []ledger.Grant{{Kind: "data", Selector: "ledger://credit/e2e", Actions: []string{"read"}, Effect: "none"}}) {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: caller not authorized (the E5/D-04 face preserved)", opID)
+	}
+	// Branch A: same-instance retry — completed + stored → serve original
+	if s := h.machine.State(opID); s == adopt.StateCompleted {
+		if r, ok := h.store.get(opID); ok {
+			return NodeOutcome{Branch: "A-retry", Result: r}, nil
+		}
+		// completed but nothing stored — the old entry's third face, kept
+		// distinct from in-flight (R74 m-2: the diagnosis word must be true)
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: op is completed but no stored result found — nothing to serve", opID)
+	}
+	// X3-7 (frozen matrix): an op that EXISTS in the machine but is not yet
+	// completed is in-flight — falling through to C would re-execute (double-
+	// fire the model port on) an op that is already dispatched. The entry
+	// refuses, zero port calls — the old entry's non-completed semantics.
+	if s := h.machine.State(opID); s != "" {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: op is %q (in-flight, not completed) — retry serves completed results only", opID, s)
+	}
+	// Branch B: new task, valid method → method.execute (zero model calls)
+	if method, ok := h.registry.findForNode(nodeKind); ok {
+		r, err := method.execute(inputs)
+		if err != nil {
+			return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch B method execute: %w", opID, err)
+		}
+		return NodeOutcome{Branch: "B-method", Result: r}, nil
+	}
+	// Branch C: first execution — model port exactly once, then the FULL
+	// machine flow (60号 §一.1 frozen spec: Invoke → Adopt→Dispatch→store.put;
+	// R74 B-1: the flow is what makes the C path's retry reachable)
+	if ports.Model == nil {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch C requires a non-nil Model port (fail-loud, never panic)", opID)
+	}
+	if first == nil || first.req == nil {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch C requires a first-execution input (adoption request + evidence) — fail-loud, never panic", opID)
+	}
+	v := ports.Model.Invoke(opID, first.evidence)
+	o := h.machine.Adopt(first.req)
+	if o.Status != "adopted" {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch C adopt = %q: %s", opID, o.Status, o.Detail)
+	}
+	if o2 := h.machine.Dispatch(opID, chainGrants()); o2.Status != "dispatched" {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch C dispatch = %q: %s", opID, o2.Status, o2.Detail)
+	}
+	result := storedResult{
+		Receipt:       fmt.Sprintf("receipt:%s:model:%s", opID, v.kind),
+		Facts:         []string{"model_port_verdict:" + v.kind},
+		BusinessReqID: first.req.Identity.BusinessRequestID,
+		EvaluationRev: first.req.Identity.EvaluationRevision,
+	}
+	if err := h.store.put(opID, result); err != nil {
+		return NodeOutcome{}, fmt.Errorf("[N3.ENTRY] %s: branch C store put: %w", opID, err)
+	}
+	return NodeOutcome{Branch: "C-model", Result: result, Verdict: v}, nil
 }
 
 // adoptAndDispatch is the standard first-pass flow: adopt + dispatch +
