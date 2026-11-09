@@ -366,6 +366,52 @@ func TestX3_OldEntryCompat(t *testing.T) {
 // extractTestFuncBody returns the source span of one test function (from
 // its "func <name>(" line to the next top-level "\nfunc " line). The
 // tripwire below uses it to scope symbol bans to specific scenarios.
+// X3-11 (hub-R1 M-1 junction pins): the most common production shape — a
+// node kind WITH a published method that also has historical ops — was
+// uncovered (branch-reorder mutant survived the whole suite green). Retry
+// precedence and the double-fire guard must win over an applicable method.
+func TestX3_JunctionRetryAndMethodPrecedence(t *testing.T) {
+	h := newT2Host(t, t.TempDir())
+	h.registry.mustPublish(t, knowledgeMethod{
+		ID: "method-junction", Version: "1.0.0", ServesNode: "history-verification",
+		InputFields: []string{"overdue_months", "business_request_id"}, Valid: true,
+	})
+	// X3-11a: completed op + method present → A wins (original receipt, zero
+	// model calls) — never re-execute the method on a retry
+	if o := h.adoptAndDispatch("op-x3j", "er-1", "ev-1", t2Digest('6'), "br-x3j",
+		"receipt:op-x3j:original", []string{"fact"}); o.Status != "dispatched" {
+		t.Fatalf("X3-11a setup: dispatch = %q: %s", o.Status, o.Detail)
+	}
+	if o := h.completeNode("op-x3j"); o.Status != "completed" {
+		t.Fatalf("X3-11a setup: complete = %q: %s", o.Status, o.Detail)
+	}
+	cm := newCountingModel(nil)
+	out, err := h.nodeEntryExec("op-x3j", fullGrantsN3(), "history-verification",
+		map[string]string{"overdue_months": "0", "business_request_id": "br-x3j"}, nil, Ports{Model: cm})
+	if err != nil || out.Branch != "A-retry" {
+		t.Fatalf("X3-11a: junction = (%v, %q), want (nil, A-retry) — retry precedence must win over an applicable method", err, out.Branch)
+	}
+	if out.Result.Receipt != "receipt:op-x3j:original" {
+		t.Fatalf("X3-11a: receipt = %q, want the ORIGINAL — a method-armed node's retry must not re-execute", out.Result.Receipt)
+	}
+	if cm.calls != 0 {
+		t.Fatalf("X3-11a: model calls = %d, want 0", cm.calls)
+	}
+	// X3-11b: in-flight op + method present → the double-fire guard refuses
+	// BEFORE method execution; zero port calls
+	if o := h.adoptAndDispatch("op-x3j2", "er-1", "ev-1", t2Digest('7'), "br-x3j2",
+		"receipt:unused", nil); o.Status != "dispatched" {
+		t.Fatalf("X3-11b setup: dispatch = %q: %s", o.Status, o.Detail)
+	}
+	cm2 := newCountingModel(nil)
+	if _, err := h.nodeEntryExec("op-x3j2", fullGrantsN3(), "history-verification", nil, nil, Ports{Model: cm2}); err == nil {
+		t.Fatal("X3-11b: in-flight op with an applicable method was executed — the guard must precede method dispatch")
+	}
+	if cm2.calls != 0 {
+		t.Fatalf("X3-11b: model calls = %d, want 0", cm2.calls)
+	}
+}
+
 func extractTestFuncBody(t *testing.T, src, fn string) string {
 	t.Helper()
 	start := strings.Index(src, "func "+fn+"(")
