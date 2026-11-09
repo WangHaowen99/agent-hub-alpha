@@ -404,7 +404,13 @@ func TestX3_JunctionRetryAndMethodPrecedence(t *testing.T) {
 		t.Fatalf("X3-11b setup: dispatch = %q: %s", o.Status, o.Detail)
 	}
 	cm2 := newCountingModel(nil)
-	if _, err := h.nodeEntryExec("op-x3j2", fullGrantsN3(), "history-verification", nil, nil, Ports{Model: cm2}); err == nil {
+	// VALID method inputs (code-review B-1): with nil inputs, a method-first
+	// reorder only fails on the input CONTRACT — indistinguishable from the
+	// guard's refusal, so the pin was fake (guard-after-method mutant stayed
+	// green). Valid inputs make the method SUCCEED if it runs first, so
+	// err == nil becomes the red signal for "guard not preceding method".
+	if _, err := h.nodeEntryExec("op-x3j2", fullGrantsN3(), "history-verification",
+		map[string]string{"overdue_months": "0", "business_request_id": "br-x3j2"}, nil, Ports{Model: cm2}); err == nil {
 		t.Fatal("X3-11b: in-flight op with an applicable method was executed — the guard must precede method dispatch")
 	}
 	if cm2.calls != 0 {
