@@ -1,0 +1,40 @@
+# 验证用 WorkSwarm + Go 桩服务，独立项目名、独立数据卷，只监听本机端口。
+name: aha-swarm
+services:
+  pilot:
+    image: aha-swarm/pilot-mcp:${PILOT_TAG:-dev}
+    environment:
+      # 非空时提交工具标为仅 App 可见（MCP Apps visibility），检验模型是否还能直接提交。
+      PILOT_SUBMIT_APP_ONLY: ${PILOT_SUBMIT_APP_ONLY:-}
+    volumes:
+      - pilot-data:/data
+    ports:
+      - "127.0.0.1:${AHA_PILOT_PORT:-5183}:8090"
+    restart: unless-stopped
+  swarm:
+    image: aha-swarm/workswarm:${SWARM_COMMIT:?run ./build.sh first}
+    env_file:
+      - ${AHA_SECRETS_DIR:-${HOME}/.config/aha-swarm}/secrets.env
+    environment:
+      FRONTEND_HOST: 0.0.0.0
+      PILOT_MCP_URL: http://pilot:8090/mcp
+      # MCP Apps 的沙箱页由 WebChannel（19000）以另一个源提供，地址取自绑定 socket；
+      # 远程浏览器要能直连这个端口，这里绑 0.0.0.0 并映射到本机 19000（再经隧道访问）。
+      WEB_HOST: 0.0.0.0
+      # 非空时以静态请求头 X-Pilot-User 连接（V1：静态头只能证明调用服务）。
+      PILOT_STATIC_USER: ${PILOT_STATIC_USER:-}
+    volumes:
+      - swarm-home:/root/.jiuwenswarm
+      - ./configure.py:/usr/local/bin/aha-configure.py:ro
+      # 上游缺陷的临时补丁（见 patches/aha_mcp_app_methods.py），上游修复后删除这两行。
+      - ./patches/aha_mcp_app_methods.py:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.py:ro
+      - ./patches/aha_mcp_app_methods.pth:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.pth:ro
+    ports:
+      - "127.0.0.1:${AHA_SWARM_PORT:-5182}:5173"
+      - "127.0.0.1:19000:19000"
+    depends_on:
+      - pilot
+    restart: unless-stopped
+volumes:
+  swarm-home:
+  pilot-data:

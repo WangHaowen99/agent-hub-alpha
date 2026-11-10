@@ -1,0 +1,4 @@
+pilot/pilot-mcp
+pilot/schema/
+e2e/node_modules/
+e2e/*.png
