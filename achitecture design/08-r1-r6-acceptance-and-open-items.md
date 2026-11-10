@@ -1,5 +1,9 @@
 # R1—R6：参考组件接收范围与系统开放项
 
+> **2026-11-09 方案更新说明：** [07 主提案](07-nga-architecture-proposal.md)现明确 agent hub alpha 的 WorkSwarm + Go 服务 + openJiuwen Java Runtime 集成目标，以及对象归属、跨组件协议、派发恢复三份候选契约。以下固定基线的实验证据没有因此改变；新增部署和集成目标均未验收，不能用参考组件通过替代。Java 主执行基座不变，Go 从参考机制向管理/控制服务演进仍需工程实现。
+
+> **后续 MR 评审入口：** [agent-hub-alpha GitCode MR #1](https://gitcode.com/xingchao_ml/agent-hub-alpha/pull/1)，审查头 `bb85222`，详细主回复评论 `199470159`，独立复现附录评论 `199470012`。局部 R/K 绕过检验的收紧不等于统一入口完整闭合；同键改材料、只读/内外对象绑定、K 正式结果持久化与并发等系统问题仍须修改与证明。这里记录该次固定版本评审，不声称后续提交已经重新验证；下文原基线数字继续按其日期和版本解释。
+
 2026-11-08。主方案仍为 [07](07-nga-architecture-proposal.md)；本表是其当前验收状态补充，不是第二套架构。固定审查基线：GitCode NGA MR #4 `25ab91e18a11dca44b511f74ae5d62f7e8ad9000`，包含 MR #2 `ee58bfb`。专家回复：Issue #1 评论 199072885、数字更正 199085266；前置契约：199038303、199038867。历史讨论见 [NGA Issue #1](https://gitcode.com/xingchao_ml/nga/issues/1)。
 
 ## 接收结论

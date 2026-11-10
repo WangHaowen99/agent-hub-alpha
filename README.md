@@ -1,10 +1,10 @@
-# Agent Hub Alpha
+# agent hub alpha
 
 **面向企业核心业务的下一代智能体架构研究与参考实现。** 基于 openJiuwen 演进，结合 Jev 类决策模型与 Agentic Model，让智能体的判断、执行和持续改进具备明确的业务语义、控制边界与工程证据。
 
 [GitHub](https://github.com/chaosxingxc-orion/agent-hub-alpha) · [GitCode](https://gitcode.com/xingchao_ml/agent-hub-alpha) · [架构讨论](https://github.com/chaosxingxc-orion/agent-hub-alpha/issues/1) · [GitCode 讨论](https://gitcode.com/xingchao_ml/agent-hub-alpha/issues/1) · [同步状态](https://github.com/chaosxingxc-orion/agent-hub-alpha/actions/workflows/sync-gitcode.yml)
 
-**项目阶段：架构研讨、契约定义与参考组件验证。** 已有代码能够支持部分机制研究，完整 Java SDK、openJiuwen 集成、企业工作台和生产运行闭环仍需实现与验收。本文介绍项目定位和共同原则；具体机制读 [07 主提案](achitecture%20design/07-nga-architecture-proposal.md)，实际完成程度读 [当前验收状态](achitecture%20design/08-r1-r6-acceptance-and-open-items.md)。
+**项目阶段：架构研讨、契约定义与参考组件验证。** 首个交付目标是单业务流程在业务测试环境中受控试用，拟复用 WorkSwarm 用户面和 openJiuwen Java Runtime，由 Go 模块化服务承载业务管理与控制。组合集成和生产运行闭环仍需实现与验收。本文介绍共同原则；具体机制读 [07 主提案](achitecture%20design/07-nga-architecture-proposal.md)，实际完成程度读 [当前验收状态](achitecture%20design/08-r1-r6-acceptance-and-open-items.md)。
 
 ## 1. 我们要解决什么问题
 
@@ -136,19 +136,20 @@ flowchart LR
 
 **从专家 V0 设计和 openJiuwen 现有能力平滑演进。** 先核对已有执行、工具、会话、状态和恢复能力，再决定适配或补充哪些契约。新增代码保持组件化、可替换，不另起一套功能重复的通用基座。
 
-当前 Java 交付目标是：
+首个组合交付目标是：
 
 | 交付物 | 最低职责 |
 | --- | --- |
-| 可嵌入 Java SDK | 任务/发布/决策/请求契约、受控状态推进、审计与扩展接口 |
-| openJiuwen 适配器 | 将契约接入既有 Graph/Workflow、Agent Loop、工具和状态能力 |
-| Spring Boot Starter | 装配配置、提供方与生命周期；不将“能启动”当作完整验收 |
-| 授信参考应用 | 走通定义、发布、执行、等待、恢复、查看与回放的最小闭环 |
-| 契约与故障验收集 | 验证重复请求、权限变化、修订竞争、崩溃恢复、记录完整性与副作用隔离 |
+| WorkSwarm 用户面接入 | 保留必要原生服务，通过合格 MCP/MCP Apps 路径提交、查看和干预流程；验证最终用户身份与批准绑定 |
+| Go 模块化服务 | 管理、控制、业务 API/MCP 与 Runtime 适配；由控制协议裁决业务状态，避免另建通用图调度器 |
+| Java Runtime 适配组件 | 复用现有 AgentServer/AgentHandler、Core Graph/Workflow、Agent Loop 与恢复机制；接入正式结果和受控业务出口 |
+| 授信参考应用与验收集 | 走通发布、执行、等待、故障恢复、审计、隔离回放和最小案例改进；验证两种快路径及全部效果出口 |
 
-这些是拟交付边界，尚未作为完整 SDK 发布。全功能工作台可以后续建设，核心治理责任先体现在接口和操作契约中。
+这些是拟交付边界，尚未完成组合验收。原 Java SDK/Starter 方向收敛为 Runtime 的适配、装配和控制客户端，不能与 Go 同时维护两份业务权威状态。Go 的企业管理面也不等于基础设施部署管理器；部署、注册和进程生命周期优先复用现有能力。第一剖面采用单 Go 服务和一个合格 Runtime 执行所有者，不承诺整个产品只需三个容器。
 
-仓库已有的 Go `agent-festival/` 用于契约、状态机和宿主机制研究；Java consumer spike 用于跨语言消费验证。它们提供可复用资产与实验依据，各自的通过结果不自动等于 Java/openJiuwen 集成通过。存储、调度、消息、知识组织和模型服务等具体选型仍按兼容性与证据确定。
+[07 主提案](achitecture%20design/07-nga-architecture-proposal.md)具体定义三份交接契约：**对象与状态归属、命令/观察/回执、派发与恢复**。WorkSwarm 技术会话、Runtime 技术任务、框架采纳与业务 API 终态分别表达；界面显示“完成”不能替代业务系统确认。
+
+仓库已有的 Go `agent-festival/` 用于契约、状态机和宿主机制研究；Java consumer spike 用于跨语言消费验证。它们提供可复用资产与实验依据，尚不等于上述 Go 服务和 Java/openJiuwen 组合已经通过。存储、消息、知识组织和模型服务等具体选型仍按兼容性与证据确定。
 
 ## 7. 当前实现、证据与下一步
 
@@ -162,7 +163,7 @@ flowchart LR
 | 系统未闭合 | R/K 统一入口、当前有效修订保护、基于生效事实的投影、拒绝持久审计、真实采纳路径中的检查等仍开放 |
 | 尚不具备的验收结论 | 真实 Jev 模型能力、完整 Java/openJiuwen 集成、企业生产可用性与可靠性 |
 
-下一步优先做实两种快路径的统一入口，再完成生效条件、检查记录、结果投影和审计恢复的连接。每项交付同时提供：接口、调用方/环境假设、保证、固定版本证据及未覆盖范围。
+2026-11-09 的集成提案更新没有关闭上述系统项。下一步先固定三份交接契约和上游兼容矩阵，再做实两种快路径的统一入口及生效条件、检查记录、结果投影和审计恢复。每项交付同时提供：接口、调用方/环境假设、保证、固定版本证据及未覆盖范围。
 
 **组件可分批接收，系统保证必须通过组合验收。** 正常测试通过、反例关闭、变异能被发现和恢复路径可用，分别支持不同结论。合并代码不自动把开放项标为完成。
 
