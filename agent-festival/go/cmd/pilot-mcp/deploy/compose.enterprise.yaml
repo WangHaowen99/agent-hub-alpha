@@ -1,0 +1,82 @@
+# 企业版双令牌模拟：叠加在 compose.yaml 上，用 ./enterprise-up.sh 启动。
+# - keycloak：签发用户令牌（模拟 Manager 联合登录）和实例令牌（client credentials）。
+# - front：企业版前端走 /gateway-api，平时由 Manager 改写成 /api，这里由 nginx 代替。
+# - redis / db：企业版网关要求的临时存储（主备模式）和数据库（定时任务、检查点）。
+# - swarm：企业模式 + YAML 配置源；实例凭据由补丁代替 Manager 下发。
+# - pilot：用 Keycloak 公钥验签，没有已验证的用户令牌就拒绝提交。
+services:
+  keycloak:
+    image: ${AHA_KC_IMAGE:-docker.1ms.run/keycloak/keycloak:26.4}
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${AHA_KC_ADMIN_PASSWORD:?run ./enterprise-up.sh}
+      # 固定签发者，令牌里的 iss 不随访问地址变化。
+      KC_HOSTNAME: http://keycloak:8080
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ${AHA_SECRETS_DIR:-${HOME}/.config/aha-swarm}/kc-import:/opt/keycloak/data/import:ro
+    ports:
+      - "127.0.0.1:${AHA_KC_PORT:-8180}:8080"
+  redis:
+    image: redis:7.0-alpine
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${AHA_DB_PASSWORD:?run ./enterprise-up.sh}
+      MYSQL_DATABASE: openjiuwen_gateway
+      MYSQL_USER: aha
+      MYSQL_PASSWORD: ${AHA_DB_PASSWORD:?run ./enterprise-up.sh}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uaha", "-p${AHA_DB_PASSWORD}"]
+      interval: 5s
+      retries: 30
+  front:
+    image: nginx:alpine
+    volumes:
+      - ./front/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:${AHA_FRONT_PORT:-5184}:80"
+    depends_on:
+      - swarm
+  swarm:
+    environment:
+      JIUWENSWARM_EDITION: enterprise
+      JIUWENSWARM_CONFIG_SOURCE: yaml
+      LOGIN_AUTH_SIMULATE: "true"
+      # 企业版默认 HTTP 传输（用户令牌只走 HTTP 头）；设 AHA_WEB_TRANSPORT=websocket 对比 MCP App 路径。
+      WEB_TRANSPORT: ${AHA_WEB_TRANSPORT:-}
+      DEPLOYMENT_MODE: active-standby
+      GATEWAY_INSTANCE_ID: aha-gw-1
+      REDIS_HOST: redis
+      GATEWAY_DB_TYPE: mysql
+      GATEWAY_DB_HOST: db
+      GATEWAY_DB_PORT: "3306"
+      GATEWAY_DB_USER: aha
+      GATEWAY_DB_PASSWORD: ${AHA_DB_PASSWORD:?run ./enterprise-up.sh}
+      GATEWAY_DB_NAME: openjiuwen_gateway
+      PILOT_DYNAMIC_TOKEN_URL: http://keycloak:8080/realms/aha/protocol/openid-connect/token
+      AHA_TENANT_USERS: alice,bob
+      AHA_SIM_KEEP_TOKEN_URL: "1"
+      AHA_SIM_MARK_ON_PROBE: ${AHA_SIM_MARK_ON_PROBE:-1}
+      AHA_SIM_DEBUG: ${AHA_SIM_DEBUG:-1}
+      AHA_SIM_CLIENT_ID: workswarm-agent
+      AHA_SIM_CLIENT_SECRET: ${AHA_AGENT_CLIENT_SECRET:?run ./enterprise-up.sh}
+    volumes:
+      - ./patches/aha_sim_manager_credentials.py:/usr/local/lib/python3.11/site-packages/aha_sim_manager_credentials.py:ro
+      - ./patches/aha_sim_manager_credentials.pth:/usr/local/lib/python3.11/site-packages/aha_sim_manager_credentials.pth:ro
+    depends_on:
+      keycloak:
+        condition: service_started
+      redis:
+        condition: service_started
+      db:
+        condition: service_healthy
+  pilot:
+    environment:
+      PILOT_OIDC_ISSUER: http://keycloak:8080/realms/aha
+      PILOT_REQUIRE_USER: "1"
+volumes:
+  db-data:

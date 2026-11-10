@@ -1,0 +1,40 @@
+{
+  "realm": "aha",
+  "enabled": true,
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "workswarm-web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "workswarm-agent",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${AHA_AGENT_CLIENT_SECRET}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "alice", "enabled": true, "emailVerified": true,
+      "email": "alice@example.com", "firstName": "Alice", "lastName": "Pilot",
+      "credentials": [{"type": "password", "value": "${AHA_USER_PASSWORD}", "temporary": false}]
+    },
+    {
+      "username": "bob", "enabled": true, "emailVerified": true,
+      "email": "bob@example.com", "firstName": "Bob", "lastName": "Pilot",
+      "credentials": [{"type": "password", "value": "${AHA_USER_PASSWORD}", "temporary": false}]
+    },
+    {
+      "username": "service-account-workswarm-agent", "enabled": true,
+      "serviceAccountClientId": "workswarm-agent"
+    }
+  ]
+}

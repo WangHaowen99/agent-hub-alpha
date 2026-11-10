@@ -79,6 +79,11 @@ func newServer(p *Pilot) *mcp.Server {
 		func(_ context.Context, req *mcp.CallToolRequest, in SubmitInput) (*mcp.CallToolResult, any, error) {
 			id := identify(headers(req))
 			p.recordCall("pilot_submit_application", id)
+			if requireUser && !id.UserVerified {
+				res := result(map[string]any{"status": "unauthenticated", "detail": "a verified end-user token is required; nothing was submitted", "problems": id.Problems})
+				res.IsError = true
+				return res, nil, nil
+			}
 			r := p.Submit(in.CommandID, in.CommandSource, id, Material{CustomerID: in.CustomerID, AssetsWan: in.AssetsWan,
 				AssetReportOK: !in.AssetReportMissing, LongestOverdueMonths: in.LongestOverdueMonths,
 				LatestOverdueMonthsAgo: in.LatestOverdueMonthsAgo, Scenario: in.Scenario})
@@ -132,8 +137,20 @@ func newServer(p *Pilot) *mcp.Server {
 	return s
 }
 
+// verifier is set when PILOT_OIDC_ISSUER names a trusted token issuer;
+// requireUser then refuses submissions without a verified user token.
+var (
+	verifier    *oidcVerifier
+	requireUser bool
+)
+
 func main() {
 	addr := envOr("PILOT_ADDR", ":8090")
+	if iss := os.Getenv("PILOT_OIDC_ISSUER"); iss != "" {
+		verifier = newOIDCVerifier(iss, os.Getenv("PILOT_OIDC_JWKS"))
+		requireUser = os.Getenv("PILOT_REQUIRE_USER") != ""
+		log.Printf("verifying tokens from %s (require user: %v)", iss, requireUser)
+	}
 	p, err := OpenPilot(envOr("PILOT_DATA", "/data"), envOr("PILOT_SCOPE", "credit-pilot"))
 	if err != nil {
 		log.Fatal(err)

@@ -1,7 +1,7 @@
 import { App } from "@modelcontextprotocol/ext-apps/app-with-deps";
 
 type Req = { request_id: string; amount_minor: number; provider_status: string; attempts: unknown[]; observations: { applied: string }[]; cancel?: string };
-type View = { task: { task_id: string; command_id: string; command_source: string; issuer: string; judgment: { kind: string }; request?: Req }; control_state?: string; conflicts: number };
+type View = { task: { task_id: string; command_id: string; command_source: string; issuer: string; actor?: string; judgment: { kind: string }; request?: Req }; control_state?: string; conflicts: number };
 
 const JUDGMENT: Record<string, string> = { deny: "拒绝", "grant-50000": "批 5 万美元", "grant-10000": "批 1 万美元", on_missing_evidence: "证据不足", on_undefined_rule: "规则未覆盖" };
 const CONTROL: Record<string, [string, string]> = { adopted: ["已采纳", ""], dispatched: ["已派发", "wait"], unresolved: ["结果未知", "unknown"], completed: ["已终结", "ok"], failed: ["未生效", ""] };
@@ -55,7 +55,7 @@ function render(views: View[]) {
          ${r.provider_status === "pending" ? `<button data-cancel="${r.request_id}">申请取消</button>` : ""}`
       : `<span class="muted">无业务请求</span>`;
     return `<div class="task"><div class="row"><span class="id">${t.task_id}</span>${chip([JUDGMENT[t.judgment.kind] ?? t.judgment.kind, ""])}${req}</div>
-      <div class="muted">命令 ${t.command_id}（${t.command_source}）· ${t.issuer}${v.conflicts ? ` · 冲突 ${v.conflicts}` : ""}</div></div>`;
+      <div class="muted">命令 ${t.command_id}（${t.command_source}）· ${t.issuer}${t.actor ? ` · 经 ${t.actor}` : ""}${v.conflicts ? ` · 冲突 ${v.conflicts}` : ""}</div></div>`;
   }).join("");
   el("tasks").querySelectorAll<HTMLButtonElement>("button[data-cancel]").forEach((b) => {
     b.onclick = async () => { await app.callServerTool({ name: "pilot_request_cancel", arguments: { request_id: b.dataset.cancel } }); refresh(); };

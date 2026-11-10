@@ -55,6 +55,7 @@ type Task struct {
 	CommandID string    `json:"command_id"`
 	Source    string    `json:"command_source"`
 	Issuer    string    `json:"issuer"`
+	Actor     string    `json:"actor,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	Material  Material  `json:"material"`
 	Judgment  Judgment  `json:"judgment"`
@@ -111,6 +112,11 @@ type Identity struct {
 	Basis        string            `json:"basis"`
 	HeaderNames  []string          `json:"header_names"`
 	Fingerprints map[string]string `json:"fingerprints,omitempty"`
+	// Set only when an OIDC issuer is configured (PILOT_OIDC_ISSUER).
+	UserVerified bool     `json:"user_verified,omitempty"`
+	UserAudience string   `json:"user_audience,omitempty"`
+	Actor        string   `json:"actor,omitempty"`
+	Problems     []string `json:"problems,omitempty"`
 }
 
 var pilotGrants = []ledger.Grant{
@@ -159,6 +165,10 @@ func identify(h http.Header) Identity {
 		}
 	}
 	sort.Strings(id.HeaderNames)
+	if verifier != nil {
+		verifyTokens(h, &id)
+		return id
+	}
 	switch {
 	case h.Get("X-Pilot-User") != "":
 		id.Issuer, id.Basis = "user:"+h.Get("X-Pilot-User"), "x-pilot-user header"
@@ -166,6 +176,41 @@ func identify(h http.Header) Identity {
 		id.Issuer, id.Basis = "bearer:"+id.Fingerprints["Authorization"], "authorization header"
 	}
 	return id
+}
+
+// verifyTokens reads WorkSwarm enterprise's two tokens: Authorization carries
+// the end user's login token, X-Actor-Token the agent instance's own token.
+// Only a verified user token names a user; a service-account token in
+// Authorization does not.
+func verifyTokens(h http.Header, id *Identity) {
+	switch raw := h.Get("Authorization"); {
+	case raw == "":
+		id.Problems = append(id.Problems, "user token: missing")
+	default:
+		c, err := verifier.verify(raw)
+		switch {
+		case err != nil:
+			id.Problems = append(id.Problems, "user token: "+err.Error())
+		case c.Username == "" || strings.HasPrefix(c.Username, "service-account-"):
+			id.Problems = append(id.Problems, "user token: not a user ("+c.Azp+")")
+		default:
+			id.Issuer, id.Basis = "user:"+c.Username, "verified user token"
+			id.UserVerified, id.UserAudience = true, audience(c.Aud)
+		}
+	}
+	switch raw := h.Get("X-Actor-Token"); {
+	case raw == "" || strings.TrimSpace(strings.TrimPrefix(raw, "Bearer")) == "":
+		id.Problems = append(id.Problems, "actor token: missing")
+	default:
+		if c, err := verifier.verify(raw); err != nil {
+			id.Problems = append(id.Problems, "actor token: "+err.Error())
+		} else {
+			id.Actor = c.Azp
+		}
+	}
+	if !id.UserVerified {
+		id.Basis = "no verified user token"
+	}
 }
 
 func fingerprint(v string) string {
@@ -212,7 +257,7 @@ func (p *Pilot) Submit(commandID, source string, id Identity, m Material) Receip
 		return r
 	}
 	t := &Task{ID: fmt.Sprintf("T%d", len(p.Tasks)+1), CommandID: commandID, Source: source,
-		Issuer: id.Issuer, CreatedAt: time.Now().UTC(), Material: m, Judgment: judge(m)}
+		Issuer: id.Issuer, Actor: id.Actor, CreatedAt: time.Now().UTC(), Material: m, Judgment: judge(m)}
 	p.Tasks[t.ID] = t
 	p.Order = append(p.Order, t.ID)
 	p.Commands[key] = &CommandRecord{Key: key, CommandID: commandID, Source: source,
