@@ -38,6 +38,8 @@ docker compose up -d                             # Web: 127.0.0.1:5182，MCP App
 | V4 | 状态页是否只投影 Go 的权威记录 | **通过（App 内）** | 控制台状态全部来自 Go；模型复述出错（把 10,000 USD 说成“10,000 元”）时控制台显示正确；WorkSwarm 与桩服务各重启后，新控制台仍显示全部记录 |
 | V5 | 等待与晚到、重复回执 | **通过（展示层）** | 超时显示“结果未知”，查询后转终态，不重新提交；重复与迟到回执记为“重复 / 迟到被忽略”，状态不倒退。缺口：参考实现的 adopt 状态机没有 `unresolved → pending` 边（#4 §6.2 要求），只能同时显示“结果未知”和“业务方处理中”。状态更新靠 App 每 3 秒经宿主代理调用工具轮询，没有服务端推送 |
 
+截图在 [`evidence/`](evidence)：`v2-console-conflict`、`v2-model-resubmit`（V2），`v3-default-permission`（V3），`v4-v5-ledger-unknown`、`v5-after-query`（V1、V4、V5）。
+
 ## WorkSwarm 侧发现（待向上游报告）
 
 | 编号 | 现象 | 部署中的临时处理 |
