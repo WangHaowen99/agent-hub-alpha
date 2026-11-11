@@ -478,7 +478,8 @@ export class GraphView {
 
 // startLive polls the graph while it can still change (awaiting approval or
 // running) and stops by itself once the server stops handing out a live URL.
-export function startLive(view: GraphView, g: Graph, everyMs = 1200): () => void {
+// resolve maps the links in each snapshot to where the service is reachable.
+export function startLive(view: GraphView, g: Graph, resolve = (u: string) => u, everyMs = 1200): () => void {
   let stopped = false, timer = 0, fails = 0;
   let url = g.live;
   const tick = async () => {
@@ -489,6 +490,8 @@ export function startLive(view: GraphView, g: Graph, everyMs = 1200): () => void
       const next = (await res.json()) as Graph;
       if (stopped) return;
       fails = 0;
+      for (const k of ["live", "confirm"] as const) if (next[k]) next[k] = resolve(next[k]!);
+      if (next.run) next.run.url = resolve(next.run.url);
       view.render(next);
       url = next.live;
     } catch {

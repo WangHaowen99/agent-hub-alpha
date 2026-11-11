@@ -1,11 +1,13 @@
 # 授信编排演示：WorkSwarm（编排助手）+ credit（Go，agent-festival 内核）+ orchestrator（Java 执行器）。
-# 独立项目名、独立数据卷，只监听本机端口：页面 5191，WorkSwarm 5192，MCP App 沙箱 5193。
+# 独立项目名、独立数据卷，只监听本机端口：入口 5192（WorkSwarm + /credit/），调试用 5191 直连授信编排服务。
 name: credit-demo
 services:
   credit:
     image: credit-demo/credit:${CREDIT_TAG:-dev}
     environment:
-      CREDIT_PUBLIC_URL: ${CREDIT_PUBLIC_URL:-http://localhost:15191}
+      CREDIT_PUBLIC_URL: /credit
+      # 浏览器打开 WorkSwarm 用的源（逗号分隔）；MCP App 只能向这些源取图数据。
+      CREDIT_ORIGINS: ${CREDIT_ORIGINS:-http://localhost:15192}
       CREDIT_ORCHESTRATOR_URL: http://orchestrator:8195
       CREDIT_MEMBER_MCP_URL: http://credit:8091/member-mcp
       CREDIT_MODEL: ${CREDIT_MODEL:-qwen-plus}
@@ -31,19 +33,23 @@ services:
     environment:
       FRONTEND_HOST: 0.0.0.0
       CREDIT_MCP_URL: http://credit:8091/mcp
-      # MCP App 沙箱页由 WebChannel（19000）以另一个源提供，页面里写死 http://127.0.0.1:19000；
-      # 浏览器要经端口转发把本机 19000 接到这里映射出的 5193。
-      WEB_HOST: 0.0.0.0
     volumes:
       - swarm-home:/root/.jiuwenswarm
       - ./configure.py:/usr/local/bin/aha-configure.py:ro
       # 上游缺陷的临时补丁（网关不认 mcp_app.* 方法），与 pilot-mcp 共用。
       - ../../pilot-mcp/deploy/patches/aha_mcp_app_methods.py:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.py:ro
       - ../../pilot-mcp/deploy/patches/aha_mcp_app_methods.pth:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.pth:ro
-    ports:
-      - "127.0.0.1:${CREDIT_SWARM_PORT:-5192}:5173"
-      - "127.0.0.1:${CREDIT_SANDBOX_PORT:-5193}:19000"
     depends_on:
+      - credit
+    restart: unless-stopped
+  front:
+    image: nginx:alpine
+    volumes:
+      - ./front:/etc/nginx/conf.d:ro
+    ports:
+      - "127.0.0.1:${CREDIT_SWARM_PORT:-5192}:80"
+    depends_on:
+      - swarm
       - credit
     restart: unless-stopped
 volumes:

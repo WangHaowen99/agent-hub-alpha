@@ -1,38 +1,58 @@
 // MCP App entry: WorkSwarm hands over the tool result; the graph comes in
-// structuredContent, then keeps itself current through the live URL.
-import { App } from "@modelcontextprotocol/ext-apps/app-with-deps";
+// structuredContent, then keeps itself current through the live URL. Its
+// links are paths on the WorkSwarm origin (the front proxy serves the credit
+// service under /credit), resolved against the host page in a srcdoc iframe.
+import { Bridge } from "./bridge";
 import { GraphView, startLive, type Graph } from "./graph";
 
-const app = new App({ name: "credit-plan-graph", version: "0.1.0" }, {});
-const view = new GraphView(document.getElementById("root")!, { openLink: (url) => void app.openLink({ url }) });
+// Where the service is now; it writes this into the document when serving it.
+const home = new URL(document.querySelector<HTMLMetaElement>('meta[name="credit-base"]')?.content ?? "", document.baseURI);
+const prefix = home.pathname.replace(/\/$/, "");
+
+// Tool results stay in chat history and keep the address the service had
+// when they were written. Every link is one of this service's paths, so keep
+// the path and put it under today's address.
+function here(url: string): string {
+  const u = new URL(url, home);
+  const path = !prefix || u.pathname.startsWith(`${prefix}/`) ? u.pathname : prefix + u.pathname;
+  return new URL(path + u.search, home).href;
+}
+
+const rebase = (g: Graph): Graph => ({
+  ...g,
+  live: g.live && here(g.live),
+  confirm: g.confirm && here(g.confirm),
+  run: g.run && { ...g.run, url: here(g.run.url) },
+});
+
+const app = new Bridge();
+const view = new GraphView(document.getElementById("root")!, { openLink: (url) => void app.openLink(here(url)) });
 let stop: (() => void) | undefined;
 
 function show(g: Graph) {
   stop?.();
+  g = rebase(g);
   view.render(g);
-  stop = startLive(view, g);
+  stop = startLive(view, g, here);
 }
 
 // Hosts that drop structuredContent: rebuild the graph URL from the text.
 async function fromText(text: string): Promise<Graph | undefined> {
   const v = JSON.parse(text);
-  const link: string | undefined = v.confirm_url ?? v.run_url ?? v.verify_url;
-  if (!link) return undefined;
-  const origin = new URL(link).origin;
   const q = v.plan_id && v.version ? `plan=${v.plan_id}&v=${v.version}` : v.run_id ? `run=${v.run_id}` : "";
   if (!q) return undefined;
-  const res = await fetch(`${origin}/api/graph?${q}${v.checks ? "&verify=1" : ""}`, { cache: "no-store" });
+  const res = await fetch(here(`/api/graph?${q}${v.checks ? "&verify=1" : ""}`), { cache: "no-store" });
   return res.ok ? ((await res.json()) as Graph) : undefined;
 }
 
 app.ontoolresult = async (r) => {
   const g = r.structuredContent as Graph | undefined;
   if (g?.nodes) return show(g);
-  const text = r.content?.find((c) => c.type === "text");
-  if (text && "text" in text) {
-    const fetched = await fromText(text.text).catch(() => undefined);
+  const text = r.content?.find((c) => c.type === "text")?.text;
+  if (text) {
+    const fetched = await fromText(text).catch(() => undefined);
     if (fetched) show(fetched);
   }
 };
 
-void app.connect();
+void app.connect({ name: "credit-plan-graph", version: "0.2.0" });

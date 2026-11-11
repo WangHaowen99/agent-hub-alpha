@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -49,12 +50,13 @@ var page = template.Must(template.New("page").Funcs(template.FuncMap{
 	"join":   func(ss []string) string { return strings.Join(ss, "、") },
 	"json":   compact,
 }).Parse(`<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>{{.Title}}</title>
-<link rel="stylesheet" href="/static/style.css"><script src="/static/graph.js" defer></script></head><body>
-<header><b>授信编排</b>{{if .User}}<span class="user">{{.User}}</span>{{else}}<a class="user" href="/ui/login?next={{.Path}}">登录</a>{{end}}</header>
+<link rel="stylesheet" href="{{$.Base}}/static/style.css"><script src="{{$.Base}}/static/graph.js" defer></script></head><body>
+<header><b>授信编排</b>{{if .User}}<span class="user">{{.User}}</span>{{else}}<a class="user" href="{{$.Base}}/ui/login?next={{.Path}}">登录</a>{{end}}</header>
 <main>{{template "body" .}}</main>
 </body></html>`))
 
-func render(w http.ResponseWriter, body string, data map[string]any) {
+func (s *Service) render(w http.ResponseWriter, body string, data map[string]any) {
+	data["Base"] = s.base()
 	t := template.Must(template.Must(page.Clone()).New("body").Parse(body))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := t.ExecuteTemplate(w, "page", data); err != nil {
@@ -69,33 +71,41 @@ const loginBody = `<h1>演示登录</h1><p class="muted">演示环境未接 IdP�
 
 const planBody = `{{with .Plan}}<h1>编排单 {{.ID}} · 第 {{.Version}} 版 <small>案件 {{.CaseID}}</small></h1>
 <p class="goal">{{.Goal}}</p>
-<nav class="versions">{{range $.Versions}}<a href="/ui/plan/{{.ID}}/v{{.Version}}" {{if eq .Version $.Plan.Version}}class="on"{{end}}>v{{.Version}}</a>{{end}}</nav>
-<div class="graph" data-graph="/api/graph?plan={{.ID}}&v={{.Version}}"></div>
+<nav class="versions">{{range $.Versions}}<a href="{{$.Base}}/ui/plan/{{.ID}}/v{{.Version}}" {{if eq .Version $.Plan.Version}}class="on"{{end}}>v{{.Version}}</a>{{end}}</nav>
+<div class="graph" data-graph="{{$.Base}}/api/graph?plan={{.ID}}&v={{.Version}}"></div>
 {{if .Precheck.OK}}<div class="ok">规约预检通过{{with .Precheck.Composed}} · 合成效果 {{json .effects}} · 合成上限 {{json .bounds}}{{end}}</div>
 {{else if .Precheck.Errors}}<details><summary>compose 原文</summary><ul>{{range .Precheck.Errors}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}
 <table><tr><th>步骤</th><th>专家</th><th>角色</th><th>子任务</th><th>依赖</th><th>契约</th></tr>
 {{range .Agents}}{{$e := expert .Expert}}<tr><td><code>{{.ID}}</code></td><td>{{$e.Name}}</td><td>{{.Role}}</td><td>{{.Task}}</td><td>{{join .DependsOn}}{{with .RunIf}}<br><span class="muted">条件：{{.Step}} {{if .Negate}}不含{{else}}含{{end}} {{.Contains}}</span>{{end}}</td><td><code>{{short (index $.Hashes .Expert)}}</code> ✓</td></tr>{{end}}</table>
 <p class="muted">编排单摘要 <code>{{.Hash}}</code></p>
-{{if .RunID}}<p><a class="btn" href="/ui/run/{{.RunID}}">查看执行 {{.RunID}}</a></p>
-{{else if .Precheck.OK}}{{if $.User}}<form method="post" action="/ui/plan/{{.ID}}/v{{.Version}}/approve"><input type="hidden" name="hash" value="{{.Hash}}"><button class="btn primary">批准并执行</button></form>
-{{else}}<p><a class="btn" href="/ui/login?next={{$.Path}}">登录后批准</a></p>{{end}}{{end}}
+{{if .RunID}}<p><a class="btn" href="{{$.Base}}/ui/run/{{.RunID}}">查看执行 {{.RunID}}</a></p>
+{{else if .Precheck.OK}}{{if $.User}}<form method="post" action="{{$.Base}}/ui/plan/{{.ID}}/v{{.Version}}/approve"><input type="hidden" name="hash" value="{{.Hash}}"><button class="btn primary">批准并执行</button></form>
+{{else}}<p><a class="btn" href="{{$.Base}}/ui/login?next={{$.Path}}">登录后批准</a></p>{{end}}{{end}}
 <details><summary>蓝图 YAML（yaojun 编排模块编译）</summary><pre>{{.Blueprint}}</pre></details>{{end}}`
 
-const runBody = `{{with .Run}}<h1>执行 {{.ID}} <small>编排单 <a href="/ui/plan/{{.PlanID}}/v{{.PlanVersion}}">{{.PlanID}} v{{.PlanVersion}}</a> · {{.Status}}</small></h1>
-<div class="graph" data-graph="/api/graph?run={{.ID}}"></div>
+const runBody = `{{with .Run}}<h1>执行 {{.ID}} <small>编排单 <a href="{{$.Base}}/ui/plan/{{.PlanID}}/v{{.PlanVersion}}">{{.PlanID}} v{{.PlanVersion}}</a> · {{.Status}}</small></h1>
+<div class="graph" data-graph="{{$.Base}}/api/graph?run={{.ID}}"></div>
 {{with .Decision}}<div class="ok">已采纳判断：<b>{{.level}}</b> · {{.rationale}}</div>{{end}}
 {{if .Receipt}}<div class="ok">{{.Receipt}}</div>{{end}}
 {{range .Violations}}<div class="bad">{{.}}</div>{{end}}
 <details><summary>领取记录</summary><ul>{{range .Leases}}<li>{{.}}</li>{{end}}</ul></details>
-{{if eq .Status "done"}}<p><a class="btn primary" href="/ui/run/{{.ID}}/verify">验证</a></p>{{end}}{{end}}`
+{{if eq .Status "done"}}<p><a class="btn primary" href="{{$.Base}}/ui/run/{{.ID}}/verify">验证</a></p>{{end}}{{end}}`
 
 const verifyBody = `<h1>验证 {{.Report.RunID}}</h1>
 <div class="{{if .Report.OK}}ok big{{else}}bad big{{end}}">{{.Report.Summary}}</div>
 {{with .Report.Tamper}}<div class="bad">{{.}}</div>{{end}}
 {{range .Report.Checks}}<div class="check"><b class="{{if .OK}}y{{else}}n{{end}}">{{if .OK}}✓{{else}}✗{{end}}</b> <b>{{.Name}}</b> <span class="muted">{{.Detail}}</span>
 {{if .Items}}<ul>{{range .Items}}<li>{{.}}</li>{{end}}</ul>{{end}}</div>{{end}}
-<p>{{if .Tampered}}<a class="btn" href="/ui/run/{{.Report.RunID}}/verify">回到真实账本</a>{{else}}<a class="btn" href="/ui/run/{{.Report.RunID}}/verify?tamper=1">篡改演示</a>{{end}}
-<a class="btn" href="/ui/run/{{.Report.RunID}}">回到执行</a></p>`
+<p>{{if .Tampered}}<a class="btn" href="{{$.Base}}/ui/run/{{.Report.RunID}}/verify">回到真实账本</a>{{else}}<a class="btn" href="{{$.Base}}/ui/run/{{.Report.RunID}}/verify?tamper=1">篡改演示</a>{{end}}
+<a class="btn" href="{{$.Base}}/ui/run/{{.Report.RunID}}">回到执行</a></p>`
+
+// base is the path prefix browsers see in front of every page and asset.
+func (s *Service) base() string {
+	if u, err := url.Parse(s.cfg.PublicURL); err == nil {
+		return strings.TrimRight(u.Path, "/")
+	}
+	return ""
+}
 
 func (s *Service) routes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/graph", s.serveGraph)
@@ -113,13 +123,13 @@ func (s *Service) routes(mux *http.ServeMux) {
 			u := r.FormValue("user")
 			if _, ok := users[u]; ok && r.FormValue("password") == envOr("CREDIT_DEMO_PASSWORD", "demo") {
 				http.SetCookie(w, &http.Cookie{Name: "cd_session", Value: sign(u), Path: "/", HttpOnly: true, SameSite: http.SameSiteLaxMode})
-				http.Redirect(w, r, next, http.StatusSeeOther)
+				http.Redirect(w, r, s.base()+next, http.StatusSeeOther)
 				return
 			}
-			render(w, loginBody, map[string]any{"Title": "登录", "Next": next, "Err": "用户名或密码不对", "Path": r.URL.Path})
+			s.render(w, loginBody, map[string]any{"Title": "登录", "Next": next, "Err": "用户名或密码不对", "Path": r.URL.Path})
 			return
 		}
-		render(w, loginBody, map[string]any{"Title": "登录", "Next": next, "Path": r.URL.Path})
+		s.render(w, loginBody, map[string]any{"Title": "登录", "Next": next, "Path": r.URL.Path})
 	})
 	mux.HandleFunc("/ui/plan/", func(w http.ResponseWriter, r *http.Request) {
 		parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/ui/plan/"), "/"), "/")
@@ -136,7 +146,7 @@ func (s *Service) routes(mux *http.ServeMux) {
 		user := currentUser(r)
 		if len(parts) == 3 && parts[2] == "approve" && r.Method == http.MethodPost {
 			if user == "" {
-				http.Redirect(w, r, "/ui/login?next="+fmt.Sprintf("/ui/plan/%s/v%d", p.ID, p.Version), http.StatusSeeOther)
+				http.Redirect(w, r, s.base()+"/ui/login?next="+fmt.Sprintf("/ui/plan/%s/v%d", p.ID, p.Version), http.StatusSeeOther)
 				return
 			}
 			run, err := s.Approve(p.ID, p.Version, r.FormValue("hash"), user)
@@ -144,13 +154,13 @@ func (s *Service) routes(mux *http.ServeMux) {
 				http.Error(w, err.Error(), http.StatusConflict)
 				return
 			}
-			http.Redirect(w, r, "/ui/run/"+run.ID, http.StatusSeeOther)
+			http.Redirect(w, r, s.base()+"/ui/run/"+run.ID, http.StatusSeeOther)
 			return
 		}
 		s.mu.Lock()
 		versions := append([]*Plan(nil), s.st.Plans[p.ID]...)
 		s.mu.Unlock()
-		render(w, planBody, map[string]any{"Title": "编排单 " + p.Key(), "Plan": p, "Versions": versions,
+		s.render(w, planBody, map[string]any{"Title": "编排单 " + p.Key(), "Plan": p, "Versions": versions,
 			"Hashes": s.cat.Hashes, "User": users[user], "Path": r.URL.Path})
 	})
 	mux.HandleFunc("/ui/run/", func(w http.ResponseWriter, r *http.Request) {
@@ -168,13 +178,13 @@ func (s *Service) routes(mux *http.ServeMux) {
 				http.Error(w, err.Error(), 500)
 				return
 			}
-			render(w, verifyBody, map[string]any{"Title": "验证 " + run.ID, "Report": rep, "Tampered": tamper, "User": user, "Path": r.URL.Path})
+			s.render(w, verifyBody, map[string]any{"Title": "验证 " + run.ID, "Report": rep, "Tampered": tamper, "User": user, "Path": r.URL.Path})
 			return
 		}
 		s.mu.Lock()
 		view := *run
 		s.mu.Unlock()
-		render(w, runBody, map[string]any{"Title": "执行 " + run.ID, "Run": &view, "User": user, "Path": r.URL.Path})
+		s.render(w, runBody, map[string]any{"Title": "执行 " + run.ID, "Run": &view, "User": user, "Path": r.URL.Path})
 	})
 	mux.HandleFunc("/ui/", func(w http.ResponseWriter, r *http.Request) {
 		s.mu.Lock()
@@ -183,7 +193,7 @@ func (s *Service) routes(mux *http.ServeMux) {
 			latest = append(latest, vs[len(vs)-1])
 		}
 		s.mu.Unlock()
-		render(w, `<h1>编排单</h1><ul>{{range .Plans}}<li><a href="/ui/plan/{{.ID}}/v{{.Version}}">{{.ID}} v{{.Version}} · {{.CaseID}} · {{.Goal}}</a>{{if .RunID}} → <a href="/ui/run/{{.RunID}}">{{.RunID}}</a>{{end}}</li>{{end}}</ul>`,
+		s.render(w, `<h1>编排单</h1><ul>{{range .Plans}}<li><a href="/ui/plan/{{.ID}}/v{{.Version}}">{{.ID}} v{{.Version}} · {{.CaseID}} · {{.Goal}}</a>{{if .RunID}} → <a href="/ui/run/{{.RunID}}">{{.RunID}}</a>{{end}}</li>{{end}}</ul>`,
 			map[string]any{"Title": "授信编排", "Plans": latest, "User": users[currentUser(r)], "Path": r.URL.Path})
 	})
 
