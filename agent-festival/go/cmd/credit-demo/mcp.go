@@ -87,12 +87,14 @@ func (s *Service) runView(r *Run, p *Plan) map[string]any {
 func (s *Service) plannerServer() *mcp.Server {
 	srv := mcp.NewServer(&mcp.Implementation{Name: "credit-orchestration", Version: "0.1.0"}, nil)
 	ro := &mcp.ToolAnnotations{ReadOnlyHint: true}
-	// The app rebases links from old tool results onto this address.
-	appDoc := strings.Replace(graphAppHTML, "<head>", `<head><meta name="credit-base" content="`+html.EscapeString(s.cfg.PublicURL)+`">`, 1)
+	// The app rebases links from old tool results onto this address, and loads
+	// the card script from it (gzipped over HTTP, unlike this document).
+	appDoc := strings.Replace(graphAppHTML, "<head>", `<head><meta name="credit-base" content="`+html.EscapeString(s.cfg.PublicURL)+
+		`"><meta name="credit-lib" content="`+libVersion+`">`, 1)
 	srv.AddResource(&mcp.Resource{URI: graphURI, Name: "credit-plan-graph", MIMEType: appMIME},
 		func(context.Context, *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 			return &mcp.ReadResourceResult{Contents: []*mcp.ResourceContents{{URI: graphURI, MIMEType: appMIME, Text: appDoc,
-				Meta: mcp.Meta{"ui": map[string]any{"csp": map[string]any{"connectDomains": s.cfg.Origins}}}}}}, nil
+				Meta: mcp.Meta{"ui": map[string]any{"csp": map[string]any{"connectDomains": s.cfg.Origins, "resourceDomains": s.cfg.Origins}}}}}}, nil
 		})
 	planResult := func(p *Plan) *mcp.CallToolResult {
 		res := result(s.planView(p))

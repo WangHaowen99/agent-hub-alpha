@@ -22,6 +22,17 @@ import (
 //go:embed web/*
 var webFS embed.FS
 
+// libVersion names the build of graph-flow.js, so pages and app documents
+// can let browsers cache it for good.
+var libVersion = func() string {
+	b, err := webFS.ReadFile("web/graph-flow.js")
+	if err != nil {
+		panic(err)
+	}
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:6])
+}()
+
 var sessionKey = func() []byte { b := make([]byte, 32); _, _ = rand.Read(b); return b }()
 
 var users = map[string]string{"alice": "客户经理 alice"}
@@ -57,13 +68,14 @@ var page = template.Must(template.New("page").Funcs(template.FuncMap{
 	"join":   func(ss []string) string { return strings.Join(ss, "、") },
 	"json":   compact,
 }).Parse(`<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>{{.Title}}</title>
-<link rel="stylesheet" href="{{$.Base}}/static/style.css"><script src="{{$.Base}}/static/graph.js" defer></script></head><body>
+<link rel="stylesheet" href="{{$.Base}}/static/style.css"><script src="{{$.Base}}/static/graph-flow.js?v={{$.Lib}}" defer></script></head><body>
 <header><b>授信编排</b>{{if .User}}<span class="user">{{.User}}</span>{{else}}<a class="user" href="{{$.Base}}/ui/login?next={{.Path}}">登录</a>{{end}}</header>
 <main>{{template "body" .}}</main>
 </body></html>`))
 
 func (s *Service) render(w http.ResponseWriter, body string, data map[string]any) {
 	data["Base"] = s.base()
+	data["Lib"] = libVersion
 	t := template.Must(template.Must(page.Clone()).New("body").Parse(body))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := t.ExecuteTemplate(w, "page", data); err != nil {
@@ -120,6 +132,9 @@ func (s *Service) routes(mux *http.ServeMux) {
 	static := http.FileServerFS(webFS)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "web/" + r.URL.Path
+		if r.URL.Query().Get("v") != "" {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		}
 		static.ServeHTTP(w, r)
 	})))
 	mux.HandleFunc("/ui/login", func(w http.ResponseWriter, r *http.Request) {

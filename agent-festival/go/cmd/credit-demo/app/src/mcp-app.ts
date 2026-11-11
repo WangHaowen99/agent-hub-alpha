@@ -2,11 +2,19 @@
 // structuredContent, then keeps itself current through the live URL. Its
 // links are paths on the WorkSwarm origin (the front proxy serves the credit
 // service under /credit), resolved against the host page in a srcdoc iframe.
+//
+// The card itself (React Flow) is graph-flow.js from the service's /static:
+// fetched over HTTP it is gzipped, while this document travels uncompressed
+// through the host's websocket.
 import { Bridge } from "./bridge";
-import { GraphView, startLive, type Graph } from "./graph";
+import type { Graph } from "./types";
+
+type Lib = Window["CreditGraph"];
+type View = ReturnType<Lib["mount"]>;
 
 // Where the service is now; it writes this into the document when serving it.
-const home = new URL(document.querySelector<HTMLMetaElement>('meta[name="credit-base"]')?.content ?? "", document.baseURI);
+const meta = (name: string) => document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.content ?? "";
+const home = new URL(meta("credit-base"), document.baseURI);
 const prefix = home.pathname.replace(/\/$/, "");
 
 // Tool results stay in chat history and keep the address the service had
@@ -26,7 +34,18 @@ const rebase = (g: Graph): Graph => ({
   run: g.run && { ...g.run, url: here(g.run.url) },
 });
 
+const root = document.getElementById("root")!;
+const lib = new Promise<Lib>((resolve, reject) => {
+  const s = document.createElement("script");
+  s.src = here(`/static/graph-flow.js?v=${meta("credit-lib")}`);
+  s.onload = () => resolve(window.CreditGraph);
+  s.onerror = () => reject(new Error("graph-flow.js"));
+  document.head.appendChild(s);
+});
+lib.catch(() => { root.innerHTML = `<p style="margin:8px 0;font:12px sans-serif;color:#b91c1c">编排图组件加载失败，请刷新页面。</p>`; });
+
 const app = new Bridge();
+let view: View | undefined;
 let stop: (() => void) | undefined;
 
 async function approve(g: Graph, user: string, password: string): Promise<string | undefined> {
@@ -40,13 +59,13 @@ async function approve(g: Graph, user: string, password: string): Promise<string
   return body.error ?? `批准失败（${res.status}）`;
 }
 
-const view = new GraphView(document.getElementById("root")!, {
-  approve,
-  // Pick up the new run at once instead of waiting for the next poll.
-  onApproved: () => { const g = view.current(); if (g) { stop?.(); stop = startLive(view, g, here, 1200, true); } },
-});
-
-function show(g: Graph) {
+async function show(g: Graph) {
+  const { mount, startLive } = await lib;
+  view ??= mount(root, {
+    approve,
+    // Pick up the new run at once instead of waiting for the next poll.
+    onApproved: () => { const cur = view!.current(); if (cur) { stop?.(); stop = startLive(view!, cur, here, 1200, true); } },
+  });
   stop?.();
   g = rebase(g);
   view.render(g);
@@ -68,8 +87,8 @@ app.ontoolresult = async (r) => {
   const text = r.content?.find((c) => c.type === "text")?.text;
   if (text) {
     const fetched = await fromText(text).catch(() => undefined);
-    if (fetched) show(fetched);
+    if (fetched) await show(fetched);
   }
 };
 
-void app.connect({ name: "credit-plan-graph", version: "0.2.0" });
+void app.connect({ name: "credit-plan-graph", version: "0.3.0" });
