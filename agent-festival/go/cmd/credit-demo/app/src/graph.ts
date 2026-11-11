@@ -9,18 +9,20 @@ export interface Branch { goal: string; status: string }
 export interface RunIf { step: string; contains: string; negate?: boolean }
 export interface GraphNode {
   id: string; name: string; kind: string; role?: string; task: string; deps?: string[]; when?: RunIf;
-  effect?: string; reads?: string[]; contract?: string; denied?: string; status?: string; output?: string; branches?: Branch[];
+  effect?: string; reads?: string[]; contract?: string; denied?: string; status?: string; activity?: string; output?: string; branches?: Branch[];
 }
 export interface Check { name: string; ok: boolean; detail: string; items?: string[] }
 export interface Graph {
   plan: string; version: number; case: string; goal: string; layers: string[][]; nodes: GraphNode[];
-  ok: boolean; problems?: string[]; confirm?: string; superseded?: number;
+  ok: boolean; problems?: string[]; hash: string; approve?: string; confirm?: string; superseded?: number;
   run?: { id: string; status: string; decision?: string; receipt?: string; leases: number; stalled?: boolean; url: string };
   verify?: { ok: boolean; summary: string; checks: Check[] };
   live?: string;
 }
 export interface Options {
-  openLink?: (url: string) => void;
+  // Approve in the card: resolves to an error message, or undefined when approved.
+  approve?: (g: Graph, user: string, password: string) => Promise<string | undefined>;
+  onApproved?: () => void;
   page?: boolean; // embedded in the confirm page, which has its own approve button
 }
 
@@ -95,6 +97,7 @@ export class GraphView {
   private footSig = "";
   private frame = 0;
   private pop?: HTMLDivElement;
+  private gate?: HTMLFormElement;
   private pending = 0;
   // A node changes size when its iframe becomes visible again (WorkSwarm unmounts
   // off-screen messages) or the black box opens: lay out again when that happens.
@@ -132,6 +135,8 @@ export class GraphView {
     });
     root.ownerDocument.addEventListener("keydown", (e) => { if (e.key === "Escape") this.closePop(); });
   }
+
+  current() { return this.g; }
 
   render(g: Graph) {
     this.g = g;
@@ -189,19 +194,23 @@ export class GraphView {
     else if (g.superseded) chip = ["mute", `已更新为 v${g.superseded}`];
     else chip = ["wait", "待批准"];
     const restart = g.run && g.run.leases > 1 ? `<span class="cg-chip soft">↻ 执行器重启 · 复用 ${reused} 步</span>` : "";
-    const approve = g.confirm && !this.opts.page ? `<button class="cg-btn" data-open="${esc(g.confirm)}">去批准</button>` : "";
-    const sig = [g.goal, g.case, g.plan, g.version, chip.join(), restart, approve].join("|");
+    const canApprove = !!g.approve && !!this.opts.approve && !this.opts.page;
+    const approve = canApprove ? `<button class="cg-btn" data-approve>批准</button>` : "";
+    const running = g.run?.status === "running" && !g.run.stalled ? g.nodes.filter((n) => n.status === "running").map((n) => n.name) : [];
+    const ver = running.length
+      ? `<span class="cg-now"><i></i>正在：${esc(running.join("、"))}</span>`
+      : `<span class="cg-ver">${esc(g.case)} · ${esc(g.plan)} v${g.version}</span>`;
+    const sig = [g.goal, ver, chip.join(), restart, approve].join("|");
     if (sig !== this.headSig) {
       this.headSig = sig;
-      this.head.innerHTML = `<div class="cg-title"><span class="cg-goal">${esc(g.goal || `${g.case} 授信尽调`)}</span><span class="cg-ver">${esc(g.case)} · ${esc(g.plan)} v${g.version}</span></div>
+      this.head.innerHTML = `<div class="cg-title"><span class="cg-goal">${esc(g.goal || `${g.case} 授信尽调`)}</span>${ver}</div>
         <div class="cg-meta">${restart}<span class="cg-chip ${chip[0]}"><i></i>${esc(chip[1])}</span>${approve}</div><div class="cg-bar"><b></b></div>`;
-      this.head.querySelector<HTMLButtonElement>("[data-open]")?.addEventListener("click", (e) => {
+      this.head.querySelector<HTMLButtonElement>("[data-approve]")?.addEventListener("click", (e) => {
         e.stopPropagation();
-        const url = (e.currentTarget as HTMLElement).dataset.open!;
-        if (this.opts.openLink) this.opts.openLink(url);
-        else window.open(url, "_blank", "noopener");
+        this.toggleGate();
       });
     }
+    if (!canApprove) this.closeGate();
     const bar = this.head.querySelector<HTMLElement>(".cg-bar")!;
     bar.classList.toggle("ok", g.run?.status === "done");
     requestAnimationFrame(() => { (bar.firstElementChild as HTMLElement).style.width = g.run ? `${(settled / Math.max(total, 1)) * 100}%` : "0"; });
@@ -216,7 +225,8 @@ export class GraphView {
     const result = isJudge && finished(status) ? decisionLabel(g.run?.decision)
       : isEffect && finished(status) ? receiptLabel(g.run?.receipt) : undefined;
     const branches = n.branches ?? [];
-    const sig = JSON.stringify([n.name, n.task, status, denied, result, branches.map((b) => b.status + b.goal)]);
+    const activity = status === "running" && n.kind !== "blackbox" ? n.activity ?? "" : "";
+    const sig = JSON.stringify([n.name, n.task, status, denied, result, branches.map((b) => b.status + b.goal), activity]);
     v.el.className = `cg-node k-${n.kind} s-${status}${denied ? " denied" : ""}${v.el.dataset.enter ? " enter" : ""}`;
     if (sig === v.sig) return;
     const changedStatus = v.sig !== "" && JSON.parse(v.sig)[2] !== status;
@@ -258,7 +268,8 @@ export class GraphView {
       }
       v.branches = branches.length;
     }
-    const res = result ? `<div class="cg-res ${result[0]}">${esc(result[1])}</div>` : "";
+    const res = (result ? `<div class="cg-res ${result[0]}">${esc(result[1])}</div>` : "")
+      + (activity ? `<div class="cg-act" title="${esc(activity)}"><i></i><span>${esc(activity)}</span></div>` : "");
 
     v.el.innerHTML = `<div class="cg-av">${esc([...n.name][0] ?? "?")}</div><div class="cg-body"><div class="cg-name">${esc(n.name)}</div><div class="cg-task">${esc(n.task)}</div>${res}</div>${extra}${tags.length ? `<div class="cg-tags">${tags.join("")}</div>` : ""}${badge}`;
     v.el.querySelectorAll<HTMLElement>(".cg-ok, .cg-res, .cg-tag.pop").forEach((e) => { e.style.animationDelay = `calc(var(--d, 0ms) + 280ms)`; });
@@ -443,6 +454,55 @@ export class GraphView {
     }
   }
 
+  // ---------- approval in the card ----------
+
+  private toggleGate() {
+    if (this.gate) { this.closeGate(); return; }
+    const g = this.g!;
+    const form = document.createElement("form");
+    form.className = "cg-gate";
+    form.innerHTML = `<span class="who">以 <b>alice</b>（客户经理）批准</span>
+      <input type="password" placeholder="密码" autocomplete="current-password" aria-label="密码">
+      <button class="cg-btn" type="submit">批准执行</button>
+      <span class="msg"></span>
+      <span class="hash" title="${esc(g.hash)}">绑定 ${esc(g.hash.replace("sha256:", "").slice(0, 8))}</span>`;
+    const input = form.querySelector("input")!, button = form.querySelector("button")!, msg = form.querySelector<HTMLElement>(".msg")!;
+    form.addEventListener("click", (e) => e.stopPropagation());
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!input.value) { input.focus(); return; }
+      button.classList.add("busy");
+      button.textContent = "批准中…";
+      msg.textContent = "";
+      const err = await this.opts.approve!(this.g!, "alice", input.value).catch((x) => String(x));
+      if (err) {
+        button.classList.remove("busy");
+        button.textContent = "批准执行";
+        msg.textContent = err;
+        form.classList.remove("shake");
+        void form.offsetWidth;
+        form.classList.add("shake");
+        input.select();
+        return;
+      }
+      form.classList.add("done");
+      form.innerHTML = `<span class="ok">${TICK}已批准，开始执行</span>`;
+      this.opts.onApproved?.();
+      setTimeout(() => this.closeGate(), 1600);
+    });
+    this.head.after(form);
+    this.gate = form;
+    input.focus();
+  }
+
+  private closeGate() {
+    if (!this.gate) return;
+    const gate = this.gate;
+    this.gate = undefined;
+    gate.classList.add("leave");
+    setTimeout(() => gate.remove(), 260);
+  }
+
   // ---------- detail popover ----------
 
   private togglePop(id: string, refresh = false) {
@@ -479,7 +539,7 @@ export class GraphView {
 // startLive polls the graph while it can still change (awaiting approval or
 // running) and stops by itself once the server stops handing out a live URL.
 // resolve maps the links in each snapshot to where the service is reachable.
-export function startLive(view: GraphView, g: Graph, resolve = (u: string) => u, everyMs = 1200): () => void {
+export function startLive(view: GraphView, g: Graph, resolve = (u: string) => u, everyMs = 1200, immediate = false): () => void {
   let stopped = false, timer = 0, fails = 0;
   let url = g.live;
   const tick = async () => {
@@ -490,7 +550,7 @@ export function startLive(view: GraphView, g: Graph, resolve = (u: string) => u,
       const next = (await res.json()) as Graph;
       if (stopped) return;
       fails = 0;
-      for (const k of ["live", "confirm"] as const) if (next[k]) next[k] = resolve(next[k]!);
+      for (const k of ["live", "confirm", "approve"] as const) if (next[k]) next[k] = resolve(next[k]!);
       if (next.run) next.run.url = resolve(next.run.url);
       view.render(next);
       url = next.live;
@@ -499,6 +559,6 @@ export function startLive(view: GraphView, g: Graph, resolve = (u: string) => u,
     }
     if (url && !stopped) timer = window.setTimeout(tick, everyMs);
   };
-  if (url) timer = window.setTimeout(tick, everyMs);
+  if (url) timer = window.setTimeout(tick, immediate ? 0 : everyMs);
   return () => { stopped = true; clearTimeout(timer); };
 }

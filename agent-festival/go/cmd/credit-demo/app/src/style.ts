@@ -16,6 +16,9 @@ export const css = String.raw`
 .cg-goal { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cg-ver { color: var(--faint); font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .cg-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.cg-now { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-size: 12px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0; animation: cg-slide .35s cubic-bezier(.2,.8,.2,1) both; }
+.cg-now i { flex: 0 0 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: cg-blink 1s ease-in-out infinite; }
 .cg-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px;
   font-size: 12px; font-weight: 500; white-space: nowrap; transition: background .3s, color .3s; }
 .cg-chip i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -33,6 +36,24 @@ export const css = String.raw`
 .cg-bar b { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #60a5fa, var(--blue));
   transition: width .6s cubic-bezier(.2,.8,.2,1), background .4s; }
 .cg-bar.ok b { background: linear-gradient(90deg, #4ade80, var(--green)); }
+
+/* approval in the card */
+.cg-gate { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--line); background: #fffaf0;
+  animation: cg-gate-in .28s cubic-bezier(.2,.8,.2,1) both; overflow: hidden; }
+.cg-gate.leave { animation: cg-gate-out .26s ease both; }
+.cg-gate.shake { animation: cg-shake .45s cubic-bezier(.36,.07,.19,.97) both; }
+.cg-gate .who { font-size: 12.5px; color: var(--mute); white-space: nowrap; }
+.cg-gate .who b { color: var(--ink); font-weight: 600; }
+.cg-gate input { height: 28px; width: 150px; padding: 0 10px; border: 1px solid #e3e6eb; border-radius: 8px; font: inherit; font-size: 12.5px;
+  outline: none; transition: border-color .2s, box-shadow .2s; background: #fff; }
+.cg-gate input:focus { border-color: #93b4f5; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.cg-gate .msg { color: var(--red); font-size: 12px; white-space: nowrap; }
+.cg-gate .hash { margin-left: auto; color: var(--faint); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+.cg-gate .ok { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-weight: 600; font-size: 12.5px;
+  animation: cg-pop .4s cubic-bezier(.2,1.6,.4,1) both; }
+.cg-gate .ok svg { width: 14px; height: 14px; }
+.cg-gate.done { background: #f2fbf5; }
+.cg-btn.busy { opacity: .6; pointer-events: none; }
 
 /* canvas */
 .cg-canvas { position: relative; overflow: hidden; border-top: 1px solid var(--line); transition: height .45s cubic-bezier(.2,.8,.2,1);
@@ -81,6 +102,11 @@ export const css = String.raw`
 .cg-ok svg { width: 11px; height: 11px; }
 .cg-ok.reused { background: var(--blue); }
 .cg-ok.fail { background: var(--red); }
+.cg-act { margin-top: 6px; display: flex; align-items: center; gap: 6px; font-size: 11px; line-height: 16px; color: var(--blue); min-width: 0; }
+.cg-act i { flex: 0 0 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: cg-blink 1s ease-in-out infinite; }
+.cg-act span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: cg-slide .35s cubic-bezier(.2,.8,.2,1) both; }
+.m-stalled .cg-act { color: var(--faint); }
+.m-stalled .cg-act i { animation-play-state: paused; background: var(--faint); }
 .cg-res { margin-top: 7px; display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 11px;
   font-size: 12px; font-weight: 600; animation: cg-pop .5s cubic-bezier(.2,1.6,.4,1) both; }
 .cg-res.ok { background: #e9f7ee; color: var(--green); }
@@ -154,6 +180,8 @@ export const css = String.raw`
 .cg-pop .out { white-space: pre-wrap; background: #f8f9fb; border-radius: 8px; padding: 7px 9px; max-height: 120px; overflow: auto; color: #374151; }
 
 @keyframes cg-in { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes cg-gate-in { from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; } to { opacity: 1; max-height: 60px; } }
+@keyframes cg-gate-out { from { opacity: 1; max-height: 60px; } to { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; } }
 @keyframes cg-pop { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes cg-popin { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes cg-fade { from { opacity: 0; } to { opacity: 1; } }

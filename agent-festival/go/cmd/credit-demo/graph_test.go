@@ -18,3 +18,15 @@ func TestStripStepTag(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+func TestValidLogin(t *testing.T) {
+	t.Setenv("CREDIT_DEMO_PASSWORD", "s3cret")
+	if !validLogin("alice", "s3cret") {
+		t.Fatal("alice with the right password must pass")
+	}
+	for _, c := range [][2]string{{"alice", "demo"}, {"mallory", "s3cret"}, {"alice", ""}} {
+		if validLogin(c[0], c[1]) {
+			t.Fatalf("%v must be refused", c)
+		}
+	}
+}

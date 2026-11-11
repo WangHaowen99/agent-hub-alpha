@@ -58,8 +58,7 @@ func (s *Service) planView(p *Plan) map[string]any {
 		"precheck": map[string]any{"ok": p.Precheck.OK, "not_held": p.Precheck.NotHeld, "rules": p.Precheck.Rules, "errors": p.Precheck.Errors},
 	}
 	if p.Precheck.OK {
-		v["confirm_url"] = fmt.Sprintf("%s/ui/plan/%s/v%d", s.cfg.PublicURL, p.ID, p.Version)
-		v["next"] = "编排图已作为卡片显示在对话里，用户能看到每个成员、子任务和依赖：不要再贴图，也不要逐个列出成员，只用一两句话说明组队思路。请用户在图上点「去批准」或打开 confirm_url 登录后批准；批准前不会执行任何步骤，批准后卡片会实时显示执行进度。"
+		v["next"] = "编排图已作为卡片显示在对话里，用户能看到每个成员、子任务和依赖：不要再贴图，也不要逐个列出成员，只用一两句话说明组队思路。请用户在卡片上点「批准」并输入密码确认；批准前不会执行任何步骤，批准后卡片会实时显示执行到哪一步。"
 	} else {
 		v["next"] = "规约预检未通过：把 not_held、rules 和 errors 如实告诉用户。权限不足就换用权限范围内的专家，违反尽调规约（rules）就按规约补齐成员或依赖；不要为了过预检删掉成员。改完用同一个 plan_id 重新 propose_plan。"
 	}

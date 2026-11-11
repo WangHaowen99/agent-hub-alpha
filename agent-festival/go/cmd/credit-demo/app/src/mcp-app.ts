@@ -22,12 +22,29 @@ const rebase = (g: Graph): Graph => ({
   ...g,
   live: g.live && here(g.live),
   confirm: g.confirm && here(g.confirm),
+  approve: g.approve && here(g.approve),
   run: g.run && { ...g.run, url: here(g.run.url) },
 });
 
 const app = new Bridge();
-const view = new GraphView(document.getElementById("root")!, { openLink: (url) => void app.openLink(here(url)) });
 let stop: (() => void) | undefined;
+
+async function approve(g: Graph, user: string, password: string): Promise<string | undefined> {
+  const res = await fetch(here(g.approve!), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ plan: g.plan, version: g.version, hash: g.hash, user, password }),
+  });
+  if (res.ok) return undefined;
+  const body = await res.json().catch(() => ({}));
+  return body.error ?? `批准失败（${res.status}）`;
+}
+
+const view = new GraphView(document.getElementById("root")!, {
+  approve,
+  // Pick up the new run at once instead of waiting for the next poll.
+  onApproved: () => { const g = view.current(); if (g) { stop?.(); stop = startLive(view, g, here, 1200, true); } },
+});
 
 function show(g: Graph) {
   stop?.();

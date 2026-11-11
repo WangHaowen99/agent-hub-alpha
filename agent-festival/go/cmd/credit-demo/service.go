@@ -43,6 +43,7 @@ type StepRec struct {
 	FinishedAt string   `json:"finished_at,omitempty"`
 	Epoch      int      `json:"epoch,omitempty"`
 	Branches   []Branch `json:"branches,omitempty"`
+	Activity   string   `json:"activity,omitempty"` // what the step is doing right now, for the live graph
 }
 
 // Branch is one sub-goal a black-box (Loop Forest) step forked at run time.
@@ -428,8 +429,28 @@ func (s *Service) StepGet(runID, token, step string) (bool, string, error) {
 		return true, st.Output, nil
 	}
 	st.Status, st.StartedAt, st.Epoch = "running", now(), r.Epoch
+	st.Activity = startActivity[expertByID(st.Expert).Kind]
 	s.save()
 	return false, "", nil
+}
+
+// toolActs are short enough to fit under a node in the live graph.
+var toolActs = map[string]string{
+	"get_application":      "读申请材料",
+	"get_financials":       "读财务数据",
+	"get_industry_report":  "读行业报告",
+	"query_bureau_summary": "查征信摘要",
+	"query_bureau_full":    "查完整征信",
+	"get_related_parties":  "读关联方名单",
+	"query_company_bureau": "查关联企业征信",
+}
+
+var startActivity = map[string]string{
+	"investigate": "开始调查",
+	"blackbox":    "拆分子目标",
+	"judge":       "按规约判断",
+	"write":       "撰写尽调报告",
+	"effect":      "准备经网关提交",
 }
 
 func (s *Service) StepPut(runID, token, step, output string) error {
@@ -465,6 +486,7 @@ func (s *Service) BranchEvent(runID, token, step, goal, status string, chars int
 		return fmt.Errorf("step %q is not in the approved plan", step)
 	}
 	if status == "finished" {
+		st.Activity = "分支完成：" + goal
 		for i := len(st.Branches) - 1; i >= 0; i-- {
 			if st.Branches[i].Goal == goal && st.Branches[i].Status == "started" {
 				st.Branches[i].Status, st.Branches[i].Chars = "finished", chars
@@ -473,6 +495,7 @@ func (s *Service) BranchEvent(runID, token, step, goal, status string, chars int
 			}
 		}
 	}
+	st.Activity = "分叉：" + goal
 	st.Branches = append(st.Branches, Branch{Goal: goal, Status: status, Chars: chars, At: now()})
 	s.save()
 	return nil
@@ -618,6 +641,9 @@ func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 	}
 	r.Decision, r.DecisionOp = decision, op
 	r.BusinessReq = req.Identity.BusinessRequestID
+	if st := r.Steps[step]; st != nil {
+		st.Activity = "判断已采纳：" + level
+	}
 	s.save()
 	return fmt.Sprintf("DECISION=%s\n依据：%v\n证据步骤：%v", strings.ToUpper(level), j["rationale"], j["evidence_steps"]), nil
 }
@@ -660,6 +686,9 @@ func (s *Service) Effect(runID, token, step string) (string, error) {
 	if state == adopt.StateAdopted {
 		out := m.Dispatch(op, liveGrants())
 		s.record(r, "dispatch", map[string]any{"grants": liveGrants()})
+		if st := r.Steps[step]; st != nil {
+			st.Activity = "已派发，等银行回执"
+		}
 		if out.Status != "dispatched" {
 			s.save()
 			s.mu.Unlock()
@@ -730,6 +759,7 @@ func (s *Service) ToolCall(runID, token, step, tool, arg string) (map[string]any
 	}
 	sel := t.selector(arg)
 	refuse := func(why string) (map[string]any, error) {
+		st.Activity = "调用被拒：" + why
 		r.Violations = append(r.Violations, fmt.Sprintf("%s %s（%s）调用 %s(%s) 被拒绝：%s", now(), step, e.Name, tool, arg, why))
 		s.save()
 		return nil, fmt.Errorf("refused by contract: %s", why)
@@ -758,6 +788,7 @@ func (s *Service) ToolCall(runID, token, step, tool, arg string) (map[string]any
 	if err := l.Append(evidlog.Entry{Tool: tool, Selector: sel, Caller: step, At: now(), ResultRef: sha(string(raw))}); err != nil {
 		return nil, err
 	}
+	st.Activity = toolActs[tool] + " · " + arg
 	return doc, nil
 }
 

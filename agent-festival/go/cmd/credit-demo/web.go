@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"embed"
 	"encoding/hex"
 	"encoding/json"
@@ -24,6 +25,12 @@ var webFS embed.FS
 var sessionKey = func() []byte { b := make([]byte, 32); _, _ = rand.Read(b); return b }()
 
 var users = map[string]string{"alice": "客户经理 alice"}
+
+func validLogin(user, password string) bool {
+	_, ok := users[user]
+	want := envOr("CREDIT_DEMO_PASSWORD", "demo")
+	return ok && subtle.ConstantTimeCompare([]byte(password), []byte(want)) == 1
+}
 
 func sign(v string) string {
 	m := hmac.New(sha256.New, sessionKey)
@@ -109,6 +116,7 @@ func (s *Service) base() string {
 
 func (s *Service) routes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/graph", s.serveGraph)
+	mux.HandleFunc("/api/approve", s.serveApprove)
 	static := http.FileServerFS(webFS)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "web/" + r.URL.Path
@@ -121,7 +129,7 @@ func (s *Service) routes(mux *http.ServeMux) {
 		}
 		if r.Method == http.MethodPost {
 			u := r.FormValue("user")
-			if _, ok := users[u]; ok && r.FormValue("password") == envOr("CREDIT_DEMO_PASSWORD", "demo") {
+			if validLogin(u, r.FormValue("password")) {
 				http.SetCookie(w, &http.Cookie{Name: "cd_session", Value: sign(u), Path: "/", HttpOnly: true, SameSite: http.SameSiteLaxMode})
 				http.Redirect(w, r, s.base()+next, http.StatusSeeOther)
 				return

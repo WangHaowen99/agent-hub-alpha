@@ -23,6 +23,8 @@ type Graph struct {
 	Nodes      []GraphNode `json:"nodes"`
 	OK         bool        `json:"ok"` // precheck passed
 	Problems   []string    `json:"problems,omitempty"`
+	Hash       string      `json:"hash"`                 // what an approval binds to
+	Approve    string      `json:"approve,omitempty"`    // approval endpoint, while awaiting approval
 	Confirm    string      `json:"confirm,omitempty"`    // confirm page, while awaiting approval
 	Superseded int         `json:"superseded,omitempty"` // newer version that replaced this one
 	Run        *GraphRun   `json:"run,omitempty"`
@@ -43,6 +45,7 @@ type GraphNode struct {
 	Contract string   `json:"contract,omitempty"`
 	Denied   string   `json:"denied,omitempty"`
 	Status   string   `json:"status,omitempty"` // pending running done reused skipped failed
+	Activity string   `json:"activity,omitempty"`
 	Output   string   `json:"output,omitempty"`
 	Branches []Branch `json:"branches,omitempty"`
 }
@@ -58,7 +61,7 @@ type GraphRun struct {
 }
 
 func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
-	g := &Graph{Plan: p.ID, Version: p.Version, Case: p.CaseID, Goal: p.Goal, Layers: p.Layers, OK: p.Precheck.OK}
+	g := &Graph{Plan: p.ID, Version: p.Version, Case: p.CaseID, Goal: p.Goal, Layers: p.Layers, OK: p.Precheck.OK, Hash: p.Hash}
 	g.Problems = append(append(g.Problems, p.Precheck.NotHeld...), p.Precheck.Rules...)
 	for _, e := range p.Precheck.Errors {
 		if !strings.HasPrefix(e, "not held by caller") { // already explained by NotHeld
@@ -98,6 +101,9 @@ func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
 					n.Status = "reused"
 				}
 				n.Output = clip(strings.TrimSpace(stripStepTag(rec.Output)), 240)
+				if rec.Status == "running" {
+					n.Activity = rec.Activity
+				}
 				n.Branches = append([]Branch(nil), rec.Branches...)
 			}
 		}
@@ -124,6 +130,7 @@ func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
 		g.Live = s.graphURL(p)
 	case run == nil && g.OK && g.Superseded == 0:
 		g.Confirm = fmt.Sprintf("%s/ui/plan/%s/v%d", s.cfg.PublicURL, p.ID, p.Version)
+		g.Approve = s.cfg.PublicURL + "/api/approve"
 		g.Live = s.graphURL(p) // turns into the run as soon as the user approves
 	}
 	if withVerify && run != nil && run.Status == "done" {
@@ -166,6 +173,60 @@ func stripStepTag(out string) string {
 		}
 	}
 	return out
+}
+
+// serveApprove lets the user approve from the plan card in the chat. The card
+// runs in a sandboxed iframe without cookies, so it sends the password itself;
+// the planner model never sees what is typed there and has no approval tool.
+// The approval binds the hash the card showed, exactly like the confirm page.
+func (s *Service) serveApprove(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	reply := func(code int, v any) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(code)
+		_ = json.NewEncoder(w).Encode(v)
+	}
+	switch r.Method {
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusNoContent)
+		return
+	case http.MethodPost:
+	default:
+		reply(http.StatusMethodNotAllowed, map[string]string{"error": "只接受 POST"})
+		return
+	}
+	var in struct {
+		Plan     string `json:"plan"`
+		Version  int    `json:"version"`
+		Hash     string `json:"hash"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&in); err != nil {
+		reply(http.StatusBadRequest, map[string]string{"error": "请求格式不对"})
+		return
+	}
+	if !validLogin(in.User, in.Password) {
+		reply(http.StatusUnauthorized, map[string]string{"error": "密码不对"})
+		return
+	}
+	run, err := s.Approve(in.Plan, in.Version, in.Hash, in.User)
+	if err != nil {
+		msg := err.Error()
+		switch {
+		case strings.Contains(msg, "changed after it was shown"):
+			msg = "编排单在展示后变了，请看最新版本再批准"
+		case strings.Contains(msg, "precheck rejects"):
+			msg = "规约预检不通过，不能批准"
+		case strings.Contains(msg, "unknown plan"):
+			msg = "找不到这一版编排单"
+		}
+		reply(http.StatusConflict, map[string]string{"error": msg})
+		return
+	}
+	reply(http.StatusOK, map[string]string{"run": run.ID})
 }
 
 // serveGraph is the read-only projection the MCP App polls from its sandbox,
