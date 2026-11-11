@@ -48,10 +48,12 @@ type StepRec struct {
 
 // Branch is one sub-goal a black-box (Loop Forest) step forked at run time.
 type Branch struct {
-	Goal   string `json:"goal"`
-	Status string `json:"status"` // started finished
-	Chars  int    `json:"chars,omitempty"`
-	At     string `json:"at"`
+	Goal     string `json:"goal"`
+	Status   string `json:"status"` // started finished interrupted
+	Chars    int    `json:"chars,omitempty"`
+	At       string `json:"at"`
+	Read     string `json:"read,omitempty"`     // the related company whose data this branch read
+	Activity string `json:"activity,omitempty"` // what the branch is doing right now
 }
 
 type Run struct {
@@ -789,6 +791,17 @@ func (s *Service) ToolCall(runID, token, step, tool, arg string) (map[string]any
 		return nil, err
 	}
 	st.Activity = toolActs[tool] + " · " + arg
+	if t.arg == "company_id" {
+		// Branches run side by side under one step; the company id in the
+		// sub-goal tells which branch made this call.
+		for i := len(st.Branches) - 1; i >= 0; i-- {
+			b := &st.Branches[i]
+			if id, _, _ := relatedParty(r.CaseID, b.Goal); b.Status == "started" && strings.EqualFold(id, arg) {
+				b.Read, b.Activity = id, toolActs[tool]
+				break
+			}
+		}
+	}
 	return doc, nil
 }
 

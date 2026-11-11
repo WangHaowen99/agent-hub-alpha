@@ -30,3 +30,27 @@ func TestValidLogin(t *testing.T) {
 		}
 	}
 }
+
+func TestGraphBranches(t *testing.T) {
+	got := graphBranches("C006", []Branch{
+		{Goal: "company_id: R-601，查征信摘要", Status: "interrupted"},
+		{Goal: "company_id: R-603，查征信摘要", Status: "finished", Read: "R-603"},
+		{Goal: "company_id: R-601，查征信摘要", Status: "started", Read: "R-601", Activity: "查关联企业征信 · R-601"},
+		{Goal: "查一家不认识的企业", Status: "finished"},
+	})
+	if len(got) != 3 {
+		t.Fatalf("want 3 branches (R-601 once), got %d: %+v", len(got), got)
+	}
+	if b := got[0]; b.Title != "王氏汽配贸易" || b.Status != "started" || !b.Retried || b.Activity == "" || b.Relation != "持股 60%" {
+		t.Errorf("R-601: %+v", b)
+	}
+	if b := got[1]; b.Finding != "近一年逾期 1 次" || b.Tone != "warn" {
+		t.Errorf("R-603: %+v", b)
+	}
+	if b := got[2]; b.Title != "查一家不认识的企业" || b.Finding != "" {
+		t.Errorf("unknown: %+v", b)
+	}
+	if f, tone := bureauFinding(relatedBureau["R-601"]); f != "无逾期" || tone != "ok" {
+		t.Errorf("R-601 finding %q %q", f, tone)
+	}
+}

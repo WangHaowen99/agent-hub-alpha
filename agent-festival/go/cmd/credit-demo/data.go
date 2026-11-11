@@ -83,6 +83,27 @@ func relatedTo(caseID, company string) bool {
 	return false
 }
 
+// relatedParty finds the related company a black-box branch is about: its
+// id or its name appears in the sub-goal the branch was forked with.
+func relatedParty(caseID, text string) (id, name, relation string) {
+	rp, ok := related[strings.ToUpper(caseID)]
+	if !ok {
+		return "", "", ""
+	}
+	list, _ := rp["related_parties"].([]any)
+	upper := strings.ToUpper(text)
+	for _, item := range list {
+		m, _ := item.(map[string]any)
+		id, _ = m["company_id"].(string)
+		name, _ = m["name"].(string)
+		relation, _ = m["relation"].(string)
+		if id != "" && strings.Contains(upper, id) || name != "" && strings.Contains(text, name) {
+			return id, name, relation
+		}
+	}
+	return "", "", ""
+}
+
 var industries = map[string]map[string]any{
 	"auto-parts-wholesale":      {"industry": "auto-parts-wholesale", "name": "汽车零部件批发", "outlook": "稳定", "risks": []any{"整车厂账期拉长", "价格竞争"}, "default_rate_pct": 1.8},
 	"building-materials-retail": {"industry": "building-materials-retail", "name": "建材零售", "outlook": "承压", "risks": []any{"地产下行", "回款周期长"}, "default_rate_pct": 3.6},

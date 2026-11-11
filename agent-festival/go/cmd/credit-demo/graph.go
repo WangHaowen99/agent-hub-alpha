@@ -33,21 +33,33 @@ type Graph struct {
 }
 
 type GraphNode struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Kind     string   `json:"kind"` // investigate blackbox judge write effect
-	Role     string   `json:"role,omitempty"`
-	Task     string   `json:"task"`
-	Deps     []string `json:"deps,omitempty"`
-	When     *RunIf   `json:"when,omitempty"`
-	Effect   string   `json:"effect,omitempty"`
-	Reads    []string `json:"reads,omitempty"`
-	Contract string   `json:"contract,omitempty"`
-	Denied   string   `json:"denied,omitempty"`
-	Status   string   `json:"status,omitempty"` // pending running done reused skipped failed
-	Activity string   `json:"activity,omitempty"`
-	Output   string   `json:"output,omitempty"`
-	Branches []Branch `json:"branches,omitempty"`
+	ID       string        `json:"id"`
+	Name     string        `json:"name"`
+	Kind     string        `json:"kind"` // investigate blackbox judge write effect
+	Role     string        `json:"role,omitempty"`
+	Task     string        `json:"task"`
+	Deps     []string      `json:"deps,omitempty"`
+	When     *RunIf        `json:"when,omitempty"`
+	Effect   string        `json:"effect,omitempty"`
+	Reads    []string      `json:"reads,omitempty"`
+	Contract string        `json:"contract,omitempty"`
+	Denied   string        `json:"denied,omitempty"`
+	Status   string        `json:"status,omitempty"` // pending running done reused skipped failed
+	Activity string        `json:"activity,omitempty"`
+	Output   string        `json:"output,omitempty"`
+	Branches []GraphBranch `json:"branches,omitempty"`
+}
+
+// GraphBranch is one sub-goal a Loop Forest step forked, as the graph draws it.
+type GraphBranch struct {
+	Goal     string `json:"goal"`
+	Status   string `json:"status"` // started finished interrupted
+	Title    string `json:"title"`
+	Relation string `json:"relation,omitempty"`
+	Activity string `json:"activity,omitempty"`
+	Finding  string `json:"finding,omitempty"` // what the branch read, once it finished
+	Tone     string `json:"tone,omitempty"`    // ok warn
+	Retried  bool   `json:"retried,omitempty"` // an earlier attempt died with its executor
 }
 
 type GraphRun struct {
@@ -104,7 +116,13 @@ func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
 				if rec.Status == "running" {
 					n.Activity = rec.Activity
 				}
-				n.Branches = append([]Branch(nil), rec.Branches...)
+				n.Branches = graphBranches(p.CaseID, rec.Branches)
+				if rec.Status == "running" && len(n.Branches) > 0 {
+					n.Activity = "汇总分支结论"
+					if k := countStarted(n.Branches); k > 0 {
+						n.Activity = fmt.Sprintf("等待 %d 个分支", k)
+					}
+				}
 			}
 		}
 		g.Nodes = append(g.Nodes, n)
@@ -257,4 +275,79 @@ func (s *Service) serveGraph(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(g)
+}
+
+// graphBranches keeps the latest attempt per sub-goal: a restarted executor
+// forks the same companies again, and the graph shows each company once.
+func graphBranches(caseID string, bs []Branch) []GraphBranch {
+	var out []GraphBranch
+	at := map[string]int{}
+	for _, b := range bs {
+		id, name, relation := relatedParty(caseID, b.Goal)
+		key := id
+		if key == "" {
+			key = b.Goal
+		}
+		gb := GraphBranch{Goal: b.Goal, Status: b.Status, Title: shortCompany(name), Relation: strings.TrimPrefix(relation, "申请人")}
+		if gb.Title == "" {
+			gb.Title = branchGoal.ReplaceAllString(b.Goal, "")
+		}
+		if b.Status == "started" {
+			gb.Activity = b.Activity
+		}
+		if b.Status == "finished" && b.Read != "" {
+			gb.Finding, gb.Tone = bureauFinding(relatedBureau[b.Read])
+		}
+		if i, ok := at[key]; ok {
+			gb.Retried = true
+			out[i] = gb
+			continue
+		}
+		at[key] = len(out)
+		out = append(out, gb)
+	}
+	return out
+}
+
+func countStarted(bs []GraphBranch) int {
+	n := 0
+	for _, b := range bs {
+		if b.Status == "started" {
+			n++
+		}
+	}
+	return n
+}
+
+// Loop Forest sub-goals often start with the field name, e.g. "company_id: R-602，查…".
+var branchGoal = regexp.MustCompile(`^[A-Za-z_]+\s*[:：]\s*`)
+
+func shortCompany(name string) string {
+	for _, suf := range []string{"有限责任公司", "有限公司"} {
+		name = strings.TrimSuffix(name, suf)
+	}
+	return name
+}
+
+// bureauFinding sums up the credit summary a branch read in a few words.
+func bureauFinding(d map[string]any) (string, string) {
+	if d == nil {
+		return "", ""
+	}
+	num := func(k string) int {
+		switch v := d[k].(type) {
+		case int:
+			return v
+		case float64:
+			return int(v)
+		}
+		return 0
+	}
+	if n := num("overdue_events_last_12_months"); n > 0 {
+		return fmt.Sprintf("近一年逾期 %d 次", n), "warn"
+	}
+	if n := num("guarantees_given"); n > 0 {
+		return fmt.Sprintf("对外担保 %d 笔", n), "warn"
+	}
+	return "无逾期", "ok"
 }

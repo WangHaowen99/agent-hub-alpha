@@ -1,11 +1,14 @@
 // The plan graph: one renderer for the MCP App in WorkSwarm and for the
 // confirm/run pages. It draws the view model served by /api/graph and
-// animates what changes between two snapshots: nodes enter by layer, edges
-// draw on, running nodes glow, the black box opens as branches fork, the
-// adopted decision and the bank receipt pop in.
+// animates what changes between two snapshots. Before approval it shows the
+// whole plan; once the run starts it shows only the experts that have started,
+// each popping in at the end of the edges that feed it. The black box opens
+// into a Loop Forest group whose branches fork out of it one by one.
 import { css } from "./style";
 
-export interface Branch { goal: string; status: string }
+export interface Branch {
+  goal: string; status: string; title: string; relation?: string; activity?: string; finding?: string; tone?: string; retried?: boolean;
+}
 export interface RunIf { step: string; contains: string; negate?: boolean }
 export interface GraphNode {
   id: string; name: string; kind: string; role?: string; task: string; deps?: string[]; when?: RunIf;
@@ -26,7 +29,7 @@ export interface Options {
   page?: boolean; // embedded in the confirm page, which has its own approve button
 }
 
-const W = 184, GX = 64, GY = 18, PAD = 22, MAX_BRANCHES = 5, MOVE_MS = 520;
+const W = 184, GROUP_W = 404, GX = 64, GY = 18, PAD = 22, MAX_BRANCHES = 5, MOVE_MS = 520, LEAVE_MS = 320;
 const TICK = `<svg viewBox="0 0 12 12"><path d="M2.5 6.3l2.3 2.3 4.7-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const CROSS = `<svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -35,6 +38,11 @@ const EDGE_COLORS: Record<string, string> = { idle: "#cfd4dc", active: "#93b4f5"
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 const finished = (s?: string) => s === "done" || s === "reused";
+// Once a run exists, an expert appears when it starts.
+const started = (s?: string) => s === "running" || s === "failed" || finished(s);
+// Phase for looping animations in elements that are rebuilt on every change,
+// so spinners and flowing dashes carry on instead of jumping back to the start.
+const phase = () => `-${Math.round(performance.now() % 7000)}ms`;
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 let instances = 0;
 
@@ -66,17 +74,14 @@ function receiptLabel(r?: string): [string, string] | undefined {
   return undefined;
 }
 
-// Loop Forest writes sub-goals like "company_id: R-602，查…"; the field name is noise.
-const branchLabel = (goal: string) => goal.replace(/^[A-Za-z_]+\s*[:：]\s*/, "");
-
 function condLabel(w: RunIf) {
   if (!w.negate && /GRANT/.test(w.contains)) return "同意时";
   return (w.negate ? "不含 " : "含 ") + w.contains;
 }
 
 interface NodeView {
-  slot: HTMLDivElement; el: HTMLDivElement; sig: string; branches: number;
-  x: number; y: number; fx: number; fy: number; tx: number; ty: number; h: number; placed: boolean;
+  slot: HTMLDivElement; el: HTMLDivElement; sig: string; branches: string[]; wide: boolean;
+  x: number; y: number; fx: number; fy: number; tx: number; ty: number; w: number; h: number; placed: boolean;
 }
 interface EdgeView { from: string; to: string; g: SVGGElement; base: SVGPathElement; flow: SVGPathElement; cond?: HTMLDivElement; drawn: boolean }
 
@@ -89,6 +94,7 @@ export class GraphView {
   private readonly stage: HTMLDivElement;
   private readonly svg: SVGSVGElement;
   private readonly foot: HTMLDivElement;
+  private shown: GraphNode[] = [];
   private nodes = new Map<string, NodeView>();
   private edges = new Map<string, EdgeView>();
   private g?: Graph;
@@ -114,7 +120,7 @@ export class GraphView {
     this.el = document.createElement("div");
     this.el.className = "cg";
     this.el.innerHTML = `<div class="cg-head"></div><div class="cg-canvas"><div class="cg-stage"><svg class="cg-edges"><defs>${EDGE_STATES.map((s) =>
-      `<marker id="${this.id}-ar-${s}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L8.5 5L1 8.5" fill="none" stroke="${EDGE_COLORS[s]}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>`).join("")}</defs></svg></div></div><div class="cg-foot"></div>`;
+      `<marker id="${this.id}-ar-${s}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L8.5 5L1 8.5" fill="none" stroke="${EDGE_COLORS[s]}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>`).join("")}</defs></svg></div><div class="cg-wait"><i></i><i></i><i></i></div></div><div class="cg-foot"></div>`;
     root.replaceChildren(this.el);
     this.head = this.el.querySelector(".cg-head")!;
     this.canvas = this.el.querySelector(".cg-canvas")!;
@@ -147,8 +153,9 @@ export class GraphView {
     const layerOf = new Map<string, number>();
     g.layers.forEach((l, i) => l.forEach((id) => layerOf.set(id, i)));
 
+    this.shown = g.run ? g.nodes.filter((n) => started(n.status)) : g.nodes;
     const seen = new Set<string>();
-    g.nodes.forEach((n, i) => {
+    this.shown.forEach((n, i) => {
       seen.add(n.id);
       let v = this.nodes.get(n.id);
       if (!v) {
@@ -159,20 +166,32 @@ export class GraphView {
         slot.appendChild(el);
         this.stage.appendChild(slot);
         this.sizes.observe(el);
-        v = { slot, el, sig: "", branches: 0, x: 0, y: 0, fx: 0, fy: 0, tx: 0, ty: 0, h: 0, placed: false };
+        // Edges that change the node's right side follow its width as it grows.
+        el.addEventListener("transitionend", (e) => { if (e.target === el && e.propertyName === "width") this.drawEdges(); });
+        v = { slot, el, sig: "", branches: [], wide: false, x: 0, y: 0, fx: 0, fy: 0, tx: 0, ty: 0, w: W, h: 0, placed: false };
         this.nodes.set(n.id, v);
-        const delay = this.first ? (layerOf.get(n.id) ?? 0) * 110 + i * 25 : 0;
+        // A node that starts mid-run waits for the edges into it to draw first.
+        const delay = this.first ? (layerOf.get(n.id) ?? 0) * 110 + i * 25 : (n.deps ?? []).some((d) => this.nodes.has(d)) ? 240 : 0;
         el.style.setProperty("--d", `${delay}ms`);
         el.style.animationDelay = `${delay}ms`;
         el.dataset.enter = "1";
       }
       this.renderNode(v, n, g);
     });
-    for (const [id, v] of this.nodes) if (!seen.has(id)) { this.sizes.unobserve(v.el); v.slot.remove(); this.nodes.delete(id); }
+    for (const [id, v] of this.nodes) {
+      if (seen.has(id)) continue;
+      // Approval hides the plan: experts leave and come back as they start.
+      this.sizes.unobserve(v.el);
+      this.nodes.delete(id);
+      v.el.classList.remove("enter");
+      v.el.classList.add("leave");
+      setTimeout(() => v.slot.remove(), LEAVE_MS);
+    }
 
     this.renderEdges(g, layerOf);
     this.renderFoot(g);
     this.layout(!this.first);
+    for (const v of this.nodes.values()) if (v.wide) this.drawFan(v);
     if (this.pop) this.togglePop(this.pop.dataset.id!, true);
     this.first = false;
   }
@@ -224,10 +243,14 @@ export class GraphView {
     const isJudge = n.kind === "judge", isEffect = n.kind === "effect";
     const result = isJudge && finished(status) ? decisionLabel(g.run?.decision)
       : isEffect && finished(status) ? receiptLabel(g.run?.receipt) : undefined;
-    const branches = n.branches ?? [];
-    const activity = status === "running" && n.kind !== "blackbox" ? n.activity ?? "" : "";
-    const sig = JSON.stringify([n.name, n.task, status, denied, result, branches.map((b) => b.status + b.goal), activity]);
-    v.el.className = `cg-node k-${n.kind} s-${status}${denied ? " denied" : ""}${v.el.dataset.enter ? " enter" : ""}`;
+    const branches = (n.branches ?? []).slice(0, MAX_BRANCHES);
+    const more = (n.branches?.length ?? 0) - branches.length;
+    const group = !!g.run && n.kind === "blackbox" && branches.length > 0;
+    const activity = status === "running" ? n.activity ?? "" : "";
+    const sig = JSON.stringify([n.name, n.task, status, denied, result, activity, more,
+      branches.map((b) => [b.status, b.title, b.activity, b.finding, b.retried])]);
+    v.wide = group;
+    v.el.className = `cg-node k-${n.kind} s-${status}${denied ? " denied" : ""}${group ? " group" : ""}${v.el.dataset.enter ? " enter" : ""}`;
     if (sig === v.sig) return;
     const changedStatus = v.sig !== "" && JSON.parse(v.sig)[2] !== status;
     const wasDenied = v.sig === "" ? false : JSON.parse(v.sig)[3];
@@ -247,7 +270,7 @@ export class GraphView {
     if (late) v.el.style.setProperty("--d", late);
 
     const tags: string[] = [];
-    if (n.kind === "blackbox") tags.push(`<span class="cg-tag bb">黑盒</span>`);
+    if (n.kind === "blackbox") tags.push(`<span class="cg-tag bb">${group ? "黑盒 · Loop Forest" : "黑盒"}</span>`);
     if (n.effect === "irreversible") tags.push(`<span class="cg-tag irrev">不可逆</span>`);
     if (denied) tags.push(`<span class="cg-tag deny pop">无权限</span>`);
     if (status === "reused") tags.push(`<span class="cg-tag reuse pop">复用</span>`);
@@ -256,44 +279,92 @@ export class GraphView {
       : status === "reused" ? `<span class="cg-ok reused">${TICK}</span>`
       : status === "failed" ? `<span class="cg-ok fail">${CROSS}</span>` : "";
 
-    let extra = "";
-    if (n.kind === "blackbox") {
-      if (!branches.length) {
-        extra = `<div class="cg-bb closed"><i></i><i></i><i></i><span>${status === "running" ? "正在拆分" : "运行时展开"}</span></div>`;
-      } else {
-        const shown = branches.slice(0, MAX_BRANCHES);
-        extra = `<div class="cg-bb">${shown.map((b, i) =>
-          `<div class="cg-br${i >= v.branches ? " enter" : ""}" style="animation-delay:${Math.max(0, i - v.branches) * 90}ms" title="${esc(b.goal)}"><em class="${esc(b.status)}"></em><span>${esc(branchLabel(b.goal))}</span></div>`).join("")}${
-          branches.length > MAX_BRANCHES ? `<div class="cg-br more">另 ${branches.length - MAX_BRANCHES} 个分支</div>` : ""}</div>`;
-      }
-      v.branches = branches.length;
-    }
     const res = (result ? `<div class="cg-res ${result[0]}">${esc(result[1])}</div>` : "")
       + (activity ? `<div class="cg-act" title="${esc(activity)}"><i></i><span>${esc(activity)}</span></div>` : "");
+    const card = `<div class="cg-av">${esc([...n.name][0] ?? "?")}</div><div class="cg-body"><div class="cg-name">${esc(n.name)}</div><div class="cg-task">${esc(n.task)}</div>${res}</div>`;
 
-    v.el.innerHTML = `<div class="cg-av">${esc([...n.name][0] ?? "?")}</div><div class="cg-body"><div class="cg-name">${esc(n.name)}</div><div class="cg-task">${esc(n.task)}</div>${res}</div>${extra}${tags.length ? `<div class="cg-tags">${tags.join("")}</div>` : ""}${badge}`;
-    v.el.querySelectorAll<HTMLElement>(".cg-ok, .cg-res, .cg-tag.pop").forEach((e) => { e.style.animationDelay = `calc(var(--d, 0ms) + 280ms)`; });
+    let html: string;
+    if (group) {
+      html = this.renderGroup(v, card, branches, more);
+    } else {
+      // Before approval the box stays shut: what is inside is decided at run time.
+      const closed = n.kind === "blackbox" && !g.run
+        ? `<div class="cg-bb closed"><i></i><i></i><i></i><span>运行时展开</span></div>` : "";
+      html = card + closed;
+      v.branches = [];
+    }
+    v.el.innerHTML = `${html}${tags.length ? `<div class="cg-tags">${tags.join("")}</div>` : ""}${badge}`;
+    v.el.querySelectorAll<HTMLElement>(".cg-ok, .cg-res, .cg-tag.pop").forEach((e) => {
+      if (!e.closest(".cg-lfb")) e.style.animationDelay = `calc(var(--d, 0ms) + 280ms)`;
+    });
+    if (group) {
+      this.drawFan(v);
+      // New fork edges draw on, then their branch slides out of the end.
+      requestAnimationFrame(() => requestAnimationFrame(() => v.el.querySelectorAll(".cg-fan-edges .fb:not(.drawn)").forEach((p) => p.classList.add("drawn"))));
+    }
     if (denied && !wasDenied) {
       v.el.classList.remove("shake");
       setTimeout(() => v.el.classList.add("shake"), this.first ? 900 : 50);
     }
   }
 
+  // The black box at run time: the host on the left, the branches Loop Forest
+  // forked fanning out on the right. A finished branch sends its result back
+  // along its edge to the host.
+  private renderGroup(v: NodeView, card: string, branches: Branch[], more: number): string {
+    const prev = v.branches;
+    let fresh = 0, returned = false;
+    const ph = phase();
+    const edges: string[] = [], cards: string[] = [];
+    branches.forEach((b, i) => {
+      const isNew = i >= prev.length;
+      const back = !isNew && prev[i] === "started" && b.status === "finished";
+      returned ||= back;
+      const delay = isNew ? 220 + fresh++ * 160 : 0;
+      edges.push(`<g class="b-${esc(b.status)}"><path class="fb${isNew ? "" : " drawn"}${back ? " flash" : ""}" pathLength="1" style="transition-delay:${isNew ? delay - 220 : 0}ms, 0ms"/><path class="ff" style="animation-delay:${ph}"/><path class="fr${back ? " ret" : ""}" pathLength="1"/></g>`);
+      const line = b.status === "started" && b.activity
+        ? `<div class="cg-lfb-sub act"><i style="animation-delay:${ph}"></i><span>${esc(b.activity)}</span></div>`
+        : b.status === "finished" && b.finding
+          ? `<div class="cg-lfb-sub"><b class="find ${esc(b.tone ?? "")}${back || isNew ? " pop" : ""}">${esc(b.finding)}</b></div>`
+          : b.status === "interrupted"
+            ? `<div class="cg-lfb-sub">执行器重启，已中断</div>`
+            : `<div class="cg-lfb-sub"><span>${esc(b.relation ?? "")}</span></div>`;
+      const tick = b.status === "finished" ? `<span class="cg-lfb-ok${back ? " pop" : ""}">${TICK}</span>` : "";
+      cards.push(`<div class="cg-lfb s-${esc(b.status)}${isNew ? " enter" : ""}" style="animation-delay:${delay}ms;--ph:${ph}" title="${esc(b.goal)}"><div class="cg-lfb-av">${esc([...b.title][0] ?? "?")}</div><div class="cg-lfb-body"><div class="cg-lfb-name">${b.retried ? `<em title="上次执行中断后重新分叉">↻</em>` : ""}${esc(b.title)}</div>${line}</div>${tick}</div>`);
+    });
+    v.branches = branches.map((b) => b.status);
+    return `<svg class="cg-fan-edges">${edges.join("")}</svg><div class="cg-host">${card}${returned ? `<i class="cg-ripple"></i>` : ""}</div><div class="cg-fan">${cards.join("")}${
+      more > 0 ? `<div class="cg-lfb-more">另 ${more} 个分支</div>` : ""}</div>`;
+  }
+
+  private drawFan(v: NodeView) {
+    const host = v.el.querySelector<HTMLElement>(".cg-host");
+    if (!host) return;
+    const x1 = host.offsetLeft + host.offsetWidth + 2, y1 = host.offsetTop + host.offsetHeight / 2;
+    const groups = v.el.querySelectorAll(".cg-fan-edges g");
+    v.el.querySelectorAll<HTMLElement>(".cg-lfb").forEach((c, i) => {
+      const x2 = c.offsetLeft - 2, y2 = c.offsetTop + c.offsetHeight / 2, dx = (x2 - x1) * 0.6;
+      const d = `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`;
+      groups[i]?.querySelectorAll("path").forEach((p) => p.setAttribute("d", d));
+    });
+  }
+
   // ---------- edges ----------
 
   private renderEdges(g: Graph, layerOf: Map<string, number>) {
-    const byId = new Map(g.nodes.map((n) => [n.id, n]));
+    const plan = new Map(g.nodes.map((n) => [n.id, n]));
+    const byId = new Map(this.shown.map((n) => [n.id, n]));
     const up = new Map<string, Set<string>>();
     const ancestors = (id: string): Set<string> => {
       let s = up.get(id);
       if (s) return s;
       s = new Set();
       up.set(id, s);
-      for (const d of byId.get(id)?.deps ?? []) { s.add(d); ancestors(d).forEach((a) => s!.add(a)); }
+      for (const d of plan.get(id)?.deps ?? []) { s.add(d); ancestors(d).forEach((a) => s!.add(a)); }
       return s;
     };
     const keep = new Set<string>();
-    for (const n of g.nodes) {
+    for (const n of this.shown) {
       const deps = (n.deps ?? []).filter((d) => byId.has(d));
       for (const d of deps) {
         // Draw only direct needs: an edge implied through another dependency is noise.
@@ -337,7 +408,13 @@ export class GraphView {
         }
       }
     }
-    for (const [key, e] of this.edges) if (!keep.has(key)) { e.g.remove(); e.cond?.remove(); this.edges.delete(key); }
+    for (const [key, e] of this.edges) {
+      if (keep.has(key)) continue;
+      this.edges.delete(key);
+      e.g.classList.add("gone");
+      e.cond?.classList.add("gone");
+      setTimeout(() => { e.g.remove(); e.cond?.remove(); }, LEAVE_MS);
+    }
   }
 
   private drawEdges() {
@@ -356,7 +433,7 @@ export class GraphView {
     for (const e of this.edges.values()) {
       const s = this.nodes.get(e.from), t = this.nodes.get(e.to);
       if (!s || !t) continue;
-      const x1 = s.x + W, x2 = t.x - 3;
+      const x1 = s.x + (s.el.offsetWidth || s.w), x2 = t.x - 3;
       const y1 = port(outs.get(e.from)!, e, s, (o) => this.nodes.get(o.to));
       const y2 = port(ins.get(e.to)!, e, t, (o) => this.nodes.get(o.from));
       const dx = Math.max(26, (x2 - x1) * 0.5);
@@ -375,14 +452,24 @@ export class GraphView {
 
   private layout(animate: boolean) {
     const g = this.g!;
-    const byId = new Map(g.nodes.map((n) => [n.id, n]));
+    const byId = new Map(this.shown.map((n) => [n.id, n]));
     const cols = g.layers.map((l) => l.filter((id) => byId.has(id))).filter((l) => l.length);
     const placedIds = new Set(cols.flat());
-    const rest = g.nodes.map((n) => n.id).filter((id) => !placedIds.has(id));
+    const rest = this.shown.map((n) => n.id).filter((id) => !placedIds.has(id));
     if (rest.length) cols.push(rest);
+    this.canvas.classList.toggle("empty", !cols.length);
+    this.stage.style.transition = animate ? "" : "none";
+    if (!cols.length) {
+      this.canvas.style.height = "84px";
+      return;
+    }
 
-    for (const v of this.nodes.values()) v.h = v.el.offsetHeight;
+    for (const v of this.nodes.values()) { v.h = v.el.offsetHeight; v.w = v.wide ? GROUP_W : W; }
     const colH = cols.map((c) => c.reduce((sum, id) => sum + this.nodes.get(id)!.h, 0) + (c.length - 1) * GY);
+    const colX: number[] = [];
+    let NW = PAD;
+    for (const c of cols) { colX.push(NW); NW += Math.max(...c.map((id) => this.nodes.get(id)!.w)) + GX; }
+    NW += PAD - GX;
     const H = Math.max(...colH, 60);
     const center = new Map<string, number>();
     cols.forEach((col, ci) => {
@@ -394,14 +481,14 @@ export class GraphView {
       let y = PAD + (H - colH[ci]) / 2;
       for (const { id } of order) {
         const v = this.nodes.get(id)!;
-        v.tx = PAD + ci * (W + GX);
+        v.tx = colX[ci];
         v.ty = y;
         center.set(id, y + v.h / 2);
         y += v.h + GY;
       }
     });
 
-    const NW = PAD * 2 + cols.length * W + (cols.length - 1) * GX, NH = H + PAD * 2;
+    const NH = H + PAD * 2;
     const avail = this.canvas.clientWidth || NW;
     const k = Math.min(1, avail / NW);
     const ox = Math.max(0, (avail - NW * k) / 2);
