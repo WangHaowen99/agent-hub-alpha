@@ -1,0 +1,25 @@
+body { margin: 0; font: 14px/1.6 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; color: #1f2328; background: #fff; }
+header { display: flex; justify-content: space-between; padding: 10px 24px; border-bottom: 1px solid #e5e7eb; }
+header .user { color: #57606a; }
+main { max-width: 1180px; margin: 0 auto; padding: 16px 24px 48px; }
+h1 { font-size: 20px; margin: 8px 0 4px; } h1 small { font-size: 13px; color: #57606a; font-weight: normal; margin-left: 8px; }
+.goal { color: #57606a; margin: 0 0 8px; }
+.graph { border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; margin: 12px 0; overflow-x: auto; }
+.graph pre { margin: 0; text-align: center; background: none; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+th { color: #57606a; font-weight: 500; }
+td.out { white-space: pre-wrap; color: #57606a; font-size: 12px; }
+.ok, .bad { padding: 8px 12px; border-radius: 6px; margin: 8px 0; }
+.ok { background: #eef7f0; } .bad { background: #fdecec; color: #8a1c1c; }
+.big { font-size: 18px; font-weight: 600; }
+.muted { color: #6e7781; font-size: 12px; }
+.btn { display: inline-block; padding: 6px 14px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff; color: #1f2328; text-decoration: none; cursor: pointer; font-size: 14px; margin-right: 8px; }
+.btn.primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+.versions a { margin-right: 8px; color: #57606a; } .versions a.on { color: #1f2328; font-weight: 600; }
+.card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; max-width: 360px; display: grid; gap: 10px; }
+.check { padding: 8px 0; border-bottom: 1px solid #f0f0f0; } .check ul { margin: 4px 0 0 18px; color: #57606a; font-size: 12px; }
+.y { color: #2e7d32; } .n { color: #c62828; }
+.legend .l { display: inline-block; padding: 1px 8px; margin-right: 6px; border-radius: 4px; font-size: 12px; }
+.l.done { background: #e6f4ea; } .l.reused { background: #e3f2fd; } .l.running { background: #fff4d6; } .l.skipped { background: #eee; }
+code { font-size: 12px; }

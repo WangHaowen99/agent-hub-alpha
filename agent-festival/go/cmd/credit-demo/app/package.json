@@ -1,0 +1,8 @@
+{
+  "name": "credit-plan-graph",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "@modelcontextprotocol/ext-apps": "^2.0.0" },
+  "devDependencies": { "esbuild": "^0.25.0", "typescript": "^5.6.0" }
+}

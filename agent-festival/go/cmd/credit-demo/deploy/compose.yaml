@@ -1,0 +1,51 @@
+# 授信编排演示：WorkSwarm（编排助手）+ credit（Go，agent-festival 内核）+ orchestrator（Java 执行器）。
+# 独立项目名、独立数据卷，只监听本机端口：页面 5191，WorkSwarm 5192，MCP App 沙箱 5193。
+name: credit-demo
+services:
+  credit:
+    image: credit-demo/credit:${CREDIT_TAG:-dev}
+    environment:
+      CREDIT_PUBLIC_URL: ${CREDIT_PUBLIC_URL:-http://localhost:15191}
+      CREDIT_ORCHESTRATOR_URL: http://orchestrator:8195
+      CREDIT_MEMBER_MCP_URL: http://credit:8091/member-mcp
+      CREDIT_MODEL: ${CREDIT_MODEL:-qwen-plus}
+      CREDIT_LEASE_SECONDS: ${CREDIT_LEASE_SECONDS:-20}
+      CREDIT_BANK_SCENARIO: ${CREDIT_BANK_SCENARIO:-}
+    volumes:
+      - credit-data:/data
+    ports:
+      - "127.0.0.1:${CREDIT_PORT:-5191}:8091"
+    restart: unless-stopped
+  orchestrator:
+    image: credit-demo/orchestrator:${CREDIT_TAG:-dev}
+    env_file:
+      - ${AHA_SECRETS_DIR:-${HOME}/.config/aha-swarm}/secrets.env
+    environment:
+      CREDIT_URL: http://credit:8091
+    mem_limit: 1500m
+    restart: unless-stopped
+  swarm:
+    image: aha-swarm/workswarm:${SWARM_COMMIT:-1142e5fb3}
+    env_file:
+      - ${AHA_SECRETS_DIR:-${HOME}/.config/aha-swarm}/secrets.env
+    environment:
+      FRONTEND_HOST: 0.0.0.0
+      CREDIT_MCP_URL: http://credit:8091/mcp
+      # MCP App 沙箱页由 WebChannel（19000）以另一个源提供，页面里写死 http://127.0.0.1:19000；
+      # 浏览器要经端口转发把本机 19000 接到这里映射出的 5193。
+      WEB_HOST: 0.0.0.0
+    volumes:
+      - swarm-home:/root/.jiuwenswarm
+      - ./configure.py:/usr/local/bin/aha-configure.py:ro
+      # 上游缺陷的临时补丁（网关不认 mcp_app.* 方法），与 pilot-mcp 共用。
+      - ../../pilot-mcp/deploy/patches/aha_mcp_app_methods.py:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.py:ro
+      - ../../pilot-mcp/deploy/patches/aha_mcp_app_methods.pth:/usr/local/lib/python3.11/site-packages/aha_mcp_app_methods.pth:ro
+    ports:
+      - "127.0.0.1:${CREDIT_SWARM_PORT:-5192}:5173"
+      - "127.0.0.1:${CREDIT_SANDBOX_PORT:-5193}:19000"
+    depends_on:
+      - credit
+    restart: unless-stopped
+volumes:
+  credit-data:
+  swarm-home:
