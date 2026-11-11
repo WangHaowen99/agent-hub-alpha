@@ -22,8 +22,8 @@ import (
 //go:embed web/*
 var webFS embed.FS
 
-// libVersion names the build of graph-flow.js, so pages and app documents
-// can let browsers cache it for good.
+// libVersion names the build of graph-flow.js, so pages can let browsers
+// cache it for good. Unversioned requests (the MCP App) revalidate.
 var libVersion = func() string {
 	b, err := webFS.ReadFile("web/graph-flow.js")
 	if err != nil {
@@ -134,6 +134,8 @@ func (s *Service) routes(mux *http.ServeMux) {
 		r.URL.Path = "web/" + r.URL.Path
 		if r.URL.Query().Get("v") != "" {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			w.Header().Set("Cache-Control", "no-cache")
 		}
 		static.ServeHTTP(w, r)
 	})))

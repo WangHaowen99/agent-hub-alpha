@@ -89,8 +89,7 @@ func (s *Service) plannerServer() *mcp.Server {
 	ro := &mcp.ToolAnnotations{ReadOnlyHint: true}
 	// The app rebases links from old tool results onto this address, and loads
 	// the card script from it (gzipped over HTTP, unlike this document).
-	appDoc := strings.Replace(graphAppHTML, "<head>", `<head><meta name="credit-base" content="`+html.EscapeString(s.cfg.PublicURL)+
-		`"><meta name="credit-lib" content="`+libVersion+`">`, 1)
+	appDoc := strings.Replace(graphAppHTML, "<head>", `<head><meta name="credit-base" content="`+html.EscapeString(s.cfg.PublicURL)+`">`, 1)
 	srv.AddResource(&mcp.Resource{URI: graphURI, Name: "credit-plan-graph", MIMEType: appMIME},
 		func(context.Context, *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 			return &mcp.ReadResourceResult{Contents: []*mcp.ResourceContents{{URI: graphURI, MIMEType: appMIME, Text: appDoc,

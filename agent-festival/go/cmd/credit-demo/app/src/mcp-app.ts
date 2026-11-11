@@ -5,7 +5,9 @@
 //
 // The card itself (React Flow) is graph-flow.js from the service's /static:
 // fetched over HTTP it is gzipped, while this document travels uncompressed
-// through the host's websocket.
+// through the host's websocket. WorkSwarm keeps this document for as long as
+// its page is open, so it names no version: every card loads the current
+// script, and a redeploy shows up without reloading WorkSwarm.
 import { Bridge } from "./bridge";
 import type { Graph } from "./types";
 
@@ -37,7 +39,7 @@ const rebase = (g: Graph): Graph => ({
 const root = document.getElementById("root")!;
 const lib = new Promise<Lib>((resolve, reject) => {
   const s = document.createElement("script");
-  s.src = here(`/static/graph-flow.js?v=${meta("credit-lib")}`);
+  s.src = here("/static/graph-flow.js");
   s.onload = () => resolve(window.CreditGraph);
   s.onerror = () => reject(new Error("graph-flow.js"));
   document.head.appendChild(s);
