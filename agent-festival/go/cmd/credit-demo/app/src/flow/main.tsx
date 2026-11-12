@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { ReactFlowProvider } from "@xyflow/react";
 import type { Graph, Options } from "../types";
 import { CreditGraph } from "./CreditGraph";
+import { newer } from "../order";
 import { ensureStyle } from "./styles";
 
 export interface View { render(g: Graph): void; current(): Graph | undefined }
@@ -23,6 +24,7 @@ export function mount(el: HTMLElement, opts: Options = {}): View {
   return {
     // Polls repeat the same snapshot most of the time: only a change renders.
     render(next) {
+      if (!newer(g, next)) return;
       const t = JSON.stringify(next);
       if (t === text) return;
       text = t;

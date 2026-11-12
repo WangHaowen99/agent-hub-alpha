@@ -30,6 +30,7 @@ type Graph struct {
 	Run        *GraphRun   `json:"run,omitempty"`
 	Verify     *Report     `json:"verify,omitempty"`
 	Live       string      `json:"live,omitempty"` // poll this while something can still change
+	Rev        int64       `json:"rev"`            // state revision this snapshot was read at
 }
 
 type GraphNode struct {
@@ -81,6 +82,7 @@ func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
 		}
 	}
 	s.mu.Lock()
+	g.Rev = s.st.Rev
 	if n := len(s.st.Plans[p.ID]); n > p.Version {
 		g.Superseded = n
 	}

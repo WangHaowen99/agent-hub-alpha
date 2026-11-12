@@ -6,13 +6,15 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { CreditGraph } from "../flow/CreditGraph";
 import { ensureStyle } from "../flow/styles";
 import type { Graph, Options } from "../types";
-import { Gateway } from "./gateway";
+import { newer } from "../order";
+import { Gateway, type GatewayError } from "./gateway";
 import pageCss from "./page.css";
 
 interface PlanRow { plan: string; version: number; case: string; goal: string; ok: boolean; run?: string; run_status?: string }
 type Pick = { plan: string; v: number };
 
 const gw = new Gateway();
+const lost = (e: unknown) => ((e as GatewayError).code === "WS" ? "与 WorkSwarm 的连接中断，正在重连…" : (e as Error).message);
 const POLL_MS = 1200, LIST_MS = 5000;
 
 function statusOf(p: PlanRow): [string, string] {
@@ -23,19 +25,23 @@ function statusOf(p: PlanRow): [string, string] {
   return ["wait", "待批准"];
 }
 
-// The selection lives in the URL hash, so a reload comes back to it.
-const fromHash = (): Pick | undefined => {
-  const m = /^#(P\d+)\/(\d+)$/.exec(location.hash);
+// The selection survives a WorkSwarm reload. WorkSwarm loads this page from
+// a fixed URL, so it is kept in localStorage (same origin), not the hash.
+const PICK_KEY = "credit-workbench:pick";
+const savedPick = (): Pick | undefined => {
+  let m: RegExpExecArray | null = null;
+  try { m = /^(P\d+)\/(\d+)$/.exec(localStorage.getItem(PICK_KEY) ?? ""); } catch { /* storage blocked */ }
   return m ? { plan: m[1], v: Number(m[2]) } : undefined;
 };
 
 function App() {
   const [plans, setPlans] = useState<PlanRow[]>();
-  const [pick, setPick] = useState<Pick | undefined>(fromHash);
+  const [pick, setPick] = useState<Pick | undefined>(savedPick);
   const [g, setG] = useState<Graph>();
   const [err, setErr] = useState("");
   const [nonce, setNonce] = useState(0);
   const shown = useRef("");
+  const shownGraph = useRef<Graph>();
 
   useEffect(() => {
     let stop = false, timer = 0;
@@ -47,7 +53,7 @@ function App() {
         setErr("");
         setPick((p) => p ?? (r.plans[0] && { plan: r.plans[0].plan, v: r.plans[0].version }));
       } catch (e) {
-        if (!stop) setErr((e as Error).message);
+        if (!stop) setErr(lost(e));
       }
       if (!stop) timer = window.setTimeout(load, LIST_MS);
     };
@@ -59,7 +65,7 @@ function App() {
   // approved and fetch the verification once it is done.
   useEffect(() => {
     if (!pick) return;
-    history.replaceState(null, "", `#${pick.plan}/${pick.v}`);
+    try { localStorage.setItem(PICK_KEY, `${pick.plan}/${pick.v}`); } catch { /* storage blocked */ }
     let stop = false, timer = 0;
     let target: Record<string, unknown> = { plan: pick.plan, v: String(pick.v) };
     const tick = async () => {
@@ -67,8 +73,10 @@ function App() {
         const next = await gw.call<Graph>("plugin.credit_workbench.graph", target);
         if (stop) return;
         setErr("");
-        const text = JSON.stringify(next);
-        if (text !== shown.current) { shown.current = text; setG(next); }
+        if (newer(shownGraph.current, next)) {
+          const text = JSON.stringify(next);
+          if (text !== shown.current) { shown.current = text; shownGraph.current = next; setG(next); }
+        }
         if (next.run) {
           const done = next.run.status === "done";
           if (done && !next.verify) target = { run: next.run.id, verify: true };
@@ -78,7 +86,8 @@ function App() {
           return;
         }
       } catch (e) {
-        if (!stop) setErr((e as Error).message);
+        // Keep the last graph on screen; polling goes on and reconnects.
+        if (!stop) setErr(lost(e));
       }
       if (!stop) timer = window.setTimeout(tick, POLL_MS);
     };
@@ -99,6 +108,7 @@ function App() {
   const choose = (p: PlanRow) => {
     if (pick?.plan === p.plan && pick.v === p.version) return;
     shown.current = "";
+    shownGraph.current = undefined;
     setG(undefined);
     setPick({ plan: p.plan, v: p.version });
   };

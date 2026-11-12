@@ -21,6 +21,7 @@ export interface Graph {
   verify?: { ok: boolean; summary: string; checks: Check[] };
   live?: string;
   bus?: BusSummary;
+  rev?: number; // state revision the snapshot was read at (see order.ts)
 }
 export interface Options {
   // Approve in the card: resolves to an error message, or undefined when approved.

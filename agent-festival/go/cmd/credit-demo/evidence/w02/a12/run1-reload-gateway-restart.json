@@ -1,0 +1,329 @@
+[
+ {
+  "t": 21.792,
+  "phase": "run",
+  "selected": "P20 v1",
+  "chip": "待批准",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "plan",
+   "financial": "plan",
+   "industry": "plan",
+   "bureau": "plan",
+   "related": "plan",
+   "judge": "plan",
+   "report": "plan",
+   "submit": "plan"
+  }
+ },
+ {
+  "t": 39.77,
+  "phase": "after-reload",
+  "selected": "P20 v1",
+  "chip": "执行中 5/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "running"
+  }
+ },
+ {
+  "t": 40.346,
+  "phase": "after-reload",
+  "selected": "P20 v1",
+  "chip": "执行中 6/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "running",
+   "submit": "running"
+  }
+ },
+ {
+  "t": 45.955,
+  "phase": "gateway-restart",
+  "gap": "no frame"
+ },
+ {
+  "t": 46.478,
+  "phase": "gateway-restart",
+  "gap": "no frame"
+ },
+ {
+  "t": 46.981,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 47.483,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 47.986,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 48.488,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 48.99,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 49.492,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 49.994,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 50.495,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 50.995,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 51.497,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 51.999,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 52.502,
+  "phase": "offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 53.056,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 53.557,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 54.059,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 54.56,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 55.062,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 55.563,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 56.064,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 56.565,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 57.067,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 57.569,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 58.07,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 58.572,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 59.075,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 59.576,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 60.078,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 60.58,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 61.083,
+  "phase": "after-offline",
+  "gap": "no frame"
+ },
+ {
+  "t": 61.584,
+  "phase": "after-offline",
+  "selected": "",
+  "chip": "",
+  "banner": "",
+  "graph": false,
+  "nodes": {}
+ },
+ {
+  "t": 62.088,
+  "phase": "after-offline",
+  "selected": "P20 v1",
+  "chip": "已完成",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done",
+   "submit": "done"
+  }
+ },
+ {
+  "t": 62.59,
+  "phase": "after-offline",
+  "selected": "P20 v1",
+  "chip": "已完成",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done",
+   "submit": "done"
+  }
+ },
+ {
+  "t": 63.101,
+  "phase": "after-offline",
+  "selected": "P20 v1",
+  "chip": "已完成",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done",
+   "submit": "done"
+  }
+ },
+ {
+  "t": 63.608,
+  "phase": "after-offline",
+  "selected": "P20 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done",
+   "submit": "done"
+  }
+ },
+ {
+  "t": 65.111,
+  "phase": "after-offline",
+  "selected": "P20 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done",
+   "submit": "done"
+  }
+ }
+]

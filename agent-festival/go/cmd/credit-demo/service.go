@@ -90,6 +90,9 @@ type State struct {
 	Runs     map[string]*Run    `json:"runs"`
 	NextPlan int                `json:"next_plan"`
 	NextRun  int                `json:"next_run"`
+	// Rev counts saved changes. It is persisted, so it only grows, even across
+	// restarts: a front end drops any snapshot older than one it has shown.
+	Rev int64 `json:"rev"`
 }
 
 type Service struct {
@@ -153,7 +156,9 @@ func OpenService(cfg Config) (*Service, error) {
 }
 
 // save must be called with s.mu held.
+// save persists the state; callers hold s.mu.
 func (s *Service) save() {
+	s.st.Rev++
 	for _, r := range s.st.Runs {
 		r.TokenSaved = r.Token
 	}

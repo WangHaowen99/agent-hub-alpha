@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestExplainCompose(t *testing.T) {
 	got := explainCompose("node related: max_downstream_calls 5 exceeds parent budget 4")
@@ -52,5 +57,25 @@ func TestGraphBranches(t *testing.T) {
 	}
 	if f, tone := bureauFinding(relatedBureau["R-601"]); f != "无逾期" || tone != "ok" {
 		t.Errorf("R-601 finding %q %q", f, tone)
+	}
+}
+
+// A12: the state revision only grows and survives a restart, so a front end
+// can drop any snapshot older than one it has already shown.
+func TestStateRevisionPersists(t *testing.T) {
+	dir := t.TempDir()
+	s := &Service{cfg: Config{DataDir: dir}, st: &State{Plans: map[string][]*Plan{}, Runs: map[string]*Run{}}}
+	s.save()
+	s.save()
+	if s.st.Rev != 2 {
+		t.Fatalf("rev after two saves = %d", s.st.Rev)
+	}
+	var back State
+	raw, err := os.ReadFile(filepath.Join(dir, "state.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &back); err != nil || back.Rev != 2 {
+		t.Fatalf("persisted rev = %d (%v)", back.Rev, err)
 	}
 }
