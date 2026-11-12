@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -64,6 +65,7 @@ type Run struct {
 	CaseID      string              `json:"case_id"`
 	Status      string              `json:"status"` // queued running done failed
 	ApprovedBy  string              `json:"approved_by"`
+	ApprovedVia *Via                `json:"approved_via,omitempty"`
 	CreatedAt   string              `json:"created_at"`
 	FinishedAt  string              `json:"finished_at,omitempty"`
 	Token       string              `json:"-"`
@@ -239,6 +241,42 @@ func (s *Service) Propose(in ProposeInput) (*Plan, error) {
 	return p, nil
 }
 
+// PlanSummary is one line of the workbench's plan list.
+type PlanSummary struct {
+	Plan       string `json:"plan"`
+	Version    int    `json:"version"`
+	Case       string `json:"case"`
+	Goal       string `json:"goal"`
+	OK         bool   `json:"ok"`
+	ProposedAt string `json:"proposed_at"`
+	Run        string `json:"run,omitempty"`
+	RunStatus  string `json:"run_status,omitempty"`
+}
+
+// RecentPlans lists the latest version of each plan, newest first.
+func (s *Service) RecentPlans(limit int) []PlanSummary {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out := []PlanSummary{}
+	for _, vs := range s.st.Plans {
+		p := vs[len(vs)-1]
+		row := PlanSummary{Plan: p.ID, Version: p.Version, Case: p.CaseID, Goal: p.Goal, OK: p.Precheck.OK, ProposedAt: p.ProposedAt, Run: p.RunID}
+		if r := s.st.Runs[p.RunID]; r != nil {
+			row.RunStatus = r.Status
+		}
+		out = append(out, row)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		a, _ := strconv.Atoi(strings.TrimPrefix(out[i].Plan, "P"))
+		b, _ := strconv.Atoi(strings.TrimPrefix(out[j].Plan, "P"))
+		return a > b
+	})
+	if len(out) > limit {
+		out = out[:limit]
+	}
+	return out
+}
+
 func (s *Service) Plan(id string, version int) (*Plan, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -254,7 +292,16 @@ func (s *Service) Plan(id string, version int) (*Plan, bool) {
 
 // Approve is only reachable from the signed-in confirm page: the planner
 // has no tool for it. The approved hash must be the one shown.
-func (s *Service) Approve(planID string, version int, hash, user string) (*Run, error) {
+// Via records where an approval came from. The demo checks a demo account's
+// password; the user names a front end passes along are kept for audit only:
+// Declared is what the client said, Authenticated what its gateway verified.
+type Via struct {
+	Channel       string `json:"channel"`
+	Declared      string `json:"declared_user,omitempty"`
+	Authenticated string `json:"authenticated_user,omitempty"`
+}
+
+func (s *Service) Approve(planID string, version int, hash, user string, via *Via) (*Run, error) {
 	p, ok := s.Plan(planID, version)
 	if !ok || p.Version != version {
 		return nil, fmt.Errorf("unknown plan version")
@@ -272,7 +319,7 @@ func (s *Service) Approve(planID string, version int, hash, user string) (*Run, 
 	}
 	s.st.NextRun++
 	r := &Run{ID: fmt.Sprintf("R%d", s.st.NextRun), PlanID: p.ID, PlanVersion: p.Version, PlanHash: p.Hash, CaseID: p.CaseID,
-		Status: "queued", ApprovedBy: user, CreatedAt: now(), Steps: map[string]*StepRec{}, Scenario: os.Getenv("CREDIT_BANK_SCENARIO")}
+		Status: "queued", ApprovedBy: user, ApprovedVia: via, CreatedAt: now(), Steps: map[string]*StepRec{}, Scenario: os.Getenv("CREDIT_BANK_SCENARIO")}
 	for _, l := range p.Layers {
 		for _, id := range l {
 			a := p.agent(id)

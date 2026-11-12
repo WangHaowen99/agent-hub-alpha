@@ -1,0 +1,23 @@
+# W02 编排协作台的试验实例：WorkSwarm b98ec8c7d + 应用插件，独立数据卷，只监听本机端口。
+# 用法：docker compose -f compose.yaml -f compose.w02.yaml up -d swarm-w02
+services:
+  swarm-w02:
+    image: aha-swarm/workswarm:${SWARM_W02_COMMIT:-b98ec8c7d}
+    env_file:
+      - ${AHA_SECRETS_DIR:-${HOME}/.config/aha-swarm}/secrets.env
+    environment:
+      FRONTEND_HOST: 0.0.0.0
+      CREDIT_MCP_URL: http://credit:8091/mcp
+      CREDIT_INTERNAL_URL: http://credit:8091
+    volumes:
+      - swarm-w02-home:/root/.jiuwenswarm
+      - ./configure.py:/usr/local/bin/aha-configure.py:ro
+      - ../workbench-plugin:/root/.jiuwenswarm/domain/application_plugins/credit-workbench:ro
+    ports:
+      - 127.0.0.1:5194:5173
+    depends_on:
+      - credit
+    restart: unless-stopped
+
+volumes:
+  swarm-w02-home:

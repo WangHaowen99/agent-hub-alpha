@@ -4,20 +4,11 @@
 import { useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
 import { ReactFlowProvider } from "@xyflow/react";
-import flowCss from "@xyflow/react/dist/style.css";
-import cardCss from "./style.css";
 import type { Graph, Options } from "../types";
 import { CreditGraph } from "./CreditGraph";
+import { ensureStyle } from "./styles";
 
 export interface View { render(g: Graph): void; current(): Graph | undefined }
-
-function ensureStyle(doc: Document) {
-  if (doc.getElementById("cg-style")) return;
-  const st = doc.createElement("style");
-  st.id = "cg-style";
-  st.textContent = flowCss + cardCss;
-  doc.head.appendChild(st);
-}
 
 export function mount(el: HTMLElement, opts: Options = {}): View {
   ensureStyle(el.ownerDocument);

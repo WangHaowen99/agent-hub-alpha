@@ -3,6 +3,7 @@
 //                         the confirm and run pages and to the MCP App
 //   dist/graph-app.html   the MCP App: a small ui:// document (bridge + loader)
 //                         embedded by the Go service
+//   ../workbench-plugin/frontend/dist   the WorkSwarm Application Plugin page
 import { build } from "esbuild";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
@@ -14,6 +15,15 @@ const flow = await build({
 });
 const lib = flow.outputFiles[0].contents;
 writeFileSync("../web/graph-flow.js", lib);
+
+// The workbench: an iframe page of the WorkSwarm Application Plugin.
+const wb = await build({
+  ...common, entryPoints: ["src/workbench/main.tsx"], jsx: "automatic", loader: { ".css": "text" },
+  define: { "process.env.NODE_ENV": '"production"' },
+});
+mkdirSync("../workbench-plugin/frontend/dist", { recursive: true });
+writeFileSync("../workbench-plugin/frontend/dist/app.js", wb.outputFiles[0].contents);
+writeFileSync("../workbench-plugin/frontend/dist/index.html", readFileSync("workbench.html", "utf8"));
 
 const app = await build({ ...common, entryPoints: ["src/mcp-app.ts"] });
 const js = app.outputFiles[0].text.replaceAll("</script", "<\\/script");

@@ -221,6 +221,7 @@ func (s *Service) serveApprove(w http.ResponseWriter, r *http.Request) {
 		Hash     string `json:"hash"`
 		User     string `json:"user"`
 		Password string `json:"password"`
+		Via      *Via   `json:"via"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&in); err != nil {
 		reply(http.StatusBadRequest, map[string]string{"error": "请求格式不对"})
@@ -230,7 +231,11 @@ func (s *Service) serveApprove(w http.ResponseWriter, r *http.Request) {
 		reply(http.StatusUnauthorized, map[string]string{"error": "密码不对"})
 		return
 	}
-	run, err := s.Approve(in.Plan, in.Version, in.Hash, in.User)
+	via := in.Via
+	if via == nil {
+		via = &Via{Channel: "mcp-app"}
+	}
+	run, err := s.Approve(in.Plan, in.Version, in.Hash, in.User, via)
 	if err != nil {
 		msg := err.Error()
 		switch {

@@ -129,6 +129,11 @@ func (s *Service) base() string {
 func (s *Service) routes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/graph", s.serveGraph)
 	mux.HandleFunc("/api/approve", s.serveApprove)
+	// The workbench plugin lists plans to pick from; read-only like /api/graph.
+	mux.HandleFunc("/api/plans", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"plans": s.RecentPlans(30)})
+	})
 	static := http.FileServerFS(webFS)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "web/" + r.URL.Path
@@ -174,7 +179,7 @@ func (s *Service) routes(mux *http.ServeMux) {
 				http.Redirect(w, r, s.base()+"/ui/login?next="+fmt.Sprintf("/ui/plan/%s/v%d", p.ID, p.Version), http.StatusSeeOther)
 				return
 			}
-			run, err := s.Approve(p.ID, p.Version, r.FormValue("hash"), user)
+			run, err := s.Approve(p.ID, p.Version, r.FormValue("hash"), user, &Via{Channel: "confirm-page"})
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusConflict)
 				return

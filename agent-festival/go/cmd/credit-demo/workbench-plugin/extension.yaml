@@ -1,0 +1,10 @@
+id: credit-workbench
+name: 编排协作台
+version: 0.1.0
+description: 查看编排图、确认编排单、实时看执行；状态和操作都经编排服务处理
+author: agent-hub-alpha
+min_jiuwenswarm_version: "0.2.5"
+package_type: application
+dependencies: {}
+permissions:
+  - outbound_network
