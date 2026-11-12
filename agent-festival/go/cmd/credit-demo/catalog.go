@@ -92,7 +92,7 @@ var experts = []*Expert{
 		Summary:     "黑盒节点（Loop Forest）：自主拆分，先查关联方名单，再逐个分叉排查征信，运行时才展开",
 		requires:    []grant{read("data:credit/related/*", "related-party list"), read("data:credit/related-bureau/*", "credit summary of related companies")},
 		effectLevel: "none", costCents: 80, calls: 5, seconds: 300},
-	{ID: "risk-judge", Name: "风险判断（S1）", Kind: "judge",
+	{ID: "risk-judge", Name: "风险判断", Kind: "judge",
 		Summary:     "按已发布的授信判断规约，对上游证据给出结构化判断",
 		requires:    []grant{read("data:credit/evidence/*", "upstream evidence of this case")},
 		effectLevel: "none", costCents: 30, calls: 0, seconds: 120},

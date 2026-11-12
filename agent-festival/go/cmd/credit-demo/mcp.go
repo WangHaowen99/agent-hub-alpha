@@ -144,7 +144,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			return res, nil, nil
 		})
 	mcp.AddTool(srv, &mcp.Tool{Name: "verify_run", Annotations: ro, Meta: graphMeta,
-		Description: "Verify a finished run with the festival checkers (signatures, approved plan, compose admission, evidence coverage, violations, S1 judgment, replay, ledger rules)."},
+		Description: "Verify a finished run with the festival checkers (signatures, approved plan, compose admission, evidence coverage, violations, risk judgment, replay, ledger rules)."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in RunRef) (*mcp.CallToolResult, any, error) {
 			id := in.RunID
 			if id == "" {

@@ -173,7 +173,7 @@ func (s *Service) compile(agents []PlanAgent) (*compileResult, []map[string]any,
 
 func expertInstruction(e *Expert) string {
 	if e.Kind == "judge" {
-		return "你是风险判断员（S1），按已发布的授信判断规约给出结构化判断。"
+		return "你是风险判断员，按已发布的授信判断规约给出结构化判断。"
 	}
 	if e.Kind == "effect" {
 		return "你是授信申请提交节点，只按已采纳的判断经网关提交申请。"

@@ -136,8 +136,8 @@ func (s *Service) Verify(runID string, tamper bool) (*Report, error) {
 	}
 	add(vio)
 
-	// 6. the S1 judgment is one of the published levels and cites real steps
-	jc := Check{Name: "S1 判断合规约", OK: r.Decision != nil}
+	// 6. the risk judgment is one of the published levels and cites real steps
+	jc := Check{Name: "判断合规约", OK: r.Decision != nil}
 	if r.Decision != nil {
 		level := fmt.Sprint(r.Decision["level"])
 		jc.OK = contains(s.levels, level)

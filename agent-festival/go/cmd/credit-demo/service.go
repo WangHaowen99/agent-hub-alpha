@@ -529,7 +529,7 @@ func (s *Service) Done(runID, token string, skipped []string, final string, fail
 func (s *Service) judgePrompt() string {
 	var b strings.Builder
 	q, _ := s.spec["question"].(map[string]any)
-	fmt.Fprintf(&b, "你是风险判断员（S1）。只按已发布的判断规约 %v@%v 作判断，不得自行补充规则。\n\n规则（precedence 越小越优先）：\n", q["question_id"], q["spec_version"])
+	fmt.Fprintf(&b, "你是风险判断员。只按已发布的判断规约 %v@%v 作判断，不得自行补充规则。\n\n规则（precedence 越小越优先）：\n", q["question_id"], q["spec_version"])
 	if rules, ok := s.spec["rules"].([]any); ok {
 		for _, r := range rules {
 			if m, ok := r.(map[string]any); ok {
@@ -578,7 +578,7 @@ func liveGrants() []ledger.Grant {
 	return out
 }
 
-// Judgment validates the S1 output against the published spec and adopts it
+// Judgment validates the risk judgment against the published spec and adopts it
 // through the festival adoption machine. Returns the normalized step output.
 func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 	s.mu.Lock()
@@ -629,7 +629,7 @@ func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 		AdoptionVersion: "0.1.0",
 		Identity:        ledger.Identity{BusinessRequestID: "br-" + strings.ToLower(r.CaseID) + "-" + strings.ToLower(r.ID), EvaluationRevision: "er-1", OperationID: op},
 		Versions: ledger.Versions{Evidence: sha(evidence...), Rule: fmt.Sprintf("%v@%v", q["question_id"], q["spec_version"]),
-			Model: s.cfg.Model, Readout: "s1-readout-1", Policy: r.PlanHash},
+			Model: s.cfg.Model, Readout: "risk-readout-1", Policy: r.PlanHash},
 		PayloadDigest:    digest,
 		GrantsAtDecision: grants,
 		Accountability:   &ledger.Accountability{Session: r.ID, Skill: "risk-judge", Role: "customer-manager"},
