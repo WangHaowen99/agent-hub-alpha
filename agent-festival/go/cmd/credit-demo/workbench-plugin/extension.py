@@ -1,4 +1,4 @@
-"""编排协作台：WorkSwarm 应用插件。
+"""编排台：WorkSwarm 应用插件。
 
 页面在 WorkSwarm 里打开，经 WorkSwarm 自己的 WebSocket 调这里注册的 RPC；
 这里再从服务端转给编排服务（Go）。浏览器不直接访问编排服务，编排服务也不用
@@ -64,7 +64,7 @@ class CreditWorkbench(ApplicationPluginExtension):
             FrontendContribution(
                 id="credit-workbench",
                 nav_key=f"app:{PLUGIN_ID}",
-                title="编排协作台",
+                title="编排台",
                 render_mode="iframe",
                 entrypoint="index.html",
                 position=60,

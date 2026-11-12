@@ -223,6 +223,8 @@ function gist(output?: string): string {
 function lineOf(g: Graph, n: GraphNode, status: string): Line | undefined {
   if (!g.run) return n.kind === "blackbox" ? { kind: "box", text: "运行时展开" } : undefined;
   if (status === "running") return { kind: "act", text: n.activity || "执行中" };
+  if (status === "waiting") return { kind: "act", text: n.activity || "等待远端结果" };
+  if (status === "unknown") return { kind: "note", text: n.activity || "结果待核对，不会自动重发", tone: "bad" };
   const res = finished(status) ? resultOf(g, n) : undefined;
   if (res) return { kind: "res", text: res[1], tone: res[0] };
   const said = finished(status) ? gist(n.output) : "";

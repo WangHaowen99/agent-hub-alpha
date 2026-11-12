@@ -1,7 +1,7 @@
 // Two outputs:
 //   ../web/graph-flow.js                the plan card (React Flow) for the
 //                                       service's own confirm and run pages
-//   ../workbench-plugin/frontend/dist   the 编排协作台 page of the WorkSwarm
+//   ../workbench-plugin/frontend/dist   the 编排台 page of the WorkSwarm
 //                                       Application Plugin
 import { build } from "esbuild";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";

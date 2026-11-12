@@ -11,10 +11,10 @@ import (
 
 type Empty struct{}
 
-// The plan graph, approval and the live run are shown in the 编排协作台
+// The plan graph, approval and the live run are shown in the 编排台
 // workbench (a WorkSwarm Application Plugin), the one place to act on a plan;
 // tool results only tell the planner where to send the user.
-const workbench = "「编排协作台」（WorkSwarm 左侧导航）"
+const workbench = "「编排台」（WorkSwarm 左侧导航）"
 
 type PlanRef struct {
 	PlanID string `json:"plan_id" jsonschema:"plan id such as P1"`
@@ -42,7 +42,7 @@ func (s *Service) planView(p *Plan) map[string]any {
 		"precheck": map[string]any{"ok": p.Precheck.OK, "not_held": p.Precheck.NotHeld, "rules": p.Precheck.Rules, "errors": p.Precheck.Errors},
 	}
 	if p.Precheck.OK {
-		v["next"] = fmt.Sprintf("编排图在%s里，用户在那里看成员、子任务和依赖，并点「批准」输入密码确认。你只用一两句话说明组队思路，请用户到%s确认 %s v%d；不要画图，不要逐个列出成员。批准前不会执行任何步骤，批准后协作台会实时显示执行到哪一步。", workbench, workbench, p.ID, p.Version)
+		v["next"] = fmt.Sprintf("编排图在%s里，用户在那里看成员、子任务和依赖，并点「批准」输入密码确认。你只用一两句话说明组队思路，请用户到%s确认 %s v%d；不要画图，不要逐个列出成员。批准前不会执行任何步骤，批准后编排台会实时显示执行到哪一步。", workbench, workbench, p.ID, p.Version)
 	} else {
 		v["next"] = "规约预检未通过：把 not_held、rules 和 errors 如实告诉用户。权限不足就换用权限范围内的专家，违反尽调规约（rules）就按规约补齐成员或依赖；不要为了过预检删掉成员。改完用同一个 plan_id 重新 propose_plan。"
 	}
@@ -77,7 +77,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			return result(map[string]any{"experts": s.cat.Cards(), "cases": []string{"C006", "C007"}, "plan_rules": ddRules()}), nil, nil
 		})
 	mcp.AddTool(srv, &mcp.Tool{Name: "propose_plan",
-		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval in the 编排协作台 workbench."},
+		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval in the 编排台 workbench."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in ProposeInput) (*mcp.CallToolResult, any, error) {
 			p, err := s.Propose(in)
 			if err != nil {
@@ -94,7 +94,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			return planResult(p), nil, nil
 		})
 	mcp.AddTool(srv, &mcp.Tool{Name: "run_status", Annotations: ro,
-		Description: "Read the authoritative state of an approved run: each step's status, the adopted judgment, and the bank receipt. The 编排协作台 workbench shows it live."},
+		Description: "Read the authoritative state of an approved run: each step's status, the adopted judgment, and the bank receipt. The 编排台 workbench shows it live."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in RunRef) (*mcp.CallToolResult, any, error) {
 			id := in.RunID
 			if id == "" {
@@ -104,7 +104,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			}
 			r, p, ok := s.RunByID(id)
 			if !ok {
-				return fail(fmt.Errorf("no approved run yet — the user has to approve the plan in the 编排协作台 workbench")), nil, nil
+				return fail(fmt.Errorf("no approved run yet — the user has to approve the plan in the 编排台 workbench")), nil, nil
 			}
 			return result(s.runView(r, p)), nil, nil
 		})

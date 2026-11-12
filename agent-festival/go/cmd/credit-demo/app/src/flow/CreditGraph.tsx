@@ -3,7 +3,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Background, Controls, ReactFlow, useReactFlow, type Node } from "@xyflow/react";
 import { CircleCheck, CircleX, RotateCcw, X } from "lucide-react";
-import { finished, type Graph, type Options } from "../types";
+import { finished, type Graph, type GraphNode, type Options } from "../types";
+import { associationText, busOverviewHTML, executionDetailHTML } from "./bus-detail";
 import { build, Delays, type Built } from "./layout";
 import { edgeTypes, nodeTypes } from "./nodes";
 
@@ -26,6 +27,7 @@ export function CreditGraph({ g, opts }: { g: Graph; opts: Options }) {
     <div className={`cg m-${mode}${g.run?.stalled ? " m-stalled" : ""}`}>
       <Head g={g} canApprove={canApprove} onApprove={() => setGate((x) => !x)} />
       {gate && canApprove && <Gate g={g} opts={opts} onClose={() => setGate(false)} />}
+      {g.bus && <BusOverview g={g} onInspect={(id) => setDetail(id)} />}
       <Canvas built={built} empty={!built.nodes.length} blank={!g.nodes.length} onPick={(id) => setDetail((cur) => (cur === id ? undefined : id))} />
       <Foot g={g} />
       {detail && <Detail g={g} id={detail} onClose={() => setDetail(undefined)} />}
@@ -44,7 +46,7 @@ function Head({ g, canApprove, onApprove }: { g: Graph; canApprove: boolean; onA
     const pass = g.verify.checks.filter((c) => c.ok).length;
     chip = g.verify.ok ? ["ok", `验证通过 ${pass}/${g.verify.checks.length}`] : ["bad", `验证未通过 ${pass}/${g.verify.checks.length}`];
   } else if (g.run) {
-    chip = ({ queued: ["wait", "排队中"], running: ["run", `执行中 ${settled}/${total}`], done: ["ok", "已完成"], failed: ["bad", "执行失败"] } as Record<string, [string, string]>)[g.run.status] ?? ["mute", g.run.status];
+    chip = ({ queued: ["wait", "排队中"], running: ["run", `执行中 ${settled}/${total}`], waiting: ["wait", "等待核对远端结果"], done: ["ok", "已完成"], failed: ["bad", "执行失败"] } as Record<string, [string, string]>)[g.run.status] ?? ["mute", g.run.status];
     if (g.run.stalled) chip = ["bad", "执行器无响应 · 等待接管"];
   } else if (!g.ok) chip = ["bad", "预检未通过"];
   else if (g.superseded) chip = ["mute", `已更新为 v${g.superseded}`];
@@ -220,6 +222,7 @@ function Detail({ g, id, onClose }: { g: Graph; id: string; onClose: () => void 
   }
   const n = g.nodes.find((x) => x.id === id);
   if (!n) return null;
+  if (n.execution || n.remote) return <BusDetail n={n} onClose={onClose} />;
   return (
     <div className="cg-detail">
       <button className="x" onClick={onClose} aria-label="关闭"><X className="ci" /></button>
@@ -230,5 +233,66 @@ function Detail({ g, id, onClose }: { g: Graph; id: string; onClose: () => void 
       {n.contract && <><div className="k">契约</div><code>{n.contract}</code></>}
       {n.output && <><div className="k">产物</div><div className="out">{n.output}</div></>}
     </div>
+  );
+}
+
+// ---------- Agent Bus (W05) ----------
+// The overview and the execution detail come from bus-detail.ts as escaped
+// HTML; set it by hand so a live poll does not collapse what the user opened.
+
+function useHTML(html: string, keep: (el: HTMLElement) => () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current!;
+    const restore = keep(el);
+    el.innerHTML = html;
+    restore();
+  }, [html]);
+  return ref;
+}
+
+const openSections = (el: HTMLElement) => {
+  const open = [...el.querySelectorAll<HTMLDetailsElement>("details")].filter((d) => d.open).map((d) => d.dataset.detailSection ?? d.className);
+  const body = el.querySelector(".cg-detail-body");
+  const scroll = body?.scrollTop ?? 0;
+  return () => {
+    el.querySelectorAll<HTMLDetailsElement>("details").forEach((d) => { d.open = open.includes(d.dataset.detailSection ?? d.className); });
+    const b = el.querySelector(".cg-detail-body");
+    if (b) b.scrollTop = scroll;
+  };
+};
+
+function BusOverview({ g, onInspect }: { g: Graph; onInspect: (id: string) => void }) {
+  const ref = useHTML(busOverviewHTML(g), openSections);
+  return (
+    <div ref={ref} className="cg-bus-overview" onClick={(e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>("[data-inspect]");
+      if (b) onInspect(b.dataset.inspect!);
+    }} />
+  );
+}
+
+function BusDetail({ n, onClose }: { n: GraphNode; onClose: () => void }) {
+  const ref = useHTML(executionDetailHTML(n), openSections);
+  const copy = async (status: HTMLElement | null) => {
+    const text = associationText(n);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const t = document.createElement("textarea");
+      t.value = text;
+      document.body.appendChild(t);
+      t.select();
+      document.execCommand("copy");
+      t.remove();
+    }
+    if (status) status.textContent = "已复制";
+  };
+  return (
+    <div ref={ref} className="cg-detail bus" onClick={(e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("[data-detail-close]")) onClose();
+      else if (t.closest("[data-copy-evidence]")) void copy(ref.current!.querySelector("[data-copy-status]"));
+    }} />
   );
 }

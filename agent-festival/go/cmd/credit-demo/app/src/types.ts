@@ -5,9 +5,13 @@ export interface Branch {
   goal: string; status: string; title: string; relation?: string; activity?: string; finding?: string; tone?: string; retried?: boolean;
 }
 export interface RunIf { step: string; contains: string; negate?: boolean }
+export type { BusSummary, CapabilityBinding, ExecutionBinding, GatewayExchange, RemoteExecution } from "./flow/bus-detail";
+import type { BusSummary, ExecutionBinding, RemoteExecution } from "./flow/bus-detail";
 export interface GraphNode {
   id: string; name: string; kind: string; role?: string; task: string; deps?: string[]; when?: RunIf;
   effect?: string; reads?: string[]; contract?: string; denied?: string; status?: string; activity?: string; output?: string; branches?: Branch[];
+  // Set when the node runs through Agent Bus: the capability it is bound to and what its call recorded.
+  execution?: ExecutionBinding; remote?: RemoteExecution;
 }
 export interface Check { name: string; ok: boolean; detail: string; items?: string[] }
 export interface Graph {
@@ -16,6 +20,7 @@ export interface Graph {
   run?: { id: string; status: string; decision?: string; receipt?: string; leases: number; stalled?: boolean; url: string };
   verify?: { ok: boolean; summary: string; checks: Check[] };
   live?: string;
+  bus?: BusSummary;
 }
 export interface Options {
   // Approve in the card: resolves to an error message, or undefined when approved.
@@ -25,8 +30,9 @@ export interface Options {
 }
 
 export const finished = (s?: string) => s === "done" || s === "reused";
-// Once a run exists, an expert appears when it starts.
-export const started = (s?: string) => s === "running" || s === "failed" || finished(s);
+// Once a run exists, an expert appears when it starts. A remote node may be
+// waiting for its result, or have one that still has to be checked (unknown).
+export const started = (s?: string) => s === "running" || s === "waiting" || s === "unknown" || s === "failed" || finished(s);
 
 export type Tone = "ok" | "bad" | "mute";
 

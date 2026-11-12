@@ -3,7 +3,7 @@
 // Loop Forest group with fork nodes for the black box.
 import { memo, type CSSProperties } from "react";
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, Handle, Position, type EdgeProps, type NodeProps } from "@xyflow/react";
-import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleX, GitBranch, Loader2 } from "lucide-react";
+import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleHelp, CircleX, Clock, GitBranch, Loader2 } from "lucide-react";
 import type { BranchData, EdgeData, ExpertData, GroupData, Line } from "./layout";
 
 // A denied node shakes once it has landed: the second delay is for that.
@@ -14,6 +14,8 @@ export function StatusIcon({ status, denied }: { status: string; denied?: boolea
   if (denied) return <Ban key="denied" className="ci pop t-bad" />;
   switch (status) {
     case "running": return <Loader2 key={status} className="ci spin t-run" />;
+    case "waiting": return <Clock key={status} className="ci pop t-warn" />;
+    case "unknown": return <CircleHelp key={status} className="ci pop t-warn" />;
     case "done": return <CircleCheck key={status} className="ci pop t-ok" />;
     case "reused": return <CircleCheck key={status} className="ci pop t-reuse" />;
     case "failed": return <CircleX key={status} className="ci pop t-bad" />;
@@ -39,6 +41,8 @@ export const ExpertNode = memo(({ data }: NodeProps) => {
   const { n, status } = d;
   const tags: JSX.Element[] = [];
   if (n.kind === "blackbox" && !d.host) tags.push(<span key="bb" className="tag bb">黑盒</span>);
+  if (n.execution?.kind === "agent_bus" || n.remote) tags.push(<span key="bus" className="tag bus" title="经 Agent Bus 网关 DIRECT 调用远端 Agent">总线</span>);
+  if (status === "unknown") tags.push(<span key="uk" className="tag warn pop">待核对</span>);
   if (n.effect === "irreversible") tags.push(<span key="irr" className="tag irr">不可逆</span>);
   if (status === "reused") tags.push(<span key="re" className="tag reuse pop">复用</span>);
   if (d.denied) tags.push(<span key="dn" className="tag bad pop">无权限</span>);

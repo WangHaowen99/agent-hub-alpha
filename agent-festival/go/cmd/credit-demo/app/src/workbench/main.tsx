@@ -1,4 +1,4 @@
-// 编排协作台：WorkSwarm 应用插件页面。左侧是最近的编排单，右侧是选中的
+// 编排台：WorkSwarm 应用插件页面。左侧是最近的编排单，右侧是选中的
 // 编排图；读状态和确认都走插件 RPC，由插件后端转给编排服务。
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";

@@ -1,5 +1,5 @@
 # 授信编排演示：WorkSwarm（编排助手）+ credit（Go，agent-festival 内核）+ orchestrator（Java 执行器）。
-# 独立项目名、独立数据卷，只监听本机端口：入口 5192（WorkSwarm，含编排协作台插件），调试用 5191 直连授信编排服务。
+# 独立项目名、独立数据卷，只监听本机端口：入口 5192（WorkSwarm，含编排台插件），调试用 5191 直连授信编排服务。
 name: credit-demo
 services:
   credit:
@@ -34,7 +34,7 @@ services:
     volumes:
       - swarm-plugin-home:/root/.jiuwenswarm
       - ./configure.py:/usr/local/bin/aha-configure.py:ro
-      # 编排协作台：WorkSwarm 应用插件，不改 WorkSwarm 源码。
+      # 编排台：WorkSwarm 应用插件，不改 WorkSwarm 源码。
       - ../workbench-plugin:/root/.jiuwenswarm/domain/application_plugins/credit-workbench:ro
     depends_on:
       - credit
