@@ -1,0 +1,315 @@
+{
+  "snapshot": "cmb-2025-annual-report-a",
+  "note": "每条是一段报告片段（字段同 report.schema.json）及预期核验结果。正例用于防止一律拒绝也能通过。",
+  "cases": [
+    {
+      "id": "P01",
+      "covers": [
+        "A07"
+      ],
+      "fault": null,
+      "expected": "pass",
+      "reason": "正例：与参考答案一致",
+      "fragment": {
+        "indicator": {
+          "id": "revenue",
+          "values": {
+            "2025": 337532.0,
+            "2024": 337488.0
+          },
+          "unit": "人民币百万元",
+          "change": {
+            "kind": "pct",
+            "value": 0.01
+          },
+          "citation": {
+            "pdf_page": 14,
+            "printed_page": 13,
+            "quote": "营业收入 337,532 337,488 0.01 339,123"
+          }
+        }
+      }
+    },
+    {
+      "id": "P02",
+      "covers": [
+        "A08"
+      ],
+      "fault": null,
+      "expected": "pass",
+      "reason": "正例：结论与所引原文一致",
+      "fragment": {
+        "finding": {
+          "text": "不良贷款率较上年末下降 0.01 个百分点至 0.94%",
+          "evidence": [
+            {
+              "pdf_page": 16,
+              "printed_page": 15,
+              "quote": "不良贷款率 0.94 0.95 下降0.01个百分点 0.95"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C01",
+      "covers": [
+        "A07"
+      ],
+      "fault": "单位错",
+      "expected": "fail",
+      "reason": "按亿元填数却标人民币百万元",
+      "fragment": {
+        "indicator": {
+          "id": "revenue",
+          "values": {
+            "2025": 3375.32,
+            "2024": 3374.88
+          },
+          "unit": "人民币百万元",
+          "change": {
+            "kind": "pct",
+            "value": 0.01
+          },
+          "citation": {
+            "pdf_page": 14,
+            "printed_page": 13,
+            "quote": "营业收入 337,532 337,488 0.01 339,123"
+          }
+        }
+      }
+    },
+    {
+      "id": "C02",
+      "covers": [
+        "A07"
+      ],
+      "fault": "期间错",
+      "expected": "fail",
+      "reason": "上年数取了 2023 年列（437.70）",
+      "fragment": {
+        "indicator": {
+          "id": "provision_coverage",
+          "values": {
+            "2025": 391.79,
+            "2024": 437.7
+          },
+          "unit": "%",
+          "change": {
+            "kind": "pp",
+            "value": -45.91
+          },
+          "citation": {
+            "pdf_page": 16,
+            "printed_page": 15,
+            "quote": "拨备覆盖率(1) 391.79 411.98 下降20.19个百分点 437.70"
+          }
+        }
+      }
+    },
+    {
+      "id": "C03",
+      "covers": [
+        "A07"
+      ],
+      "fault": "口径错",
+      "expected": "fail",
+      "reason": "用权重法 11.92% 冒充高级法核心一级资本充足率",
+      "fragment": {
+        "indicator": {
+          "id": "cet1_ratio_advanced",
+          "values": {
+            "2025": 11.92,
+            "2024": 14.86
+          },
+          "unit": "%",
+          "change": {
+            "kind": "pp",
+            "value": -2.94
+          },
+          "citation": {
+            "pdf_page": 16,
+            "printed_page": 15,
+            "quote": "注： 截至报告期末，本集团权重法下核心一级资本充足率11.92%，一级资本充足率13.90%，资本充足率15.00%。"
+          }
+        }
+      }
+    },
+    {
+      "id": "C04",
+      "covers": [
+        "A07"
+      ],
+      "fault": "百分点写成百分比",
+      "expected": "fail",
+      "reason": "比率类指标的变化必须用百分点；-1.05% 是相对变化",
+      "fragment": {
+        "indicator": {
+          "id": "npl_ratio",
+          "values": {
+            "2025": 0.94,
+            "2024": 0.95
+          },
+          "unit": "%",
+          "change": {
+            "kind": "pct",
+            "value": -1.05
+          },
+          "citation": {
+            "pdf_page": 16,
+            "printed_page": 15,
+            "quote": "不良贷款率 0.94 0.95 下降0.01个百分点 0.95"
+          }
+        }
+      }
+    },
+    {
+      "id": "C05",
+      "covers": [
+        "A07"
+      ],
+      "fault": "同比算错",
+      "expected": "fail",
+      "reason": "正确值为 1.21%",
+      "fragment": {
+        "indicator": {
+          "id": "net_profit_attributable",
+          "values": {
+            "2025": 150181.0,
+            "2024": 148391.0
+          },
+          "unit": "人民币百万元",
+          "change": {
+            "kind": "pct",
+            "value": 1.12
+          },
+          "citation": {
+            "pdf_page": 14,
+            "printed_page": 13,
+            "quote": "归属于本行股东的净利润 150,181 148,391 1.21 146,602"
+          }
+        }
+      }
+    },
+    {
+      "id": "C06",
+      "covers": [
+        "A07"
+      ],
+      "fault": "指标混淆",
+      "expected": "fail",
+      "reason": "151,126 是净利润（含少数股东），不是归属于本行股东的净利润",
+      "fragment": {
+        "indicator": {
+          "id": "net_profit_attributable",
+          "values": {
+            "2025": 151126,
+            "2024": 149559
+          },
+          "unit": "人民币百万元",
+          "change": {
+            "kind": "pct",
+            "value": 1.05
+          },
+          "citation": {
+            "pdf_page": 14,
+            "printed_page": 13,
+            "quote": "归属于本行股东的净利润 150,181 148,391 1.21 146,602"
+          }
+        }
+      }
+    },
+    {
+      "id": "C07",
+      "covers": [
+        "A08"
+      ],
+      "fault": "页码错",
+      "expected": "fail",
+      "reason": "原文行不在所引页（应在 PDF 第 16 页）",
+      "fragment": {
+        "indicator": {
+          "id": "provision_coverage",
+          "values": {
+            "2025": 391.79,
+            "2024": 411.98
+          },
+          "unit": "%",
+          "change": {
+            "kind": "pp",
+            "value": -20.19
+          },
+          "citation": {
+            "pdf_page": 51,
+            "printed_page": 50,
+            "quote": "拨备覆盖率(1) 391.79 411.98 下降20.19个百分点 437.70"
+          }
+        }
+      }
+    },
+    {
+      "id": "C08",
+      "covers": [
+        "A08"
+      ],
+      "fault": "引用不支持结论",
+      "expected": "fail",
+      "reason": "所引原文显示拨备覆盖率下降 20.19 个百分点，与结论方向相反",
+      "fragment": {
+        "finding": {
+          "text": "拨备覆盖率较上年末上升，风险抵补能力增强",
+          "evidence": [
+            {
+              "pdf_page": 16,
+              "printed_page": 15,
+              "quote": "拨备覆盖率(1) 391.79 411.98 下降20.19个百分点 437.70"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C09",
+      "covers": [
+        "A08"
+      ],
+      "fault": "伪造来源",
+      "expected": "fail",
+      "reason": "引用了快照清单之外的材料",
+      "fragment": {
+        "finding": {
+          "text": "不良贷款率为 0.94%",
+          "evidence": [
+            {
+              "snapshot": "cmb-2025-annual-report-h",
+              "pdf_page": 16,
+              "printed_page": 15,
+              "quote": "不良贷款率 0.94 0.95 下降0.01个百分点 0.95"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C10",
+      "covers": [
+        "A08"
+      ],
+      "fault": "引用无法支撑因果",
+      "expected": "human",
+      "reason": "所引数据只说明不良余额上升，说明不了原因；不得自动通过，转人工",
+      "fragment": {
+        "finding": {
+          "text": "不良贷款余额上升主要来自房地产业贷款",
+          "evidence": [
+            {
+              "pdf_page": 15,
+              "printed_page": 14,
+              "quote": "不良贷款 68,206 65,610 3.96 61,579"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-hub-alpha/demo/annual-report/report.schema.json",
+  "title": "年报经营与资产质量简报（结构化）",
+  "description": "先结构化、后渲染。每个数字和结论都要能回到快照里的页和原文行。",
+  "type": "object",
+  "required": ["snapshot", "scope", "indicators", "sections", "limitations"],
+  "additionalProperties": false,
+  "properties": {
+    "snapshot": { "const": "cmb-2025-annual-report-a", "description": "source.json 的 id；引用其他材料一律不合格" },
+    "scope": {
+      "type": "object",
+      "required": ["entity", "basis", "currency_unit", "period", "compare_period"],
+      "additionalProperties": false,
+      "properties": {
+        "entity": { "const": "招商银行股份有限公司" },
+        "basis": { "const": "本集团" },
+        "currency_unit": { "const": "人民币百万元" },
+        "period": { "const": "2025" },
+        "compare_period": { "const": "2024" }
+      }
+    },
+    "indicators": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/indicator" }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "findings"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "enum": ["operating", "asset_quality", "risks"] },
+          "findings": { "type": "array", "items": { "$ref": "#/$defs/finding" } }
+        }
+      }
+    },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "citation": {
+      "type": "object",
+      "required": ["pdf_page", "printed_page", "quote"],
+      "additionalProperties": false,
+      "properties": {
+        "snapshot": { "type": "string", "description": "省略时为报告的 snapshot" },
+        "pdf_page": { "type": "integer", "minimum": 1, "maximum": 368 },
+        "printed_page": { "type": ["integer", "null"] },
+        "quote": { "type": "string", "minLength": 1, "description": "页面上的原文行，核验时在该页逐字查找" }
+      }
+    },
+    "change": {
+      "type": "object",
+      "required": ["kind", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["pct", "pp"], "description": "金额类用增减百分比 pct；比率类用百分点 pp" },
+        "value": { "type": "number", "description": "两位小数；pp 为 2025 减 2024，正为上升" }
+      }
+    },
+    "indicator": {
+      "type": "object",
+      "required": ["id", "values", "unit", "change", "citation"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "answers.json 的指标 id" },
+        "values": {
+          "type": "object",
+          "required": ["2025", "2024"],
+          "additionalProperties": false,
+          "properties": { "2025": { "type": "number" }, "2024": { "type": "number" } }
+        },
+        "unit": { "enum": ["人民币百万元", "%"] },
+        "change": { "$ref": "#/$defs/change" },
+        "citation": { "$ref": "#/$defs/citation" }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["text", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              { "type": "object", "required": ["indicator"], "additionalProperties": false, "properties": { "indicator": { "type": "string" } } },
+              { "$ref": "#/$defs/citation" }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

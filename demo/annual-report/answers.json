@@ -1,0 +1,283 @@
+{
+  "snapshot": "cmb-2025-annual-report-a",
+  "note": "程序抽取并复算，尚未人工核对；verification.status 为 pending 时不得作为参考答案使用。",
+  "indicators": [
+    {
+      "id": "revenue",
+      "name": "营业收入",
+      "scope": "本集团",
+      "unit": "人民币百万元",
+      "basis": "全年",
+      "values": {
+        "2025": 337532.0,
+        "2024": 337488.0
+      },
+      "change": {
+        "kind": "pct",
+        "value": 0.01
+      },
+      "source": {
+        "pdf_page": 14,
+        "printed_page": 13,
+        "section": "2.1 本集团主要会计数据和财务指标",
+        "line": "营业收入 337,532 337,488 0.01 339,123"
+      },
+      "recompute": {
+        "formula": "(2025 − 2024) / 2024 × 100",
+        "value": 0.01
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "net_profit_attributable",
+      "name": "归属于本行股东的净利润",
+      "scope": "本集团",
+      "unit": "人民币百万元",
+      "basis": "全年",
+      "values": {
+        "2025": 150181.0,
+        "2024": 148391.0
+      },
+      "change": {
+        "kind": "pct",
+        "value": 1.21
+      },
+      "source": {
+        "pdf_page": 14,
+        "printed_page": 13,
+        "section": "2.1 本集团主要会计数据和财务指标",
+        "line": "归属于本行股东的净利润 150,181 148,391 1.21 146,602"
+      },
+      "recompute": {
+        "formula": "(2025 − 2024) / 2024 × 100",
+        "value": 1.21
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "net_interest_margin",
+      "name": "净利息收益率",
+      "scope": "本集团",
+      "unit": "%",
+      "basis": "全年",
+      "values": {
+        "2025": 1.87,
+        "2024": 1.98
+      },
+      "change": {
+        "kind": "pp",
+        "value": -0.11
+      },
+      "source": {
+        "pdf_page": 16,
+        "printed_page": 15,
+        "section": "2.2 本集团补充财务比率",
+        "line": "净利息收益率(2) 1.87 1.98 下降0.11个百分点 2.15"
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "cost_to_income",
+      "name": "成本收入比",
+      "scope": "本集团",
+      "unit": "%",
+      "basis": "全年",
+      "values": {
+        "2025": 31.98,
+        "2024": 31.89
+      },
+      "change": {
+        "kind": "pp",
+        "value": 0.09
+      },
+      "source": {
+        "pdf_page": 16,
+        "printed_page": 15,
+        "section": "2.2 本集团补充财务比率",
+        "line": "成本收入比(3) 31.98 31.89 上升0.09个百分点 32.96"
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "npl_balance",
+      "name": "不良贷款余额",
+      "scope": "本集团",
+      "unit": "人民币百万元",
+      "basis": "年末",
+      "values": {
+        "2025": 68206.0,
+        "2024": 65610.0
+      },
+      "change": {
+        "kind": "pct",
+        "value": 3.96
+      },
+      "source": {
+        "pdf_page": 15,
+        "printed_page": 14,
+        "section": "2.1 本集团主要会计数据和财务指标",
+        "line": "不良贷款 68,206 65,610 3.96 61,579"
+      },
+      "name_in_report": "不良贷款",
+      "recompute": {
+        "formula": "(2025 − 2024) / 2024 × 100",
+        "value": 3.96
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "npl_ratio",
+      "name": "不良贷款率",
+      "scope": "本集团",
+      "unit": "%",
+      "basis": "年末",
+      "values": {
+        "2025": 0.94,
+        "2024": 0.95
+      },
+      "change": {
+        "kind": "pp",
+        "value": -0.01
+      },
+      "source": {
+        "pdf_page": 16,
+        "printed_page": 15,
+        "section": "2.2 本集团补充财务比率",
+        "line": "不良贷款率 0.94 0.95 下降0.01个百分点 0.95"
+      },
+      "recompute": {
+        "formula": "不良贷款余额 / 贷款和垫款总额 × 100",
+        "value": 0.94
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "provision_coverage",
+      "name": "拨备覆盖率",
+      "scope": "本集团",
+      "unit": "%",
+      "basis": "年末",
+      "values": {
+        "2025": 391.79,
+        "2024": 411.98
+      },
+      "change": {
+        "kind": "pp",
+        "value": -20.19
+      },
+      "source": {
+        "pdf_page": 16,
+        "printed_page": 15,
+        "section": "2.2 本集团补充财务比率",
+        "line": "拨备覆盖率(1) 391.79 411.98 下降20.19个百分点 437.70"
+      },
+      "recompute": {
+        "formula": "贷款损失准备 / 不良贷款余额 × 100",
+        "value": 391.79
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    },
+    {
+      "id": "cet1_ratio_advanced",
+      "name": "核心一级资本充足率（高级法）",
+      "scope": "本集团",
+      "unit": "%",
+      "basis": "年末",
+      "values": {
+        "2025": 14.16,
+        "2024": 14.86
+      },
+      "change": {
+        "kind": "pp",
+        "value": -0.7
+      },
+      "source": {
+        "pdf_page": 16,
+        "printed_page": 15,
+        "section": "2.2 本集团补充财务比率",
+        "line": "核心一级资本充足率 14.16 14.86 下降0.70个百分点 13.73"
+      },
+      "trap": {
+        "note": "同页注释另列权重法核心一级资本充足率",
+        "line": "注： 截至报告期末，本集团权重法下核心一级资本充足率11.92%，一级资本充足率13.90%，资本充足率15.00%。"
+      },
+      "verification": {
+        "status": "pending",
+        "verifier": null,
+        "verified_at": null
+      }
+    }
+  ],
+  "facts": [
+    {
+      "id": "loan_loss_allowance",
+      "name": "贷款损失准备",
+      "scope": "本集团",
+      "unit": "人民币百万元",
+      "basis": "年末",
+      "values": {
+        "2025": 267222.0,
+        "2024": 270301.0
+      },
+      "change": {
+        "kind": "pct",
+        "value": -1.14
+      },
+      "source": {
+        "pdf_page": 15,
+        "printed_page": 14,
+        "section": "2.1 本集团主要会计数据和财务指标",
+        "line": "贷款损失准备(3) 267,222 270,301 -1.14 269,534"
+      }
+    },
+    {
+      "id": "gross_loans",
+      "name": "贷款和垫款总额",
+      "scope": "本集团",
+      "unit": "人民币百万元",
+      "basis": "年末",
+      "values": {
+        "2025": 7258058.0,
+        "2024": 6888315.0
+      },
+      "change": {
+        "kind": "pct",
+        "value": 5.37
+      },
+      "source": {
+        "pdf_page": 15,
+        "printed_page": 14,
+        "section": "2.1 本集团主要会计数据和财务指标",
+        "line": "贷款和垫款总额(2) 7,258,058 6,888,315 5.37 6,508,865"
+      }
+    }
+  ]
+}
