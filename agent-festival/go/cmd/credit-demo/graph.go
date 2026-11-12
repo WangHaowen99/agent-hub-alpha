@@ -198,20 +198,12 @@ func stripStepTag(out string) string {
 // the planner model never sees what is typed there and has no approval tool.
 // The approval binds the hash the card showed, exactly like the confirm page.
 func (s *Service) serveApprove(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	reply := func(code int, v any) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)
 		_ = json.NewEncoder(w).Encode(v)
 	}
-	switch r.Method {
-	case http.MethodOptions:
-		w.WriteHeader(http.StatusNoContent)
-		return
-	case http.MethodPost:
-	default:
+	if r.Method != http.MethodPost {
 		reply(http.StatusMethodNotAllowed, map[string]string{"error": "只接受 POST"})
 		return
 	}
@@ -255,7 +247,6 @@ func (s *Service) serveApprove(w http.ResponseWriter, r *http.Request) {
 // serveGraph is the read-only projection the MCP App polls from its sandbox,
 // so it answers any origin. It exposes nothing the confirm page does not show.
 func (s *Service) serveGraph(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Cache-Control", "no-store")
 	q := r.URL.Query()
 	var p *Plan

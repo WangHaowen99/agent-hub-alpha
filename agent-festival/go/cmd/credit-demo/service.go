@@ -25,8 +25,7 @@ type Config struct {
 	Addr            string
 	DataDir         string
 	OrchestratorURL string
-	PublicURL       string   // where browsers reach this service: a path behind the front proxy, e.g. /credit
-	Origins         []string // browser origins of the WorkSwarm UI; the MCP App may fetch /api/graph from them
+	PublicURL       string // where browsers reach this service: a path behind the front proxy, e.g. /credit
 	MemberMCPURL    string
 	Model           string
 	SpecPath        string

@@ -2,35 +2,19 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"encoding/json"
 	"fmt"
-	"html"
 	"net/http"
-	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 type Empty struct{}
 
-// The plan graph is an MCP App: WorkSwarm renders it inline under the tool
-// call, and it polls the read-only /api/graph projection while the plan waits
-// for approval or runs (app-initiated tool calls would prompt the user each time).
-const (
-	graphURI = "ui://credit/graph"
-	appMIME  = "text/html;profile=mcp-app"
-)
-
-//go:embed app/dist/graph-app.html
-var graphAppHTML string
-
-var graphMeta = mcp.Meta{"ui": map[string]any{"resourceUri": graphURI}}
-
-func withGraph(res *mcp.CallToolResult, g *Graph) *mcp.CallToolResult {
-	res.StructuredContent = g
-	return res
-}
+// The plan graph, approval and the live run are shown in the 编排协作台
+// workbench (a WorkSwarm Application Plugin), the one place to act on a plan;
+// tool results only tell the planner where to send the user.
+const workbench = "「编排协作台」（WorkSwarm 左侧导航）"
 
 type PlanRef struct {
 	PlanID string `json:"plan_id" jsonschema:"plan id such as P1"`
@@ -58,7 +42,7 @@ func (s *Service) planView(p *Plan) map[string]any {
 		"precheck": map[string]any{"ok": p.Precheck.OK, "not_held": p.Precheck.NotHeld, "rules": p.Precheck.Rules, "errors": p.Precheck.Errors},
 	}
 	if p.Precheck.OK {
-		v["next"] = "编排图已作为卡片显示在对话里，用户能看到每个成员、子任务和依赖：不要再贴图，也不要逐个列出成员，只用一两句话说明组队思路。请用户在卡片上点「批准」并输入密码确认；批准前不会执行任何步骤，批准后卡片会实时显示执行到哪一步。"
+		v["next"] = fmt.Sprintf("编排图在%s里，用户在那里看成员、子任务和依赖，并点「批准」输入密码确认。你只用一两句话说明组队思路，请用户到%s确认 %s v%d；不要画图，不要逐个列出成员。批准前不会执行任何步骤，批准后协作台会实时显示执行到哪一步。", workbench, workbench, p.ID, p.Version)
 	} else {
 		v["next"] = "规约预检未通过：把 not_held、rules 和 errors 如实告诉用户。权限不足就换用权限范围内的专家，违反尽调规约（rules）就按规约补齐成员或依赖；不要为了过预检删掉成员。改完用同一个 plan_id 重新 propose_plan。"
 	}
@@ -77,8 +61,7 @@ func (s *Service) runView(r *Run, p *Plan) map[string]any {
 	return map[string]any{
 		"run_id": r.ID, "plan_id": r.PlanID, "plan_version": r.PlanVersion, "status": r.Status, "approved_by": r.ApprovedBy,
 		"steps": steps, "decision": r.Decision, "receipt": r.Receipt, "violations": r.Violations,
-		"run_url":    fmt.Sprintf("%s/ui/run/%s", s.cfg.PublicURL, r.ID),
-		"verify_url": fmt.Sprintf("%s/ui/run/%s/verify", s.cfg.PublicURL, r.ID),
+		"where": fmt.Sprintf("执行图实时显示在%s的 %s v%d", workbench, r.PlanID, r.PlanVersion),
 	}
 }
 
@@ -87,28 +70,14 @@ func (s *Service) runView(r *Run, p *Plan) map[string]any {
 func (s *Service) plannerServer() *mcp.Server {
 	srv := mcp.NewServer(&mcp.Implementation{Name: "credit-orchestration", Version: "0.1.0"}, nil)
 	ro := &mcp.ToolAnnotations{ReadOnlyHint: true}
-	// The app rebases links from old tool results onto this address, and loads
-	// the card script from it (gzipped over HTTP, unlike this document).
-	appDoc := strings.Replace(graphAppHTML, "<head>", `<head><meta name="credit-base" content="`+html.EscapeString(s.cfg.PublicURL)+`">`, 1)
-	srv.AddResource(&mcp.Resource{URI: graphURI, Name: "credit-plan-graph", MIMEType: appMIME},
-		func(context.Context, *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
-			return &mcp.ReadResourceResult{Contents: []*mcp.ResourceContents{{URI: graphURI, MIMEType: appMIME, Text: appDoc,
-				Meta: mcp.Meta{"ui": map[string]any{"csp": map[string]any{"connectDomains": s.cfg.Origins, "resourceDomains": s.cfg.Origins}}}}}}, nil
-		})
-	planResult := func(p *Plan) *mcp.CallToolResult {
-		res := result(s.planView(p))
-		if g, err := s.graph(p, false); err == nil {
-			withGraph(res, g)
-		}
-		return res
-	}
+	planResult := func(p *Plan) *mcp.CallToolResult { return result(s.planView(p)) }
 	mcp.AddTool(srv, &mcp.Tool{Name: "list_capabilities", Annotations: ro,
 		Description: "List the registered experts (capabilities) with their signed contracts: what each reads, its effects and bounds. Only these experts can be put on a team. plan_rules is the due-diligence rule every plan must satisfy; precheck enforces it."},
 		func(context.Context, *mcp.CallToolRequest, Empty) (*mcp.CallToolResult, any, error) {
 			return result(map[string]any{"experts": s.cat.Cards(), "cases": []string{"C006", "C007"}, "plan_rules": ddRules()}), nil, nil
 		})
-	mcp.AddTool(srv, &mcp.Tool{Name: "propose_plan", Meta: graphMeta,
-		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval on the confirm page."},
+	mcp.AddTool(srv, &mcp.Tool{Name: "propose_plan",
+		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval in the 编排协作台 workbench."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in ProposeInput) (*mcp.CallToolResult, any, error) {
 			p, err := s.Propose(in)
 			if err != nil {
@@ -116,7 +85,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			}
 			return planResult(p), nil, nil
 		})
-	mcp.AddTool(srv, &mcp.Tool{Name: "get_plan", Annotations: ro, Meta: graphMeta, Description: "Read the latest version of a plan."},
+	mcp.AddTool(srv, &mcp.Tool{Name: "get_plan", Annotations: ro, Description: "Read the latest version of a plan."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in PlanRef) (*mcp.CallToolResult, any, error) {
 			p, ok := s.Plan(in.PlanID, 0)
 			if !ok {
@@ -124,8 +93,8 @@ func (s *Service) plannerServer() *mcp.Server {
 			}
 			return planResult(p), nil, nil
 		})
-	mcp.AddTool(srv, &mcp.Tool{Name: "run_status", Annotations: ro, Meta: graphMeta,
-		Description: "Read the authoritative state of an approved run: each step's status, the adopted judgment, and the bank receipt. The plan graph in the chat shows it live."},
+	mcp.AddTool(srv, &mcp.Tool{Name: "run_status", Annotations: ro,
+		Description: "Read the authoritative state of an approved run: each step's status, the adopted judgment, and the bank receipt. The 编排协作台 workbench shows it live."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in RunRef) (*mcp.CallToolResult, any, error) {
 			id := in.RunID
 			if id == "" {
@@ -135,15 +104,11 @@ func (s *Service) plannerServer() *mcp.Server {
 			}
 			r, p, ok := s.RunByID(id)
 			if !ok {
-				return fail(fmt.Errorf("no approved run yet — the user has to approve the plan on the confirm page")), nil, nil
+				return fail(fmt.Errorf("no approved run yet — the user has to approve the plan in the 编排协作台 workbench")), nil, nil
 			}
-			res := result(s.runView(r, p))
-			if g, err := s.graph(p, false); err == nil {
-				withGraph(res, g)
-			}
-			return res, nil, nil
+			return result(s.runView(r, p)), nil, nil
 		})
-	mcp.AddTool(srv, &mcp.Tool{Name: "verify_run", Annotations: ro, Meta: graphMeta,
+	mcp.AddTool(srv, &mcp.Tool{Name: "verify_run", Annotations: ro,
 		Description: "Verify a finished run with the festival checkers (signatures, approved plan, compose admission, evidence coverage, violations, risk judgment, replay, ledger rules)."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in RunRef) (*mcp.CallToolResult, any, error) {
 			id := in.RunID
@@ -156,7 +121,7 @@ func (s *Service) plannerServer() *mcp.Server {
 			if err != nil {
 				return fail(err), nil, nil
 			}
-			out := map[string]any{"summary": rep.Summary, "ok": rep.OK, "verify_url": fmt.Sprintf("%s/ui/run/%s/verify", s.cfg.PublicURL, id)}
+			out := map[string]any{"summary": rep.Summary, "ok": rep.OK, "where": "检查结果显示在" + workbench + "的执行图下方"}
 			checks := []map[string]any{}
 			for _, c := range rep.Checks {
 				ck := map[string]any{"name": c.Name, "ok": c.OK, "detail": c.Detail}
@@ -166,14 +131,7 @@ func (s *Service) plannerServer() *mcp.Server {
 				checks = append(checks, ck)
 			}
 			out["checks"] = checks
-			res := result(out)
-			if _, p, ok := s.RunByID(id); ok {
-				if g, err := s.graph(p, false); err == nil {
-					g.Verify = rep
-					withGraph(res, g)
-				}
-			}
-			return res, nil, nil
+			return result(out), nil, nil
 		})
 	return srv
 }

@@ -1,9 +1,8 @@
 // Two outputs:
-//   ../web/graph-flow.js  the plan card (React Flow), served under /static to
-//                         the confirm and run pages and to the MCP App
-//   dist/graph-app.html   the MCP App: a small ui:// document (bridge + loader)
-//                         embedded by the Go service
-//   ../workbench-plugin/frontend/dist   the WorkSwarm Application Plugin page
+//   ../web/graph-flow.js                the plan card (React Flow) for the
+//                                       service's own confirm and run pages
+//   ../workbench-plugin/frontend/dist   the 编排协作台 page of the WorkSwarm
+//                                       Application Plugin
 import { build } from "esbuild";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
@@ -25,10 +24,6 @@ mkdirSync("../workbench-plugin/frontend/dist", { recursive: true });
 writeFileSync("../workbench-plugin/frontend/dist/app.js", wb.outputFiles[0].contents);
 writeFileSync("../workbench-plugin/frontend/dist/index.html", readFileSync("workbench.html", "utf8"));
 
-const app = await build({ ...common, entryPoints: ["src/mcp-app.ts"] });
-const js = app.outputFiles[0].text.replaceAll("</script", "<\\/script");
-const html = readFileSync("index.html", "utf8").replace("<!--SCRIPT-->", () => `<script>${js}</script>`);
-mkdirSync("dist", { recursive: true });
-writeFileSync("dist/graph-app.html", html);
 const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
-console.log(`web/graph-flow.js ${kb(lib.length)} (gzip ${kb(gzipSync(lib).length)}), dist/graph-app.html ${kb(html.length)}`);
+const page = wb.outputFiles[0].contents;
+console.log(`web/graph-flow.js ${kb(lib.length)} (gzip ${kb(gzipSync(lib).length)}), workbench app.js ${kb(page.length)} (gzip ${kb(gzipSync(page).length)})`);
