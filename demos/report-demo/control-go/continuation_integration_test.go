@@ -27,11 +27,11 @@ func TestPGRemoteInputAndAuthResumeReconcileSameCall(t *testing.T) {
 				t.Fatal(err)
 			}
 			permit := v.(map[string]any)
-			v, err = s.BeginCall(ctx, task.ID, "extract", old.Owner, old.Epoch, json.RawMessage(`{"fixture":"native remote continuation"}`), cat)
+			v, err = s.BeginCall(ctx, task.ID, "extract", old.Owner, old.Epoch, routeFixture(t, cat, "extractor@1"), cat)
 			if err != nil {
 				t.Fatal(err)
 			}
-			call := v.(Call)
+			call := v.(CallDecision).Call
 			state := "INPUT_REQUIRED"
 			if waiting == "WAITING_AUTH" {
 				state = "AUTH_REQUIRED"

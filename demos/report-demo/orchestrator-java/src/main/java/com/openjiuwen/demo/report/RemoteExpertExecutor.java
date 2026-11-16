@@ -25,12 +25,16 @@ final class RemoteExpertExecutor {
         String path = "/v1/tasks/" + taskID + "/nodes/" + nodeID;
         JsonNode binding = permit.path("binding");
         JsonNode call;
-        boolean send = permit.path("status").asText().equals("GRANTED");
-        if (send) {
+        boolean send = false;
+        if (permit.path("status").asText().equals("GRANTED")) {
             // Discovery is outside every Go transaction/lock. Store the actual
             // read snapshot, not a model-supplied service address.
-            JsonNode route = discover(binding.path("capability").path("agent_id").asText());
+            JsonNode route = discover(binding.path("capability"));
             call = control.post(path + "/calls", Map.of("owner", owner, "epoch", epoch, "route", route));
+            String action = call.path("action").asText();
+            if (!List.of("SEND", "QUERY", "UNKNOWN").contains(action)) { throw new ControlClient.ControlFailure("REMOTE_UNKNOWN", 409); }
+            send = action.equals("SEND");
+            if (!send && !action.equals("QUERY")) { throw new ControlClient.ControlFailure("REMOTE_UNKNOWN", 409); }
         } else {
             JsonNode calls = control.get("/v1/tasks/" + taskID + "/calls?node_id=" + nodeID);
             if (!calls.isArray() || calls.isEmpty()) { throw new ControlClient.ControlFailure("WAIT", 409); }
@@ -40,6 +44,7 @@ final class RemoteExpertExecutor {
             }
         }
         String remoteID = call.path("remote_task_id").asText();
+        if (!send && (remoteID.isBlank() || call.path("conflicted").asBoolean())) { throw new ControlClient.ControlFailure("REMOTE_UNKNOWN", 409); }
         JsonNode remote;
         try {
             if (send) {
@@ -94,30 +99,44 @@ final class RemoteExpertExecutor {
                         "context_id", call.path("context_id").asText(), "payload", remote));
     }
 
-    private JsonNode discover(String agentID) {
+    private JsonNode discover(JsonNode capability) {
+        String agentID = capability.path("agent_id").asText();
         if (bus.path("gateway_url").asText().isBlank() || bus.path("rdc_url").asText().isBlank()
                 || bus.path("registry_token").asText().isBlank()) {
             throw new ControlClient.ControlFailure("AUTH_REQUIRED", 503);
         }
         JsonNode card = getRdc("/v2/agents/" + agentID + "/card");
         JsonNode instances = getRdc("/v2/agents/" + agentID + "/instances");
-        validateDiscovery(agentID,card,instances);
+        validateDiscovery(capability,card,instances);
         return Json.MAPPER.valueToTree(Map.of("agent_id", agentID, "card", card, "instances", instances,
                 "gateway_mode", "DIRECT", "observed_at", java.time.Instant.now().toString(),
                 "actual_execution_instance", "not_collected"));
     }
 
-    static void validateDiscovery(String agentID,JsonNode card,JsonNode instances) {
+    static void validateDiscovery(JsonNode capability,JsonNode card,JsonNode instances) {
+        String agentID = capability.path("agent_id").asText();
+        // Compatibility only for catalogs adopted before explicit remote bindings.
+        JsonNode expected = capability.path("remote_binding");
+        if (expected.isMissingNode()) { expected = Json.read("{\"card_version\":\"1.0.0\",\"contract_version\":\"1.0.0\",\"capability_version\":\"1.0.0\"}"); }
+        for (String field : List.of("card_version", "contract_version", "capability_version")) {
+            if (expected.path(field).asText().isBlank()) { throw new ControlClient.ControlFailure("BINDING_CHANGED",409); }
+        }
         if (!card.path("name").asText().equals(agentID)) {throw new ControlClient.ControlFailure("DISCOVERY_BINDING_CHANGED",409);}
         JsonNode raw;
         try {raw=Json.read(card.path("rawJson").asText());}catch(Exception e){throw new ControlClient.ControlFailure("DISCOVERY_BINDING_CHANGED",409);}
-        if (!raw.path("name").asText().equals(agentID)||!raw.path("version").asText().equals("1.0.0")) {throw new ControlClient.ControlFailure("DISCOVERY_BINDING_CHANGED",409);}
+        if (!raw.path("name").asText().equals(agentID)||!raw.path("version").asText().equals(expected.path("card_version").asText())) {throw new ControlClient.ControlFailure("DISCOVERY_BINDING_CHANGED",409);}
+        if (!expected.path("card_digest").asText().isBlank() && !expected.path("card_digest").asText().equals(rawDigest(card.path("rawJson").asText()))) { throw new ControlClient.ControlFailure("DISCOVERY_BINDING_CHANGED",409); }
         boolean healthy=false;
         for(JsonNode candidate:instances.path("instances")) {
-            if(candidate.path("health").asText().equals("ONLINE")&&candidate.path("contractVersion").asText().equals("1.0.0")
-                    &&candidate.path("capabilityVersion").asText().equals("1.0.0")&&candidate.path("card").path("name").asText().equals(agentID)) {healthy=true;}
+            if(candidate.path("health").asText().equals("ONLINE")&&candidate.path("contractVersion").asText().equals(expected.path("contract_version").asText())
+                    &&candidate.path("capabilityVersion").asText().equals(expected.path("capability_version").asText())&&candidate.path("card").path("name").asText().equals(agentID)) {healthy=true;}
         }
         if(!healthy){throw new ControlClient.ControlFailure("DISCOVERY_UNAVAILABLE",503);}
+    }
+
+    static String rawDigest(String raw) {
+        try { return "sha256:" + java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8))); }
+        catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
 
     private JsonNode getRdc(String path) {

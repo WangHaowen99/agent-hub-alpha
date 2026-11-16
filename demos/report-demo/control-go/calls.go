@@ -23,10 +23,32 @@ type Call struct {
 	Conflicted   bool            `json:"conflicted"`
 }
 
+// Action is a response-only permission. It is never stored in remote_calls;
+// rereading an intent cannot recover a lost permission to send it again.
+type CallDecision struct {
+	Call
+	Action string `json:"action"`
+}
+
+func reconcileCall(call Call) CallDecision {
+	action := "UNKNOWN"
+	if call.RemoteTaskID != "" && !call.Conflicted {
+		action = "QUERY"
+	}
+	return CallDecision{Call: call, Action: action}
+}
+
 func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, route json.RawMessage, c Catalog) (any, error) {
 	return s.mutate(ctx, id, "SEND_INTENT", func(tx pgx.Tx, t *Task) (any, error) {
 		if err := s.leaseCheck(ctx, tx, id, "graph", owner, epoch); err != nil {
 			return nil, err
+		}
+		cd, err := Digest(c)
+		if err != nil {
+			return nil, err
+		}
+		if cd != t.Graph.CatalogDigest || t.ExecutionProfile != s.ExecutionProfile {
+			return nil, fault("BINDING_CHANGED", "admitted catalog/execution profile changed before dispatch", 409)
 		}
 		if t.Pause {
 			return nil, fault("PAUSED", "new call stopped", 409)
@@ -36,11 +58,11 @@ func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, ro
 			return nil, fault("FENCED", "node attempt not owned", 403)
 		}
 		var previous []byte
-		err := tx.QueryRow(ctx, "SELECT document FROM remote_calls WHERE scope=$1 AND task_id=$2 AND node_id=$3 AND attempt=$4", s.Scope, id, node, ns.Attempt).Scan(&previous)
+		err = tx.QueryRow(ctx, "SELECT document FROM remote_calls WHERE scope=$1 AND task_id=$2 AND node_id=$3 AND attempt=$4", s.Scope, id, node, ns.Attempt).Scan(&previous)
 		if err == nil {
 			var call Call
 			err = json.Unmarshal(previous, &call)
-			return call, err
+			return reconcileCall(call), err
 		}
 		if !errors.Is(err, pgx.ErrNoRows) {
 			return nil, err
@@ -54,8 +76,13 @@ func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, ro
 				cap, _ = c.Get(n.Expert)
 			}
 		}
-		if cap.AgentID == "" {
+		if cap.AgentID == "" || !cap.Enabled {
 			return nil, fault("POLICY_REJECTED", "not a remote capability", 422)
+		}
+		if cap.RemoteBinding != nil {
+			if err := validateRoute(cap, route); err != nil {
+				return nil, err
+			}
 		}
 		call := Call{ID: newID("c-"), TaskID: id, NodeID: node, Attempt: ns.Attempt, InputDigest: ns.InputDigest, AgentID: cap.AgentID, MessageID: newID("message-"), ContextID: newID("context-"), State: "SEND_INTENT", Route: route}
 		b, err := json.Marshal(call)
@@ -68,7 +95,7 @@ func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, ro
 		}
 		ns.Status = "WAITING_REMOTE"
 		ns.Reason = "remote send intent persisted"
-		return call, nil
+		return CallDecision{Call: call, Action: "SEND"}, nil
 	})
 }
 

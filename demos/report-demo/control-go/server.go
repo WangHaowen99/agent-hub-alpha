@@ -387,6 +387,7 @@ func (s *Server) Routes() http.Handler {
 func NewServer(s *Store, c Config, cat Catalog, material Material) *Server {
 	s.MaterialProjectionDigest = material.ProjectionDigest
 	s.ExecutionProfile = c.ExecutionProfile
+	s.CurrentCatalogDigest, _ = Digest(cat)
 	s.DeliveryPolicyVersion = cat.PolicyVersion
 	s.ReuseFiles = &Files{Root: c.ArtifactRoot}
 	return &Server{s, c, cat, material, Files{c.ArtifactRoot}, &http.Client{Timeout: 5 * time.Second}}

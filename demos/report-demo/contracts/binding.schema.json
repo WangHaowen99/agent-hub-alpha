@@ -79,6 +79,32 @@
         "output_schema": {
           "type": "string"
         },
+        "remote_binding": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "required": [
+            "card_version",
+            "contract_version",
+            "capability_version"
+          ],
+          "properties": {
+            "capability_version": {
+              "type": "string"
+            },
+            "card_digest": {
+              "type": "string"
+            },
+            "card_version": {
+              "type": "string"
+            },
+            "contract_version": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "scope": {
           "type": "string"
         },

@@ -14,7 +14,7 @@ func TestPGSharedIdentityAndReconciliationConsumer(t *testing.T) {
 	if task.IdentityContract != pr25Contract {
 		t.Fatal("shared identity not adopted")
 	}
-	_, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, json.RawMessage(`{"fixture":"accepted but uncommitted"}`), cat)
+	_, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, routeFixture(t, cat, "extractor@1"), cat)
 	if err != nil {
 		t.Fatal(err)
 	}

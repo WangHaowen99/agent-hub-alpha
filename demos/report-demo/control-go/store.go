@@ -22,6 +22,7 @@ type Store struct {
 	LeaseSeconds             int
 	MaterialProjectionDigest string
 	ExecutionProfile         string
+	CurrentCatalogDigest     string
 	DeliveryPolicyVersion    string
 	ReuseFiles               *Files
 }
@@ -300,6 +301,9 @@ func (s *Store) Admit(ctx context.Context, id, digest, principal string) (any, e
 		}
 		if t.Status != "AWAITING_APPROVAL" {
 			return map[string]string{"task_id": id, "graph_digest": digest, "status": t.Status}, nil
+		}
+		if t.ExecutionProfile != s.ExecutionProfile || (s.CurrentCatalogDigest != "" && t.Graph.CatalogDigest != s.CurrentCatalogDigest) {
+			return nil, fault("BINDING_CHANGED", "release changed after proposal; review a new candidate", 409)
 		}
 		t.Status = "QUEUED"
 		t.ApprovedBy = principal

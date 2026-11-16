@@ -34,9 +34,9 @@ class ProtocolAndCheckerTest {
         var candidates=Json.read("""
                 {"instances":[{"health":"ONLINE","contractVersion":"1.0.0","capabilityVersion":"1.0.0","card":{"name":"report-extractor"}}]}
                 """);
-        assertDoesNotThrow(()->RemoteExpertExecutor.validateDiscovery("report-extractor",card,candidates));
-        assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery("other-agent",card,candidates));
-        assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery("report-extractor",card,Json.read("{\"instances\":[]}")));
+        assertDoesNotThrow(()->RemoteExpertExecutor.validateDiscovery(Json.read("{\"agent_id\":\"report-extractor\"}"),card,candidates));
+        assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery(Json.read("{\"agent_id\":\"other-agent\"}"),card,candidates));
+        assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery(Json.read("{\"agent_id\":\"report-extractor\"}"),card,Json.read("{\"instances\":[]}")));
     }
     @Test void mixedArtifactPartsAreNotBlindlyConcatenated() {
         var envelope = RemoteExpertExecutor.resultEnvelope(Json.read("""
@@ -63,6 +63,31 @@ class ProtocolAndCheckerTest {
         } finally { server.stop(0); }
     }
 
+
+    @Test void discoveryConsumesConfiguredVersionsAndDigest() {
+        var capability=Json.read("{\"agent_id\":\"external-expert\",\"remote_binding\":{\"card_version\":\"2.0\",\"contract_version\":\"3.0\",\"capability_version\":\"4.0\"}}");
+        String raw=Json.write(java.util.Map.of("name","external-expert","version","2.0"));
+        var card=Json.MAPPER.valueToTree(java.util.Map.of("name","external-expert","rawJson",raw));
+        var instances=Json.read("{\"instances\":[{\"health\":\"ONLINE\",\"contractVersion\":\"3.0\",\"capabilityVersion\":\"4.0\",\"card\":{\"name\":\"external-expert\"}}]}");
+        assertDoesNotThrow(()->RemoteExpertExecutor.validateDiscovery(capability,card,instances));
+        var binding=(com.fasterxml.jackson.databind.node.ObjectNode)capability.path("remote_binding");
+        binding.put("card_digest",RemoteExpertExecutor.rawDigest(raw));
+        assertDoesNotThrow(()->RemoteExpertExecutor.validateDiscovery(capability,card,instances));
+        binding.put("card_digest",RemoteExpertExecutor.rawDigest("changed"));
+        assertEquals("DISCOVERY_BINDING_CHANGED",assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery(capability,card,instances)).code);
+        binding.remove("card_digest");binding.put("contract_version","other");
+        assertEquals("DISCOVERY_UNAVAILABLE",assertThrows(ControlClient.ControlFailure.class,()->RemoteExpertExecutor.validateDiscovery(capability,card,instances)).code);
+    }
+
+    @Test void httpErrorCodesPreserveControlMeaning() throws Exception {
+        var codes=java.util.Map.of("INPUT_CONFLICT",409,"FENCED",403,"LEASE_EXPIRED",403,"BINDING_CHANGED",409,"DISCOVERY_UNAVAILABLE",503,"STORAGE_UNAVAILABLE",503,"UNKNOWN",503);
+        var server=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
+        server.createContext("/",exchange->{String code=exchange.getRequestURI().getPath().substring(1);byte[] body=Json.write(java.util.Map.of("error",java.util.Map.of("code",code))).getBytes(StandardCharsets.UTF_8);exchange.sendResponseHeaders(codes.get(code),body.length);exchange.getResponseBody().write(body);exchange.close();});
+        server.start();
+        try {var client=new ControlClient("http://127.0.0.1:"+server.getAddress().getPort(),"fixture");
+            for(var entry:codes.entrySet()){var failure=assertThrows(ControlClient.ControlFailure.class,()->client.post("/"+entry.getKey(),java.util.Map.of()));assertEquals(entry.getKey(),failure.code);assertEquals(entry.getValue(),failure.status);}
+        } finally {server.stop(0);}
+    }
     @Test void w01CasesAreCheckedAgainstRealSourceProjection() throws Exception {
         String materialPath = System.getenv("REPORT_TEST_MATERIAL");
         Assumptions.assumeTrue(materialPath != null, "Fixed PDF source projection required");

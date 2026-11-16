@@ -1,16 +1,33 @@
 # Demo 验证报告（持续更新）
 
-核验日期：2026-11-16，北京时间。早期提交标识属于本地验证历史；发布代码按来源清单及文件/制品摘要核对，不保证每个早期提交都已推送。分支：`codex/report-demo-w03-w04`；主仓基线：`8dc5f44ce4e94211375f207c7088276dc523d038`。本文记录实际执行与尚未完成的原方案门禁，**不是完整方案验收通过声明**。逐步操作见 [LOCAL-RUN.md](LOCAL-RUN.md)，依赖固定版本见 [source-manifest.json](source-manifest.json)。
+核验日期：2026-11-17，北京时间。早期提交标识属于本地验证历史；发布代码按来源清单及文件/制品摘要核对，不保证每个早期提交都已推送。分支：`codex/report-demo-w03-w04`；原始实现来源基线：`8dc5f44ce4e94211375f207c7088276dc523d038`；本轮对照 main `4021491`。本文记录实际执行与尚未完成的原方案门禁，**不是完整方案验收通过声明**。逐步操作见 [LOCAL-RUN.md](LOCAL-RUN.md)，依赖固定版本见 [source-manifest.json](source-manifest.json)。
 
 按用户本次“核心继续验证、非核心留交接”的要求，当前年报 Demo 核心链已完成实现与验证：真实对话规划、四个真实专家、持久结果、程序检查、受信测试账号交付，以及关键失败不假成功。非核心工作及其完成依据集中在 [验证报告](VERIFICATION.md)。独立人工业务验收与外部 issue 的完整联合门禁仍未完成，不因本轮核心收敛而自动通过。
 
 ## 1. 已验证的真实主链
 
+### 2026-11-17：W03/W04 发送许可、版本绑定与真实服务验证
+
+本轮与issue #16、PR #30/#31/#32对齐的是调用/版本/故障边界；未整包合入PR #30，Application Plugin和共同部署仍待接收方联调。agent-festival原共享文件未修改。
+
+- Go/真实PG全量42顶层、含子用例85 pass，0 fail/skip；go vet通过。Java21项、0 failure/error/skip，其中9项为真实Go进程+PG+Java适配器的隔离HTTP窗口；页面实际源脚本Node测试5项通过。
+- SEND仅首次意图提交成功后授予；并发8个请求只有一个SEND，既有task返回QUERY，无task返回UNKNOWN。真实PG COMMIT应答切断后，重复请求保持UNKNOWN、一条原意图；Java重复使用旧GRANTED许可也不增加SendMessage。
+- 能力remote_binding固定三类版本和可选原始AgentCard字节摘要；Go/Java按采纳绑定校验，未匹配不写意图。2/3/4等非1.0.0配置仅在受控测试验证，真实部署仍为1.0.0。目录/profile变化拒绝旧计划采纳与漂移执行；Go强制终止重启后旧profile不被默认替换；慢RDC期间重启接管后旧执行者返回LEASE_EXPIRED、零意图/零发送。
+- 新Go/Java编排服务、四个真实Runtime专家与注册心跳已启动，真实Keycloak/RDC/Gateway继续使用。新任务`T-6522725dda2fbee2fa541892a06ae976`已DELIVERED、generation=141；四个不同专家/远端task全部COMPLETED，质量Loop两分支；6个正式节点及2个有依据跳过，check0 PASS。
+- 本轮使用历史候选拓扑，显式换用当前获准目录，新建任务并由受控测试账号重新确认；fresh_model_planning=false。没有把这次运行当作新一轮WorkSwarm规划或独立人工业务验收。
+- 采纳图摘要`sha256:472b54557f383f2a89a64e82d68ba41664bd10c1b4965238cab12812e204e9f3`，执行profile `sha256:4af4969ea503b2a586077077d81b5a527ec67ab920ab3fea90f04e241aa2b2cf`。报告`sha256:901cf898712913e11edb135c7cbebc98d21300c2024ff80dd3d3cbc0d7b25cc6`；交付回执`delivery-receipt-08fc5a564e728d23b89d8e78b699923e`，同交付身份重试返回原回执。
+- 主链10项与身份/对账16项核对通过。4条SEND决策、每条调用记录1条SendMessage HTTP应答观察；这不是独立抓包的物理调用exactly-once证明。交接导出含实际o/a/c、能力绑定、RDC版本、观测、结果关联，不含凭据/模型正文。
+- 部署前后旧任务`T-7853c55c66499997c4597c83e3868949`投影完全一致，旧报告仍可下载且摘要为`sha256:dd34513a337f953fc78d07051986175793fc44d2a9a49fe48db6b5ee26edb617`。真实HTTP确认页已包含共用generation防倒退脚本；未做本轮浏览器视觉/真实断网验收。
+
+最终证据：`w03-w04-final-go-tests.jsonl`、`java-w03-w04-final-pipes.log`、`w03-w04-ui-final.log`、`w03-w04-live-release.json`、`w03-w04-live-send-check.json`、上述任务的trace/report/delivery/main-verification/handoff JSON。证据在本地私有目录，未上传原始模型正文。
+
+首轮schema数量断言12→13、测试夹具固定节点名/旧owner错误码、Windows进程日志句柄清理问题已修正；原始失败分别留在`w03-w04-next-go-tests.jsonl`、`java-w03-w04-next-full.log`、`java-w03-w04-final.log`，最终完整串行回归通过。节点名现在按能力定位；进程输出用管道采集并显式等待退出，已确认无孤立测试Go进程。页面测试为可控DOM/网络替身，不能替代W02的A12共同浏览器验收。
+
 ### Demo 适配与共享规约的边界
 
 `agent-festival` 中本PR的95个变化文件直接来自PR #25，内容与固定来源版本一致。Demo专用的身份字段映射、生成资源、查重/对账策略及其测试位于 `control-go`，生成器位于 `deploy/embed_identity_schema.py`；共享模块不承担本场景特有的 task/revision 相等关系。
 
-当前串行完整Go/PG回归为37顶层、含子用例80 pass，0 fail/skip，其中包括身份和结果规则的9项测试；不把测试归属调整计为新增业务能力。证据为 `demo-owned-adapters-serial-tests.jsonl`。共享模块Linux全量21包、313顶层/342项通过，1项参考T1模型实验未启用而skip。
+2026-11-16适配归属调整时的串行完整Go/PG回归为37顶层、含子用例80 pass，0 fail/skip，其中包括身份和结果规则的9项测试；不把测试归属调整计为新增业务能力。证据为 `demo-owned-adapters-serial-tests.jsonl`。共享模块Linux全量21包、313顶层/342项通过，1项参考T1模型实验未启用而skip。
 
 首轮并发回归中的迁移死锁（40P01）及Windows临时日志清理错误分别保留在 `demo-owned-adapters-full-tests.jsonl`、`java-demo-owned-adapters-tests.log`；不删除或改写成通过。共享PG的Go与Java跨进程回归采用串行执行，Java串行16项通过、0 failure/error/skip（`java-demo-owned-adapters-serial-tests.log`）。不宣称并发测试设施或多实例迁移已验收。
 
@@ -158,9 +175,9 @@ WorkSwarm 常驻一夜后曾出现 supervisor/worker IPC 断开。重启后原�
 
 | 验证类别 | 结果 | 覆盖边界 |
 | --- | --- | --- |
-| Go 全套，真实 PG 与真实快照 | 37 个顶层测试、含子用例 80 个 pass，0 fail、0 skip | 严格 JSON/JCS/Unicode、10 组 golden vectors、DTO schema 漂移、准入/输入、并发正式提交、过期租约、迟到/冲突观察、必要审计回滚、独立交付租约、HUMAN 审阅、复用/撤销、游标、等待继续、离线回放、真实 COMMIT/HTTP 应答切断、失败收敛、远端输出资格；新增提交后矛盾的跨任务撤回、下载拒绝及事务回滚 |
-| Java 原有与跨语言测试 | 10 个，0 failure、0 skip | 原生图编译、实际 JSON 序列化的跨语言摘要、协议解析/状态分类、固定材料 checker 正反例、schema 与人工审阅选择 |
-| Java 隔离远端窗口测试 | 6 个通过，0 skip；与上行合计 16 个 | 真实 Go/PG/Java adapter；本地 HTTP 故障提供方，含显式坏调度策略、实际 worker 失败收敛与慢 RDC/暂停屏障；不代表真实 Runtime/IdP 故障恢复 |
+| Go 全套，真实 PG 与真实快照 | 42 个顶层测试、含子用例 85 个 pass，0 fail、0 skip | 严格 JSON/JCS/Unicode、10 组 golden vectors、DTO schema 漂移、准入/输入、并发正式提交、过期租约、迟到/冲突观察、必要审计回滚、独立交付租约、HUMAN 审阅、复用/撤销、游标、等待继续、离线回放、真实 COMMIT/HTTP 应答切断、失败收敛、远端输出资格；新增提交后矛盾的跨任务撤回、下载拒绝及事务回滚 |
+| Java 原有与跨语言测试 | 12 个，0 failure/error/skip | 原生图编译、实际 JSON 序列化的跨语言摘要、协议解析/状态分类、固定材料 checker 正反例、schema 与人工审阅选择 |
+| Java 隔离远端窗口测试 | 9 个通过，0 failure/error/skip；与上行合计 21 个 | 真实 Go/PG/Java adapter；本地 HTTP 故障提供方，含显式坏调度策略、实际 worker 失败收敛与慢 RDC/暂停屏障；不代表真实 Runtime/IdP 故障恢复 |
 | 最新真实主链证据核对 | 10 项通过 | 新绑定、四专家、两 Loop 分支、观察与正式正文一致、同对象检查/批准/下载及下载原始字节摘要、同交付身份；只读核对已有证据 |
 | 构建依赖冻结 | 4 模块 effective POM 与 dependency tree、Go 实际导入包和 6 份依赖锁已记录 | `freeze_build.py` 串行执行；是当前依赖解析与锁文件证据，不替代独立 clean rebuild 或上游测试 |
 | Python 跨语言样例 | 10 组全部通过 | 既有 Python 冻结 oracle 与实际 Go JCS 相符，大计数字符串不丢精度；不另造生产 canonicalizer |
@@ -216,4 +233,4 @@ Contract-C01—C07 已补真实接口映射、12 份从 DTO 导出的机器 sche
 
 Java 结果位于 `orchestrator-java/target/surefire-reports`。隔离窗口证据为 `fault-accepted-lost-reply.json`、`fault-accepted-remote-task-lost.json`、`fault-input_required-resume.json`、`fault-auth_required-resume.json`、`fault-predecessor-failed-scheduler-continued.json`。`source-and-artifact-audit.json` 记录实际源码 HEAD、5 个制品摘要与本 Demo 源码的限定凭据扫描；该扫描不等于 OS 隔离或全面泄密证明。这些目录不提交凭据或未经检查的原始日志；本文只写必要标识与核验边界。
 
-最后核心核对另存 `final-core-release-check.json`：33 份 Python 语法解析、47 处本地 Markdown 链接无缺失，Go/Java 实际计数、主任务状态及 10 项核对均通过。已部署控制 EXE 与跨进程回归使用的二进制逐字节一致，SHA-256 为 `c4eed367389fb8100077b3779a0cf1e8a9d81acbb8ffa90e5bb0cbe3225c1292`。独立复跑和完整外部签收仍是交接项，不能把本文日期当作签收时间。
+此前核心核对另存 `final-core-release-check.json`：33 份 Python 语法解析、47 处本地 Markdown 链接无缺失，Go/Java 实际计数、主任务状态及 10 项核对均通过。已部署控制 EXE 与跨进程回归使用的二进制逐字节一致，SHA-256 为 `c4eed367389fb8100077b3779a0cf1e8a9d81acbb8ffa90e5bb0cbe3225c1292`。独立复跑和完整外部签收仍是交接项，不能把本文日期当作签收时间。

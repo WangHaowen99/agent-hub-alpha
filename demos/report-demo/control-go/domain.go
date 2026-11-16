@@ -156,15 +156,16 @@ type Graph struct {
 	PolicyVersion string `json:"policy_version"`
 }
 type Capability struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Version      string `json:"version"`
-	Kind         string `json:"kind"`
-	AgentID      string `json:"agent_id,omitempty"`
-	InputSchema  string `json:"input_schema"`
-	OutputSchema string `json:"output_schema"`
-	Scope        string `json:"scope"`
-	Enabled      bool   `json:"enabled"`
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Version       string         `json:"version"`
+	Kind          string         `json:"kind"`
+	AgentID       string         `json:"agent_id,omitempty"`
+	InputSchema   string         `json:"input_schema"`
+	OutputSchema  string         `json:"output_schema"`
+	Scope         string         `json:"scope"`
+	Enabled       bool           `json:"enabled"`
+	RemoteBinding *RemoteBinding `json:"remote_binding,omitempty"`
 }
 type Catalog struct {
 	SchemaVersion string       `json:"schema_version"`
@@ -207,6 +208,22 @@ func ValidateGraph(g Graph, c Catalog) error {
 		cap, ok := c.Get(n.Expert)
 		if !ok || !cap.Enabled || cap.Scope != "group-annual-report" {
 			return fault("POLICY_REJECTED", "unapproved or incompatible capability", 422)
+		}
+		if cap.RemoteBinding != nil {
+			if cap.AgentID == "" {
+				return fault("POLICY_REJECTED", "local capability cannot bind RDC", 422)
+			}
+			if err := cap.RemoteBinding.validate(); err != nil {
+				return err
+			}
+		}
+		if cap.RemoteBinding != nil {
+			if cap.AgentID == "" {
+				return fault("POLICY_REJECTED", "local capability cannot bind RDC", 422)
+			}
+			if err := cap.RemoteBinding.validate(); err != nil {
+				return err
+			}
 		}
 		nodes[n.ID] = n
 		kinds[cap.Kind]++

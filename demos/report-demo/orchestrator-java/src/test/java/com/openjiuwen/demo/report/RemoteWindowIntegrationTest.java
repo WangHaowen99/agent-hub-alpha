@@ -42,6 +42,59 @@ import org.junit.jupiter.api.io.TempDir;
 class RemoteWindowIntegrationTest {
     @TempDir Path temp;
 
+    @Test void changedProfileAfterProcessRestartDoesNotReplaceOldBinding() throws Exception {
+        try (var h = new Harness(temp.resolve("profile-restart"))) {
+            var old = h.task().path("execution_profile").asText();
+            h.config.put("execution_profile", "sha256:changed-fixture-release");
+            Files.writeString(h.configFile, Json.write(h.config));
+            h.restartControl();
+            h.epoch = h.control.post(h.path + "/claim", Map.of("owner", h.owner, "domain", "graph")).path("epoch").asText();
+            assertEquals("BINDING_CHANGED", assertThrows(ControlClient.ControlFailure.class, h::execute).code);
+            assertEquals(old, h.task().path("execution_profile").asText());
+            assertEquals(0, h.sends.get()); assertEquals(0, h.calls().size());
+            h.saveEvidence("changed-profile-process-restart", Map.of("old_profile_preserved",true,"resume","BINDING_CHANGED","send_requests",0));
+        }
+    }
+
+    @Test void repeatedGrantedPermitDoesNotResendExistingIntent() throws Exception {
+        for (boolean loseReply : List.of(false, true)) {
+            try (var h = new Harness(temp.resolve("repeat-permit-" + loseReply))) {
+                h.dropSendReply = loseReply;
+                var permit = h.control.post(h.path + "/nodes/" + h.node + "/resolve", Map.of("owner", h.owner, "epoch", h.epoch));
+                var remote = new RemoteExpertExecutor(h.control, h.config.path("bus"));
+                var id = h.task().path("task_id").asText();
+                assertThrows(ControlClient.ControlFailure.class, () -> remote.execute(id, h.node, h.owner, h.epoch, permit));
+                var before = h.calls().getFirst();
+                assertEquals(loseReply ? "REMOTE_UNKNOWN" : "REMOTE_FAILED", assertThrows(ControlClient.ControlFailure.class,
+                    () -> remote.execute(id, h.node, h.owner, h.epoch, permit)).code);
+                assertEquals(1, h.sends.get());
+                assertEquals(loseReply ? 0 : 1, h.gets.get());
+                assertEquals(before, h.calls().getFirst());
+                h.saveEvidence("repeated-granted-permit-" + loseReply, Map.of("send_requests", h.sends.get(), "query_requests", h.gets.get(), "same_call", true));
+            }
+        }
+    }
+
+    @Test void restartDuringDiscoveryFencesOldWorkerWithoutSending() throws Exception {
+        try (var h = new Harness(temp.resolve("discovery-restart"))) {
+            h.blockDiscoveryAgent = "report-extractor";
+            var old = CompletableFuture.supplyAsync(() -> {
+                try { h.execute(); return "UNEXPECTED_SUCCESS"; }
+                catch (ControlClient.ControlFailure failure) { return failure.code; }
+            });
+            try {
+                assertTrue(h.discoveryEntered.await(3, TimeUnit.SECONDS));
+                h.restartControl();
+                var lease = h.control.post(h.path + "/claim", Map.of("owner", "replacement-worker", "domain", "graph"));
+                assertNotEquals(h.epoch, lease.path("epoch").asText());
+                h.discoveryReleased.countDown();
+                assertEquals("LEASE_EXPIRED", old.get(8, TimeUnit.SECONDS));
+                assertEquals(0, h.sends.get()); assertEquals(0, h.calls().size());
+                h.saveEvidence("go-restart-during-discovery", Map.of("old_worker", "LEASE_EXPIRED", "send_requests", 0, "intents", 0, "new_epoch", lease.path("epoch").asText()));
+            } finally { h.discoveryReleased.countDown(); }
+        }
+    }
+
     @Test void realWorkerStillRequestsGoCompletionAfterNativeSchedulerFailure() throws Exception {
         try(var h=new Harness(temp.resolve("worker-failure-completion"),false)) {
             Thread worker=new Thread(new DemoWorker(h.config),"isolated-fixture-worker");
@@ -70,7 +123,7 @@ class RemoteWindowIntegrationTest {
             h.commitFixtureNode(h.node);
             h.blockDiscoveryAgent="business-analyst";
             var executing=CompletableFuture.supplyAsync(()->{
-                try {h.execute("business1");return "UNEXPECTED_SUCCESS";}
+                try {h.execute(h.nodeOf("business@1"));return "UNEXPECTED_SUCCESS";}
                 catch(ControlClient.ControlFailure failure){return failure.code;}
             });
             try {
@@ -79,9 +132,9 @@ class RemoteWindowIntegrationTest {
                 // discovery request remains blocked at an explicit barrier.
                 var heartbeat=CompletableFuture.supplyAsync(()->h.control.post(h.path+"/heartbeat",Map.of("owner",h.owner,"epoch",h.epoch)));
                 assertEquals(h.epoch,heartbeat.get(3,TimeUnit.SECONDS).path("epoch").asText());
-                var otherCommit=CompletableFuture.runAsync(()->h.commitFixtureNode("quality1"));
+                var otherCommit=CompletableFuture.runAsync(()->h.commitFixtureNode(h.nodeOf("quality@1")));
                 otherCommit.get(3,TimeUnit.SECONDS);
-                assertTrue(h.task().path("nodes").path("quality1").hasNonNull("result"));
+                assertTrue(h.task().path("nodes").path(h.nodeOf("quality@1")).hasNonNull("result"));
                 h.userPost(h.path+"/pause",Map.of());
                 h.discoveryReleased.countDown();
                 assertEquals("PAUSED",executing.get(5,TimeUnit.SECONDS));
@@ -117,7 +170,7 @@ class RemoteWindowIntegrationTest {
                 assertThrows(BlueprintException.class,()->scheduler.execute(adverse,bindings,"isolated adverse scheduler policy fixture"));
                 assertTrue(scheduler.awaitMembersSettled(Duration.ofSeconds(5)));
             }
-            assertTrue(started.contains("business1")&&started.contains("quality1"),"native scheduler actually continued to the downstream wrappers");
+            assertTrue(started.contains(h.nodeOf("business@1"))&&started.contains(h.nodeOf("quality@1")),"native scheduler actually continued to the downstream wrappers");
             assertEquals(1,h.sends.get(),"only extractor request reached the provider");
             assertEquals(1,h.calls().size());
             var task=h.task();
@@ -200,7 +253,12 @@ class RemoteWindowIntegrationTest {
         final AtomicReference<String> state=new AtomicReference<>("FAILED");
         final CountDownLatch discoveryEntered=new CountDownLatch(1),discoveryReleased=new CountDownLatch(1);
         final HttpServer provider;
-        final Process go;
+        Process go;
+        Path configFile;
+        String binary;
+        Thread outputReader;
+        java.io.ByteArrayOutputStream processOutput;
+        int processNumber;
         final ControlClient control;
         final ObjectNode config;
         final String base,path,node,owner="fixture-worker";
@@ -211,7 +269,7 @@ class RemoteWindowIntegrationTest {
         Harness(Path directory) throws Exception {this(directory,true);}
         Harness(Path directory,boolean claimInitial) throws Exception {
             this.directory=directory;
-            String privatePath=System.getenv("REPORT_DEMO_CONFIG"),binary=System.getenv("REPORT_CANONICAL_BINARY");
+            String privatePath=System.getenv("REPORT_DEMO_CONFIG");binary=System.getenv("REPORT_CANONICAL_BINARY");
             Assumptions.assumeTrue(privatePath!=null&&binary!=null,"Actual private PG config and built Go executable required for isolated fault integration");
             Files.createDirectories(directory);
             config=(ObjectNode)Json.read(Files.readString(Path.of(privatePath)));
@@ -226,14 +284,14 @@ class RemoteWindowIntegrationTest {
             base="http://127.0.0.1:"+port;
             config.put("listen","127.0.0.1:"+port);config.put("public_url",base);
             config.put("scope","fault-"+UUID.randomUUID());config.put("artifact_root",directory.resolve("content").toAbsolutePath().toString());
-            Path configFile=directory.resolve("config.json");Files.writeString(configFile,Json.write(config));
-            go=new ProcessBuilder(binary,"-config",configFile.toString()).redirectError(directory.resolve("go.err.log").toFile()).redirectOutput(directory.resolve("go.out.log").toFile()).start();
+            configFile=directory.resolve("config.json");Files.writeString(configFile,Json.write(config));
+            go=startControl();
             control=new ControlClient(base,config.path("tokens").path("worker").asText());
             boolean ready=false;
             for(int attempt=0;attempt<100&&go.isAlive();attempt++) {
                 try {control.get("/healthz");ready=true;break;}catch(ControlClient.ControlFailure ignored){Thread.sleep(100);}
             }
-            if(!ready) {go.destroy();throw new IllegalStateException("Isolated Go/PG fixture did not become ready");}
+            if(!ready) {stopControl(false);throw new IllegalStateException("Isolated Go/PG fixture did not become ready");}
             provider=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
             provider.createContext("/",exchange->{
                 try {
@@ -271,15 +329,42 @@ class RemoteWindowIntegrationTest {
             config.set("bus",Json.MAPPER.valueToTree(Map.of("gateway_url",providerURL,"rdc_url",providerURL,"registry_token","isolated-registry-fixture","token_url",providerURL+"/token","client_id","fixture","client_secret","fixture","subject","fixture-subject")));
             JsonNode login=request("/auth/login",Map.of("user",config.path("user").asText(),"password",config.path("user_password").asText()),null);
             csrf=login.path("csrf").asText();
+            // The source graph supplies topology only; admit this fixture under
+            // the actual catalog served by its isolated Go process.
+            graph.put("catalog_digest", control.get("/v1/catalog").path("catalog_digest").asText());
             JsonNode created=request("/v1/commands",Map.of("command_id","fixture-"+UUID.randomUUID(),"graph",graph),config.path("tokens").path("planner").asText());
             path="/v1/tasks/"+created.path("task_id").asText();
             userPost(path+"/admit",Map.of("graph_digest",created.path("graph_digest").asText()));
             if(claimInitial)epoch=control.post(path+"/claim",Map.of("owner",owner,"domain","graph")).path("epoch").asText();
             } catch(Exception | Error failure) {
-                provider.stop(0);go.destroy();
-                if(!go.waitFor(10,java.util.concurrent.TimeUnit.SECONDS))go.destroyForcibly();
+                provider.stop(0);stopControl(false);
                 throw failure;
             }
+        }
+
+        Process startControl() throws Exception {
+            var child=new ProcessBuilder(binary,"-config",configFile.toString()).redirectErrorStream(true).start();
+            var output=new java.io.ByteArrayOutputStream();processOutput=output;
+            outputReader=Thread.ofVirtual().start(()->{
+                try(var input=child.getInputStream()){input.transferTo(output);}
+                catch(java.io.IOException ignored){ /* process termination may close the pipe */ }
+            });
+            return child;
+        }
+        void stopControl(boolean force) throws Exception {
+            if(force)go.destroyForcibly();else go.destroy();
+            if(!go.waitFor(10,TimeUnit.SECONDS)){go.destroyForcibly();assertTrue(go.waitFor(10,TimeUnit.SECONDS));}
+            assertFalse(go.isAlive(),"isolated control process leaked");
+            outputReader.join(5000);assertFalse(outputReader.isAlive(),"process log reader leaked");
+            Files.write(directory.resolve("go-"+(processNumber++)+".log"),processOutput.toByteArray());
+        }
+        void restartControl() throws Exception {
+            stopControl(true);
+            go=startControl();
+            for(int i=0;i<100&&go.isAlive();i++) {
+                try {control.get("/healthz");return;}catch(ControlClient.ControlFailure failure){Thread.sleep(100);}
+            }
+            throw new IllegalStateException("Restarted control did not become ready");
         }
 
         JsonNode request(String path,Object body,String token) throws Exception {
@@ -293,6 +378,10 @@ class RemoteWindowIntegrationTest {
         void userPost(String path,Object body) throws Exception {request(path,body,null);}
         JsonNode task() {return control.get(path);}
         List<JsonNode> calls() {return Json.MAPPER.convertValue(control.get(path+"/calls"),new com.fasterxml.jackson.core.type.TypeReference<List<JsonNode>>(){});}
+        String nodeOf(String expert) {
+            for(var n:task().path("graph").path("nodes")) {if(n.path("expert").asText().equals(expert))return n.path("id").asText();}
+            throw new IllegalArgumentException("Fixture expert absent: "+expert);
+        }
         void execute() {
             execute(node);
         }
@@ -312,6 +401,6 @@ class RemoteWindowIntegrationTest {
             Path parent=Path.of(System.getenv("REPORT_DEMO_CONFIG")).toAbsolutePath().getParent().resolve("evidence");
             Files.writeString(parent.resolve("fault-"+name+".json"),Json.write(Map.of("provider","isolated fake HTTP; actual Java adapter, Go and PG","scope",config.path("scope").asText(),"task_id",task().path("task_id").asText(),"checks",checks,"calls",calls(),"model_calls",0)),StandardCharsets.UTF_8);
         }
-        @Override public void close() throws Exception {provider.stop(0);go.destroy();if(!go.waitFor(10,java.util.concurrent.TimeUnit.SECONDS))go.destroyForcibly();}
+        @Override public void close() throws Exception {provider.stop(0);stopControl(false);}
     }
 }

@@ -17,6 +17,7 @@ def main():
     p.add_argument('--private-root', type=Path, required=True)
     p.add_argument('action', choices=['start', 'status', 'verify'])
     p.add_argument('--source-task')
+    p.add_argument('--rebind-current-catalog', action='store_true', help='Explicitly propose and approve a new task using current capability bindings; never changes the source task')
     a = p.parse_args()
     root = a.private_root.resolve()
     cfg = json.loads((root / 'config.json').read_text(encoding='utf-8'))
@@ -32,15 +33,25 @@ def main():
             raise SystemExit('--source-task required; no synthetic planning claim')
         source = session.get(base + '/v1/tasks/' + a.source_task, timeout=10)
         source.raise_for_status()
+        graph = source.json()['graph']
+        source_catalog = graph['catalog_digest']
+        if a.rebind_current_catalog:
+            catalog = session.get(base + '/v1/catalog', timeout=10)
+            catalog.raise_for_status()
+            published = catalog.json()
+            if graph['policy_version'] != published['catalog']['policy_version']:
+                raise SystemExit('Policy changed; review a fresh graph rather than replacing its policy automatically')
+            graph['catalog_digest'] = published['catalog_digest']
         response = requests.post(base + '/v1/commands', headers={'Authorization': 'Bearer ' + cfg['tokens']['planner']},
-                                 json={'command_id': 'shared-contract-' + str(time.time_ns()), 'graph': source.json()['graph']}, timeout=20)
+                                 json={'command_id': 'shared-contract-' + str(time.time_ns()), 'graph': graph}, timeout=20)
         response.raise_for_status()
         task = response.json()
         admitted = session.post(base + '/v1/tasks/' + task['task_id'] + '/admit', headers=headers,
                                 json={'graph_digest': task['graph_digest']}, timeout=10)
         admitted.raise_for_status()
         run = {'task_id': task['task_id'], 'source_candidate_task': a.source_task,
-               'fresh_model_planning': False, 'actor': 'isolated operator test', 'identity_contract': task['identity_contract']}
+               'fresh_model_planning': False, 'source_catalog_digest': source_catalog,
+               'candidate_catalog_digest': graph['catalog_digest'], 'explicit_catalog_rebind': a.rebind_current_catalog, 'actor': 'isolated operator test', 'identity_contract': task['identity_contract']}
         run_path.write_text(json.dumps(run, indent=2), encoding='utf-8')
         print(json.dumps(run))
         return

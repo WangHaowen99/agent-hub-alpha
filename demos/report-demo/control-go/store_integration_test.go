@@ -179,11 +179,11 @@ func TestPGExpiredPermitLateObservationAndAuditRollback(t *testing.T) {
 	if _, err = s.ResolveNode(ctx, task.ID, "extract", l.Owner, l.Epoch, "", c, "source"); err != nil {
 		t.Fatal(err)
 	}
-	v, err = s.BeginCall(ctx, task.ID, "extract", l.Owner, l.Epoch, json.RawMessage(`{"agent_id":"report-extractor"}`), c)
+	v, err = s.BeginCall(ctx, task.ID, "extract", l.Owner, l.Epoch, routeFixture(t, c, "extractor@1"), c)
 	if err != nil {
 		t.Fatal(err)
 	}
-	call := v.(Call)
+	call := v.(CallDecision).Call
 	// Test-only SQL uses the migrator to create the exact expiration boundary.
 	var cfg Config
 	b, _ := os.ReadFile(os.Getenv("REPORT_DEMO_CONFIG"))

@@ -13,11 +13,11 @@ func TestPGRemoteCommitRequiresUniqueObservedBoundOutput(t *testing.T) {
 		}
 		t.Run(name, func(t *testing.T) {
 			ctx, s, cfg, cat, material, task, request, raw := commitFixture(t)
-			v, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, json.RawMessage(`{"fixture":true}`), cat)
+			v, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, routeFixture(t, cat, "extractor@1"), cat)
 			if err != nil {
 				t.Fatal(err)
 			}
-			call := v.(Call)
+			call := v.(CallDecision).Call
 			_, err = s.Commit(ctx, task.ID, "extract", request, raw, cat, material.Digest)
 			requireCode(t, err, "REMOTE_UNRESOLVED")
 			observe := func(event string, body []byte) {

@@ -2,12 +2,105 @@
   "schema_version": "report-capabilities/1",
   "policy_version": "annual-report-policy/1",
   "capabilities": [
-    {"id":"extractor@1","name":"年报资料提取","version":"1","kind":"extract","agent_id":"report-extractor","input_schema":"node-input/1","output_schema":"indicators/1","scope":"group-annual-report","enabled":true},
-    {"id":"business@1","name":"经营分析","version":"1","kind":"business","agent_id":"business-analyst","input_schema":"indicators/1","output_schema":"analysis/1","scope":"group-annual-report","enabled":true},
-    {"id":"quality@1","name":"资产质量分析","version":"1","kind":"quality","agent_id":"asset-quality-analyst","input_schema":"indicators/1","output_schema":"analysis/1","scope":"group-annual-report","enabled":true},
-    {"id":"writer@1","name":"报告写作与一次修订","version":"1","kind":"write","agent_id":"report-writer","input_schema":"analysis/1","output_schema":"report/1","scope":"group-annual-report","enabled":true},
-    {"id":"checker@1","name":"数值/期间/口径/来源检查","version":"1","kind":"check","input_schema":"report/1","output_schema":"check/1","scope":"group-annual-report","enabled":true},
-    {"id":"select@1","name":"选择已通过检查的报告","version":"1","kind":"select","input_schema":"check/1","output_schema":"selection/1","scope":"group-annual-report","enabled":true},
-    {"id":"parent-only@1","name":"仅支持母公司口径的候选（应排除）","version":"1","kind":"business","agent_id":"parent-only-analyst","input_schema":"indicators/1","output_schema":"analysis/1","scope":"parent-company","enabled":true}
+    {
+      "id": "extractor@1",
+      "name": "年报资料提取",
+      "version": "1",
+      "kind": "extract",
+      "agent_id": "report-extractor",
+      "input_schema": "node-input/1",
+      "output_schema": "indicators/1",
+      "scope": "group-annual-report",
+      "enabled": true,
+      "remote_binding": {
+        "card_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "capability_version": "1.0.0"
+      }
+    },
+    {
+      "id": "business@1",
+      "name": "经营分析",
+      "version": "1",
+      "kind": "business",
+      "agent_id": "business-analyst",
+      "input_schema": "indicators/1",
+      "output_schema": "analysis/1",
+      "scope": "group-annual-report",
+      "enabled": true,
+      "remote_binding": {
+        "card_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "capability_version": "1.0.0"
+      }
+    },
+    {
+      "id": "quality@1",
+      "name": "资产质量分析",
+      "version": "1",
+      "kind": "quality",
+      "agent_id": "asset-quality-analyst",
+      "input_schema": "indicators/1",
+      "output_schema": "analysis/1",
+      "scope": "group-annual-report",
+      "enabled": true,
+      "remote_binding": {
+        "card_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "capability_version": "1.0.0"
+      }
+    },
+    {
+      "id": "writer@1",
+      "name": "报告写作与一次修订",
+      "version": "1",
+      "kind": "write",
+      "agent_id": "report-writer",
+      "input_schema": "analysis/1",
+      "output_schema": "report/1",
+      "scope": "group-annual-report",
+      "enabled": true,
+      "remote_binding": {
+        "card_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "capability_version": "1.0.0"
+      }
+    },
+    {
+      "id": "checker@1",
+      "name": "数值/期间/口径/来源检查",
+      "version": "1",
+      "kind": "check",
+      "input_schema": "report/1",
+      "output_schema": "check/1",
+      "scope": "group-annual-report",
+      "enabled": true
+    },
+    {
+      "id": "select@1",
+      "name": "选择已通过检查的报告",
+      "version": "1",
+      "kind": "select",
+      "input_schema": "check/1",
+      "output_schema": "selection/1",
+      "scope": "group-annual-report",
+      "enabled": true
+    },
+    {
+      "id": "parent-only@1",
+      "name": "仅支持母公司口径的候选（应排除）",
+      "version": "1",
+      "kind": "business",
+      "agent_id": "parent-only-analyst",
+      "input_schema": "indicators/1",
+      "output_schema": "analysis/1",
+      "scope": "parent-company",
+      "enabled": true,
+      "remote_binding": {
+        "card_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "capability_version": "1.0.0"
+      }
+    }
   ]
 }

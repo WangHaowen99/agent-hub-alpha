@@ -28,7 +28,7 @@ def main():
     roots=[demo,repo/'agent-festival/schema',repo/'agent-festival/go/internal/ledger']
     for path in sorted(p for source in roots for p in source.rglob('*')):
         if not path.is_file() or {'target','__pycache__','.git'}.intersection(path.parts):continue
-        if path.suffix not in ('.md','.go','.java','.json','.html','.py','.xml','.yaml','.yml','.txt','.sql'):continue
+        if path.suffix not in ('.md','.go','.java','.json','.html','.js','.cjs','.py','.xml','.yaml','.yml','.txt','.sql'):continue
         text=path.read_text(encoding='utf-8-sig');files.append(path.relative_to(repo).as_posix())
         source_files[files[-1]]={'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
         if re.search(r'sk-[a-zA-Z0-9]{24,}',text):findings.append({'path':files[-1],'category':'model-key-shaped-literal'})

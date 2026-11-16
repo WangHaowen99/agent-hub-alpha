@@ -21,11 +21,11 @@ func TestPGLateRemoteConflictWithdrawsFormalResultsAndCloneDelivery(t *testing.T
 	for _, kind := range []string{"different-output", "contradictory-terminal"} {
 		t.Run(kind, func(t *testing.T) {
 			ctx, s, cfg, cat, material, source, request, raw := commitFixture(t)
-			v, err := s.BeginCall(ctx, source.ID, "extract", request.Owner, request.Epoch, json.RawMessage(`{"fixture":"late conflict; no model/provider call"}`), cat)
+			v, err := s.BeginCall(ctx, source.ID, "extract", request.Owner, request.Epoch, routeFixture(t, cat, "extractor@1"), cat)
 			if err != nil {
 				t.Fatal(err)
 			}
-			call := v.(Call)
+			call := v.(CallDecision).Call
 			observation := completedFixtureObservation(t, call, "first-completed", raw)
 			if _, err = s.Observe(ctx, call.ID, "fixture-worker", observation); err != nil {
 				t.Fatal(err)
@@ -192,11 +192,11 @@ func TestPGLateRemoteConflictWithdrawsFormalResultsAndCloneDelivery(t *testing.T
 
 func TestPGCompletedRemoteCallIgnoresLateNonterminalOrder(t *testing.T) {
 	ctx, s, _, cat, _, task, request, raw := commitFixture(t)
-	v, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, json.RawMessage(`{"fixture":true}`), cat)
+	v, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, routeFixture(t, cat, "extractor@1"), cat)
 	if err != nil {
 		t.Fatal(err)
 	}
-	call := v.(Call)
+	call := v.(CallDecision).Call
 	o := completedFixtureObservation(t, call, "completed", raw)
 	if _, err = s.Observe(ctx, call.ID, "fixture-worker", o); err != nil {
 		t.Fatal(err)

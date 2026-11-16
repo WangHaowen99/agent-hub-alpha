@@ -42,13 +42,13 @@ mvn -s .local/maven-settings.xml -f demos/report-demo/orchestrator-java/pom.xml 
 | C02 节点入场 | worker `POST /v1/tasks/{T}/claim`、`heartbeat`、`nodes/{o}/resolve` | [lease](lease.schema.json)、[binding](binding.schema.json)；claim `{owner,domain:"graph"}`；heartbeat `{owner,epoch}`；resolve `{owner,epoch,input_digest?}`；返回 GRANTED/REUSE/WAIT 或类型化错误 |
 | C03 正式提交 | worker 先 `POST /v1/artifacts` 发布候选，再 `POST /v1/tasks/{T}/nodes/{o}/commit` | [commit-request](commit-request.schema.json)、[result](result.schema.json)；正文实际 bytes/digest、a/h/e、当前 owner/session/期限与前驱资格联合校验，必要审计同事务 |
 | C04 检查与批准 | checker 仍走统一 C03；用户 `artifacts/{id}/approve`、HUMAN 独立审阅 | 正式 checker 对同一报告摘要；[human-review](human-review.schema.json) 是输出事实，用户不能自填 principal/receipt；人工不能豁免程序数值/结构失败 |
-| C05 受保护请求 | worker `nodes/{o}/calls` 记录纯计算远端发送意图；用户 `artifacts/{id}/deliver` 发布报告 | [remote-call](remote-call.schema.json)；发送前持久 c/message/context；deliver 请求 `{delivery_id}`，绑定同报告摘要/renderer、合格检查、当前用户批准和独立 delivery 租约域 |
+| C05 受保护请求 | worker `nodes/{o}/calls` 记录纯计算远端发送意图；用户 `artifacts/{id}/deliver` 发布报告 | [remote-call](remote-call.schema.json)、[call-decision](call-decision.schema.json)；发送前持久 c/message/context；deliver 请求 `{delivery_id}`，绑定同报告摘要/renderer、合格检查、当前用户批准和独立 delivery 租约域 |
 | C06 可信观察/核对 | worker `POST /v1/calls/{c}/observations`，查询同 c | [observation](observation.schema.json)；认证主体/source + event_id 幂等、context/remote task 绑定；旧 epoch 失权不丢可信迟到事实；观察不等于正式结果 |
 | C07 查询/干预 | MCP `get_plan/run_status/verify_run`；`GET /v1/tasks/{T}`、`events?after=N`、`calls`；受信用户 pause/resume | [task](task.schema.json)；generation/epoch/cursor 字符串、事件按数据库数值序号排序；继续先核对原任务/许可/远端身份，不盲重发 |
 
 C05 主流程发布器提供已检查本地 JSON 报告的可读取交付事实；它不包含银行付款。显式启用的 [验证报告](../VERIFICATION.md) 用真实 PG/HTTP 验证稳定 b、派发许可、迟到观察和网络窗口；默认不注册，也不会把计数器效果写成主任务 DELIVERED。
 
-新增 [effect-intent](effect-intent.schema.json) 与 [effect-observation](effect-observation.schema.json)，合计 12 份实际 DTO schema。测试效果 C05 由可信用户确认，C06 由固定提供方的受信 HTTP 客户端记录；旧 b 恢复只查询，记录观察不要求过期租约。完整 E/旁路覆盖仍以实际验收证据为准。
+新增 [effect-intent](effect-intent.schema.json) 与 [effect-observation](effect-observation.schema.json)，加上发送决策共 13 份实际 DTO schema。测试效果 C05 由可信用户确认，C06 由固定提供方的受信 HTTP 客户端记录；旧 b 恢复只查询，记录观察不要求过期租约。完整 E/旁路覆盖仍以实际验收证据为准。
 
 ## 3. 身份、错误与等待语义
 
@@ -76,3 +76,14 @@ HTTP 409 只是状态码，Java 根据 code 分类，不能把全部 409 映射�
 - Loop 分支：父节点 h、业务输入实际编码摘要、分支目标、输出摘要分别记录；不是独立人工核验。
 
 完整正常/拒绝/等待接口样例、E 系列逐窗口请求及各条交接签收仍持续补充。生成 schema 与本页映射只证明协议交接已有具体结构，不代表所有 C/E 用例通过。
+
+
+## 5. W03/W04 与 W05 的调用交接
+
+`POST .../nodes/{o}/calls` 响应为原调用字段加 `action`，见 call-decision schema。只有首次意图事务成功返回 `SEND`；已有远端 task 返回 `QUERY`；无 task 或关联冲突返回 `UNKNOWN`。Java 按本次响应决定发送，不能用之前 resolve 的 GRANTED 推导可以再次发送。action 不写入 remote_calls，读调用记录不会恢复一次丢失的发送许可。COMMIT 或 HTTP 应答丢失时先查询原 c；UNKNOWN 不重发。本方案不声明远端 messageId 幂等或网络 exactly-once。
+
+能力卡可带 `remote_binding={card_version,contract_version,capability_version,card_digest?}`，随 catalog/binding 摘要固定。RDC 发现位于 Java 锁外，Java按期望版本检查；Go 在发送意图短事务内重新检查当前目录、执行 profile、租约与发现快照。card_digest 为 RDC `card.rawJson` 的**原始 UTF-8 字节** SHA-256，不是 JCS 摘要。未收集实际执行实例时明确输出 not_collected。这个快照来自受信 worker，并不证明对恶意 worker 的独立远端证明。
+
+旧目录缺 remote_binding 时，Java仅保留原1.0.0兼容路径，不向历史记录补字段/重算摘要。当前发布目录已经显式绑定版本；目录或执行profile变化后，旧待确认计划拒绝采纳，已采纳任务拒绝漂移执行，需要新候选/确认。当前不提供旧二进制和模型的多版本自动恢复；历史结果仍可按原权限读取。
+
+部署能力逐项声明：支持原 remote_task_id 查询、正式结果复用；不声明取消和远端 messageId 幂等；Gateway/Runtime丢失task状态保持UNKNOWN。`tests/export_handoff.py`从实际任务只读生成身份、绑定、观察与结果关联投影；不导出凭据或模型正文，不替代跨组验收。

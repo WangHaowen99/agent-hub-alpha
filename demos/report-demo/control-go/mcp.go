@@ -15,7 +15,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-//go:embed web/*.html
+//go:embed web/*.html web/*.js
 var webFiles embed.FS
 
 const graphURI = "ui://report-demo/graph"
@@ -89,7 +89,7 @@ func (s *Server) graphToolResult(t *Task, err error) *mcp.CallToolResult {
 }
 func (s *Server) MCP() http.Handler {
 	srv := mcp.NewServer(&mcp.Implementation{Name: "report-orchestration", Version: "0.1.0"}, nil)
-	doc, _ := webFiles.ReadFile("web/graph.html")
+	doc, _ := embeddedPage("graph.html")
 	appDoc := strings.Replace(string(doc), "<head>", "<head><meta name=\"report-base\" content=\""+html.EscapeString(s.Config.PublicURL)+"\">", 1)
 	srv.AddResource(&mcp.Resource{URI: graphURI, Name: "annual-report-graph", MIMEType: appMIME}, func(context.Context, *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
 		return &mcp.ReadResourceResult{Contents: []*mcp.ResourceContents{{URI: graphURI, MIMEType: appMIME, Text: appDoc, Meta: mcp.Meta{"ui": map[string]any{"csp": map[string]any{"connectDomains": []string{s.Config.PublicURL}}}}}}}, nil
@@ -135,7 +135,7 @@ func (s *Server) MCP() http.Handler {
 func (s *Server) uiRoutes(m *http.ServeMux) {
 	m.Handle("/mcp", s.MCP())
 	m.HandleFunc("GET /ui/tasks/{id}", func(w http.ResponseWriter, r *http.Request) {
-		doc, err := webFiles.ReadFile("web/task.html")
+		doc, err := embeddedPage("task.html")
 		if err != nil {
 			http.Error(w, "UI unavailable", 503)
 			return
@@ -159,4 +159,16 @@ func (s *Server) uiRoutes(m *http.ServeMux) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET,OPTIONS")
 		w.WriteHeader(204)
 	})
+}
+
+func embeddedPage(name string) ([]byte, error) {
+	doc, err := webFiles.ReadFile("web/" + name)
+	if err != nil {
+		return nil, err
+	}
+	guard, err := webFiles.ReadFile("web/projection.js")
+	if err != nil {
+		return nil, err
+	}
+	return []byte(strings.Replace(string(doc), "/* PROJECTION_GUARD */", string(guard), 1)), nil
 }

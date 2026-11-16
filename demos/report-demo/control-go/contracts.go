@@ -36,7 +36,7 @@ func ContractSchemas() (map[string]*jsonschema.Schema, error) {
 		"propose-input": reflect.TypeFor[ProposeInput](), "graph": reflect.TypeFor[Graph](),
 		"binding": reflect.TypeFor[Binding](), "commit-request": reflect.TypeFor[CommitRequest](),
 		"result": reflect.TypeFor[Result](), "remote-call": reflect.TypeFor[Call](),
-		"observation": reflect.TypeFor[Observation](), "lease": reflect.TypeFor[Lease](),
+		"call-decision": reflect.TypeFor[CallDecision](), "observation": reflect.TypeFor[Observation](), "lease": reflect.TypeFor[Lease](),
 		"task": reflect.TypeFor[Task](), "human-review": reflect.TypeFor[CheckReview](),
 		"effect-intent": reflect.TypeFor[EffectIntent](), "effect-observation": reflect.TypeFor[EffectObservation](),
 	}
