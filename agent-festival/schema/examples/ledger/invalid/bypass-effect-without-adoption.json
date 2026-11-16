@@ -1,5 +1,5 @@
 {
-  "ledger_version": "0.1.0",
+  "ledger_version": "0.2.0",
   "events": [
     {
       "event_type": "effect",

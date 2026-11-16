@@ -1,0 +1,19 @@
+{
+  "ledger_version": "0.2.0",
+  "events": [
+    {
+      "event_type": "adoption",
+      "arbitration_seq": 0,
+      "identity": {
+        "business_request_id": "br-le2",
+        "operation_id": "op-le2",
+        "logical_execution": {"task_id": "T1", "graph_version": "g1"}
+      },
+      "versions": {"evidence": "e", "rule": "r", "model": "m", "readout": "ro", "policy": "p"},
+      "outcome": {"status": "adopted", "detail": "t"},
+      "grants_at_decision": [{"kind": "data", "selector": "s", "actions": ["read"], "effect": "none"}],
+      "idempotency": {"operation_id": "op-le2", "payload_digest": "d2"}
+    }
+  ],
+  "_expect": "REJECT: logical_execution partial tuple (2/4 fields) — atomic all-or-nothing (batch-0 M-1)"
+}

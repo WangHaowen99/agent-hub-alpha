@@ -1,0 +1,323 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:binding",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "execution_profile",
+    "schema_version",
+    "task_id",
+    "graph_revision",
+    "node_id",
+    "instruction",
+    "goal",
+    "focus",
+    "material_digest",
+    "material_projection_digest",
+    "capability",
+    "policy_version",
+    "upstream",
+    "authorized_skips"
+  ],
+  "properties": {
+    "authorized_skips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "check_artifact",
+          "outcome"
+        ],
+        "properties": {
+          "check_artifact": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "review_receipt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "kind",
+        "input_schema",
+        "output_schema",
+        "scope",
+        "enabled"
+      ],
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "input_schema": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "output_schema": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "execution_profile": {
+      "type": "string"
+    },
+    "focus": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "graph_revision": {
+      "type": "string"
+    },
+    "identity_contract": {
+      "type": "string"
+    },
+    "instruction": {
+      "type": "string"
+    },
+    "logical_execution": {
+      "type": "object",
+      "description": "o = (T, g, node_path, iteration_path) — the logical node execution identity (邢 GC#2 2026-11-13 formalization, adopted verbatim). T = the accepted task (business_request_id + graph_version); g = the adopted graph version/sha; node_path/iteration_path locate the node within the graph including loop/branch ordinals. operation_id remains the attempt (a) identity — o is the durable logical key that survives retries. All four fields required (atomic tuple — partial or empty logical_execution is invalid; M-1 fix): old events carry only operation_id (a-granularity); new events SHOULD carry logical_execution for graph-aware consumers (W04). See batch-0 scope (130/132号).",
+      "minProperties": 4,
+      "maxProperties": 4,
+      "required": [
+        "task_id",
+        "graph_version",
+        "node_path",
+        "iteration_path"
+      ],
+      "properties": {
+        "graph_version": {
+          "type": "string",
+          "description": "g — the adopted graph version/sha. Frozen at adoption by W04; Go stores but does not decide.",
+          "minLength": 1
+        },
+        "iteration_path": {
+          "type": "string",
+          "description": "Loop/branch ordinal path (e.g. 'iter:2' or 'loop:1/branch:B/iter:2'). Composes with node_path to form the full execution position.",
+          "minLength": 1
+        },
+        "node_path": {
+          "type": "string",
+          "description": "Path of the node within the graph (e.g. 'n3' or 'workflow/collection/n3' for nested). Nested/loop use parent path + ordinals.",
+          "minLength": 1
+        },
+        "task_id": {
+          "type": "string",
+          "description": "T — the accepted task identifier. In v0.1.0+1.0.0 this maps to business_request_id at the single-node level; graph-aware producers supply their own task identifier.",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "material_digest": {
+      "type": "string"
+    },
+    "material_projection_digest": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check_artifact",
+          "object_digest",
+          "decision",
+          "reason",
+          "principal",
+          "receipt"
+        ],
+        "properties": {
+          "check_artifact": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "object_digest": {
+            "type": "string"
+          },
+          "principal": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "receipt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "upstream": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "input_digest",
+          "artifact_id",
+          "artifact_digest",
+          "receipt",
+          "valid",
+          "output"
+        ],
+        "properties": {
+          "artifact_digest": {
+            "type": "string"
+          },
+          "artifact_id": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "object",
+            "$id": "https://agent-festival.local/schema/identity/0.2.0",
+            "description": "Three-layer business identity (NGA §7.2). Retries/recovery reuse operation_id; a new evaluation under new versions is a new evaluation_revision linked to the same business_request_id.",
+            "required": [
+              "business_request_id",
+              "operation_id"
+            ],
+            "properties": {
+              "business_request_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evaluation_revision": {
+                "type": "string",
+                "minLength": 1
+              },
+              "execution_generation": {
+                "type": "integer",
+                "description": "e — current execution ownership generation. Minted once per claim (hermes generation-stamp precedent: first opener wins). Renewal/takeover decisions belong to W04; Go stores the result. 0 = original claim; increments on verified takeover.",
+                "minimum": 0
+              },
+              "logical_execution": {
+                "type": "object",
+                "description": "o = (T, g, node_path, iteration_path) — the logical node execution identity (邢 GC#2 2026-11-13 formalization, adopted verbatim). T = the accepted task (business_request_id + graph_version); g = the adopted graph version/sha; node_path/iteration_path locate the node within the graph including loop/branch ordinals. operation_id remains the attempt (a) identity — o is the durable logical key that survives retries. All four fields required (atomic tuple — partial or empty logical_execution is invalid; M-1 fix): old events carry only operation_id (a-granularity); new events SHOULD carry logical_execution for graph-aware consumers (W04). See batch-0 scope (130/132号).",
+                "minProperties": 4,
+                "maxProperties": 4,
+                "required": [
+                  "task_id",
+                  "graph_version",
+                  "node_path",
+                  "iteration_path"
+                ],
+                "properties": {
+                  "graph_version": {
+                    "type": "string",
+                    "description": "g — the adopted graph version/sha. Frozen at adoption by W04; Go stores but does not decide.",
+                    "minLength": 1
+                  },
+                  "iteration_path": {
+                    "type": "string",
+                    "description": "Loop/branch ordinal path (e.g. 'iter:2' or 'loop:1/branch:B/iter:2'). Composes with node_path to form the full execution position.",
+                    "minLength": 1
+                  },
+                  "node_path": {
+                    "type": "string",
+                    "description": "Path of the node within the graph (e.g. 'n3' or 'workflow/collection/n3' for nested). Nested/loop use parent path + ordinals.",
+                    "minLength": 1
+                  },
+                  "task_id": {
+                    "type": "string",
+                    "description": "T — the accepted task identifier. In v0.1.0+1.0.0 this maps to business_request_id at the single-node level; graph-aware producers supply their own task identifier.",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "operation_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "input_digest": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "output": true,
+          "receipt": {
+            "type": "string"
+          },
+          "reused_from": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "required": [
+              "task_id",
+              "node_id",
+              "receipt"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string"
+              },
+              "receipt": {
+                "type": "string"
+              },
+              "task_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+.env
+*.local.json
+bin/
+**/target/
+**/node_modules/
+**/dist/
+__pycache__/
+*.pyc
+*.exe
+*.jar

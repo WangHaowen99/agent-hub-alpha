@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:effect-intent",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "schema_version",
+    "delivery_id",
+    "task_id",
+    "artifact_id",
+    "object_digest",
+    "payload_digest",
+    "target",
+    "origin",
+    "action",
+    "renderer",
+    "principal",
+    "owner",
+    "epoch",
+    "control_session",
+    "state"
+  ],
+  "properties": {
+    "action": {
+      "type": "string"
+    },
+    "artifact_id": {
+      "type": "string"
+    },
+    "control_session": {
+      "type": "string"
+    },
+    "delivery_id": {
+      "type": "string"
+    },
+    "epoch": {
+      "type": "string"
+    },
+    "object_digest": {
+      "type": "string"
+    },
+    "origin": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "payload_digest": {
+      "type": "string"
+    },
+    "principal": {
+      "type": "string"
+    },
+    "provider_receipt": true,
+    "renderer": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

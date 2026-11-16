@@ -163,7 +163,7 @@ func TestInspectProjectsAndExposesGaps(t *testing.T) {
 	// build a real record then inspect it
 	digest := "sha256:" + strings.Repeat("a", 64)
 	if o := m.Adopt(&adopt.Request{
-		AdoptionVersion:  "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:         ledger.Identity{BusinessRequestID: "br-i", OperationID: "op-i"},
 		Versions:         ledger.Versions{Evidence: "e", Rule: "r", Model: "m", Readout: "ro", Policy: "p"},
 		PayloadDigest:    digest,
@@ -196,7 +196,7 @@ func TestRecoversToDispatchableNotBeyond(t *testing.T) {
 	digest := "sha256:" + strings.Repeat("a", 64)
 	grants := []ledger.Grant{{Kind: "data", Selector: "s", Actions: []string{"read"}, Effect: "none"}}
 	m.Adopt(&adopt.Request{
-		AdoptionVersion: "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:        ledger.Identity{BusinessRequestID: "br-r", OperationID: "op-r"},
 		Versions:        ledger.Versions{Evidence: "e", Rule: "r", Model: "m", Readout: "ro", Policy: "p"},
 		PayloadDigest:   digest, GrantsAtDecision: grants,
@@ -535,9 +535,9 @@ func TestReplayPropagatesDriveErrors(t *testing.T) {
 	// injected into the TYPED steps after LoadCase — only the typed steps
 	// carry the unknown op to drive
 	doc := map[string]any{
-		"case_version": "0.1.0", "case_id": "hostile",
+		"case_version": "0.2.0", "case_id": "hostile",
 		"steps": []any{map[string]any{"op": "adopt", "request": map[string]any{
-			"adoption_version": "0.1.0",
+			"adoption_version": "0.2.0",
 			"identity":         map[string]any{"business_request_id": "b", "operation_id": "o"},
 			"versions":         map[string]any{"evidence": "e", "rule": "r", "model": "m", "readout": "ro", "policy": "p"},
 			"payload_digest":   digest,
@@ -644,7 +644,7 @@ func TestScratchWriteFailureIsLoud(t *testing.T) {
 func mustAdoptRequest(t *testing.T, op, digest string) json.RawMessage {
 	t.Helper()
 	req := adopt.Request{
-		AdoptionVersion:  "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:         ledger.Identity{BusinessRequestID: "br-w", OperationID: op},
 		Versions:         ledger.Versions{Evidence: "e", Rule: "r", Model: "m", Readout: "ro", Policy: "p"},
 		PayloadDigest:    digest,
@@ -665,7 +665,7 @@ func TestLoadCaseRefusesFoldedNumbers(t *testing.T) {
 	b, _ := json.Marshal(c.RecordedRawDoc)
 	var folded []any
 	json.Unmarshal(b, &folded)
-	doc := map[string]any{"case_version": "0.1.0", "case_id": "folded",
+	doc := map[string]any{"case_version": "0.2.0", "case_id": "folded",
 		"steps": c.Steps, "recorded_events": folded, "expected": c.Expected}
 	_, err := LoadCase(doc)
 	if err == nil || !strings.Contains(err.Error(), "UseNumber") {
@@ -680,7 +680,7 @@ func TestLoadCaseRefusesFoldedNumbers(t *testing.T) {
 func TestLoadCaseRefusesBadPinnedFixture(t *testing.T) {
 	dir := t.TempDir()
 	poison := filepath.Join(dir, "poison.json")
-	if err := os.WriteFile(poison, []byte(`{"case_version":"0.1.0","case_id":"p","_expect_match":5}`), 0o644); err != nil {
+	if err := os.WriteFile(poison, []byte(`{"case_version":"0.2.0","case_id":"p","_expect_match":5}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	loaded, died := loadCasePath(t, poison)
@@ -723,7 +723,7 @@ func TestRecoverDoesNotDispatchAdoptedWork(t *testing.T) {
 	digest := "sha256:" + strings.Repeat("a", 64)
 	grants := []ledger.Grant{{Kind: "data", Selector: "s", Actions: []string{"read"}, Effect: "none"}}
 	m.Adopt(&adopt.Request{
-		AdoptionVersion: "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:        ledger.Identity{BusinessRequestID: "br-d", OperationID: "op-d"},
 		Versions:        ledger.Versions{Evidence: "e", Rule: "r", Model: "m", Readout: "ro", Policy: "p"},
 		PayloadDigest:   digest, GrantsAtDecision: grants,
@@ -820,7 +820,7 @@ func TestInspectSurfacesTornTail(t *testing.T) {
 	}
 	digest := "sha256:" + strings.Repeat("a", 64)
 	if o := m.Adopt(&adopt.Request{
-		AdoptionVersion:  "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:         ledger.Identity{BusinessRequestID: "br-t", OperationID: "op-torn"},
 		Versions:         ledger.Versions{Evidence: "e", Rule: "r", Model: "m", Readout: "ro", Policy: "p"},
 		PayloadDigest:    digest,

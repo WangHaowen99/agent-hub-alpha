@@ -1,0 +1,30 @@
+server:
+  address: 127.0.0.1
+  port: ${REPORT_EXPERT_PORT:8090}
+spring:
+  application:
+    name: ${REPORT_AGENT_ID}
+openjiuwen:
+  service:
+    version: "1.0.0"
+    middleware:
+      checkpointer:
+        type: in_memory
+    a2a:
+      public-url: ${REPORT_AGENT_PUBLIC_URL}
+      streaming: false
+      agent-description: "Bound annual report expert; controlled material and typed results"
+      provider-organization: "Agent Hub Alpha Demo"
+      default-input-modes: ["text/plain", "application/json"]
+      default-output-modes: ["text/plain", "application/json"]
+      skills:
+        - id: ${REPORT_AGENT_ID}
+          name: ${REPORT_AGENT_ID}
+          description: "Process one admitted report node using its fixed inputs"
+          tags: ["annual-report", "bound-node"]
+          input-modes: ["text/plain", "application/json"]
+          output-modes: ["text/plain", "application/json"]
+logging:
+  level:
+    root: WARN
+    com.openjiuwen.demo: INFO

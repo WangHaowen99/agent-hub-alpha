@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:commit-request",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "owner",
+    "epoch",
+    "input_digest",
+    "attempt",
+    "artifact_id"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "integer"
+    },
+    "epoch": {
+      "type": "string"
+    },
+    "input_digest": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

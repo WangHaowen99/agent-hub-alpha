@@ -1,0 +1,19 @@
+{
+  "ledger_version": "0.2.0",
+  "events": [
+    {
+      "event_type": "adoption",
+      "arbitration_seq": 0,
+      "identity": {
+        "business_request_id": "br-eg",
+        "operation_id": "op-eg",
+        "execution_generation": 1.0
+      },
+      "versions": {"evidence": "e", "rule": "r", "model": "m", "readout": "ro", "policy": "p"},
+      "outcome": {"status": "adopted", "detail": "t"},
+      "grants_at_decision": [{"kind": "data", "selector": "s", "actions": ["read"], "effect": "none"}],
+      "idempotency": {"operation_id": "op-eg", "payload_digest": "d3"}
+    }
+  ],
+  "_expect": "REJECT: execution_generation 1.0 float literal — R16 same-family integer-literal gate (batch-0 M-2)"
+}

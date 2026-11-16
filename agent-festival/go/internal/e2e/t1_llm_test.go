@@ -217,24 +217,51 @@ type t1Verdict struct {
 	Reason  string `json:"reason"`
 }
 
-// t1Call performs one anthropic-messages-protocol call. Transport errors
-// get ONE retry (never a verdict mismatch); the attempt count is returned
-// for the readout.
+// t1Call performs one LLM call. Protocol selection (2026-11-13, three-
+// vendor rerun): T1_PROTO selects "anthropic" (default — anthropic-
+// messages, POST {endpoint}/v1/messages, x-api-key header) or "openai"
+// (POST {endpoint}/chat/completions, Bearer auth, system as its own
+// message, content extracted from choices[0].message.content). The two
+// protocols share the retry/parse discipline; only the transport differs.
 func t1Call(t *testing.T, endpoint, key, model, dossier string) (verdict t1Verdict, raw string, attempts int, err error) {
 	t.Helper()
-	body, _ := json.Marshal(map[string]any{
-		"model":      model,
-		"max_tokens": 4096, // glm thinking is always-on: reasoning eats the budget
-		"system":     t1Spec,
-		"messages":   []map[string]string{{"role": "user", "content": dossier}},
-	})
+	proto := os.Getenv("T1_PROTO")
+	if proto == "" {
+		proto = "anthropic"
+	}
 	for attempts = 1; attempts <= 2; attempts++ {
-		req, rerr := http.NewRequest("POST", strings.TrimRight(endpoint, "/")+"/v1/messages", bytes.NewReader(body))
-		if rerr != nil {
-			return verdict, "", attempts, rerr
+		var req *http.Request
+		var rerr error
+		if proto == "openai" {
+			body, _ := json.Marshal(map[string]any{
+				"model":      model,
+				"max_tokens": 16384, // flash-tier reasoning models burn the budget on thinking
+				"temperature": 0,
+				"messages": []map[string]string{
+					{"role": "system", "content": t1Spec},
+					{"role": "user", "content": dossier},
+				},
+			})
+			req, rerr = http.NewRequest("POST", strings.TrimRight(endpoint, "/")+"/chat/completions", bytes.NewReader(body))
+			if rerr != nil {
+				return verdict, "", attempts, rerr
+			}
+			req.Header.Set("Authorization", "Bearer "+key)
+		} else {
+			body, _ := json.Marshal(map[string]any{
+				"model":      model,
+				"max_tokens": 4096, // glm thinking is always-on: reasoning eats the budget
+				"system":     t1Spec,
+				"messages":   []map[string]string{{"role": "user", "content": dossier}},
+			})
+			req, rerr = http.NewRequest("POST", strings.TrimRight(endpoint, "/")+"/v1/messages", bytes.NewReader(body))
+			if rerr != nil {
+				return verdict, "", attempts, rerr
+			}
+			req.Header.Set("x-api-key", key)
+			req.Header.Set("Authorization", "Bearer "+key) // gateways (volcano) auth on Bearer; native anthropic endpoints accept both headers
+			req.Header.Set("anthropic-version", "2023-06-01")
 		}
-		req.Header.Set("x-api-key", key)
-		req.Header.Set("anthropic-version", "2023-06-01")
 		req.Header.Set("content-type", "application/json")
 		resp, rerr := (&http.Client{Timeout: 180 * time.Second}).Do(req)
 		if rerr != nil {
@@ -253,19 +280,35 @@ func t1Call(t *testing.T, endpoint, key, model, dossier string) (verdict t1Verdi
 			}
 			return verdict, string(rawBody), attempts, fmt.Errorf("HTTP %d: %.200s", resp.StatusCode, rawBody)
 		}
-		var msg struct {
-			Content []struct {
-				Type string `json:"type"`
-				Text string `json:"text"`
-			} `json:"content"`
-		}
-		if jerr := json.Unmarshal(rawBody, &msg); jerr != nil {
-			return verdict, string(rawBody), attempts, fmt.Errorf("response did not parse: %v", jerr)
-		}
 		var text string
-		for _, c := range msg.Content {
-			if c.Type == "text" {
-				text += c.Text
+		if proto == "openai" {
+			var msg struct {
+				Choices []struct {
+					Message struct {
+						Content string `json:"content"`
+					} `json:"message"`
+				} `json:"choices"`
+			}
+			if jerr := json.Unmarshal(rawBody, &msg); jerr != nil {
+				return verdict, string(rawBody), attempts, fmt.Errorf("response did not parse: %v", jerr)
+			}
+			if len(msg.Choices) > 0 {
+				text = msg.Choices[0].Message.Content
+			}
+		} else {
+			var msg struct {
+				Content []struct {
+					Type string `json:"type"`
+					Text string `json:"text"`
+				} `json:"content"`
+			}
+			if jerr := json.Unmarshal(rawBody, &msg); jerr != nil {
+				return verdict, string(rawBody), attempts, fmt.Errorf("response did not parse: %v", jerr)
+			}
+			for _, c := range msg.Content {
+				if c.Type == "text" {
+					text += c.Text
+				}
 			}
 		}
 		if text == "" {

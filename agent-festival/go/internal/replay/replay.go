@@ -47,6 +47,7 @@
 package replay
 
 import (
+	"reflect"
 	"bytes"
 
 	"encoding/json"
@@ -493,7 +494,7 @@ func eventsEqual(a, b []ledger.Event) bool {
 		x, y := a[i], b[i]
 		if x.ArbitrationSeq != y.ArbitrationSeq ||
 			x.EventType != y.EventType ||
-			x.Identity != y.Identity ||
+			!reflect.DeepEqual(x.Identity, y.Identity) ||
 			x.Versions != y.Versions ||
 			!idemEqual(x.Idempotency, y.Idempotency) ||
 			x.Outcome.Status != y.Outcome.Status ||

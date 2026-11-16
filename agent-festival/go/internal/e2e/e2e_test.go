@@ -187,7 +187,7 @@ func chainGrants() []ledger.Grant {
 // request), and the digest keys the material content.
 func requestFor(op, revision, evidence, digest string) *adopt.Request {
 	return &adopt.Request{
-		AdoptionVersion:  "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:         ledger.Identity{BusinessRequestID: "br-e2e-credit", EvaluationRevision: revision, OperationID: op},
 		Versions:         ledger.Versions{Evidence: evidence, Rule: "rule-credit-v1", Model: "s1-standin", Readout: "r-1", Policy: "p-1"},
 		PayloadDigest:    digest,

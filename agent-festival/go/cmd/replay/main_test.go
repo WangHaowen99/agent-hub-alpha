@@ -44,10 +44,10 @@ func TestDivergenceAtLegCatchesWrongPin(t *testing.T) {
 		return e
 	}
 	doc := map[string]any{
-		"case_version": "0.1.0", "case_id": "wrong-pin",
+		"case_version": "0.2.0", "case_id": "wrong-pin",
 		"steps": []any{
 			map[string]any{"op": "adopt", "request": map[string]any{
-				"adoption_version": "0.1.0", "identity": ident, "versions": vers,
+				"adoption_version": "0.2.0", "identity": ident, "versions": vers,
 				"payload_digest": digest,
 				"grants_at_decision": []any{map[string]any{"kind": "data", "selector": "s",
 					"actions": []any{"read"}, "effect": "none"}}}},

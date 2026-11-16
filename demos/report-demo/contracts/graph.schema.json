@@ -1,0 +1,85 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:graph",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "goal",
+    "material_id",
+    "focus",
+    "nodes",
+    "catalog_digest",
+    "policy_version"
+  ],
+  "properties": {
+    "catalog_digest": {
+      "type": "string"
+    },
+    "focus": {
+      "type": "string",
+      "description": "Supported focus is exactly business or business+quality."
+    },
+    "goal": {
+      "type": "string"
+    },
+    "material_id": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "expert",
+          "role",
+          "task"
+        ],
+        "properties": {
+          "condition": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "required": [
+              "step",
+              "outcome"
+            ],
+            "properties": {
+              "outcome": {
+                "type": "string"
+              },
+              "step": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "depends_on": {
+            "type": "array",
+            "description": "Predecessor node IDs. Omit or use an empty array only for the material extractor root; all other roles require their typed data dependencies.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expert": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "policy_version": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

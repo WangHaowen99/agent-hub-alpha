@@ -77,7 +77,7 @@ func TestErrorsDoesNotMutateInput(t *testing.T) {
 	// doc is REJECTED by rule, and Errors still never mutates the caller's
 	// map (structural purity: no copy, no rewrite).
 	doc := map[string]any{
-		"ledger_version": "0.1.0",
+		"ledger_version": "0.2.0",
 		"events": []any{
 			map[string]any{
 				"event_type": "adoption", "arbitration_seq": json.Number("0.0"),

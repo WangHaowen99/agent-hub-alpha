@@ -1,11 +1,11 @@
 {
-  "case_version": "0.1.0",
+  "case_version": "0.2.0",
   "case_id": "race-b-first",
   "steps": [
     {
       "op": "adopt",
       "request": {
-        "adoption_version": "0.1.0",
+        "adoption_version": "0.2.0",
         "identity": {
           "business_request_id": "br-t",
           "evaluation_revision": "er-1",
@@ -39,7 +39,7 @@
     {
       "op": "adopt",
       "request": {
-        "adoption_version": "0.1.0",
+        "adoption_version": "0.2.0",
         "identity": {
           "business_request_id": "br-t",
           "evaluation_revision": "er-1",

@@ -1,0 +1,19 @@
+{
+  "ledger_version": "0.2.0",
+  "events": [
+    {
+      "event_type": "adoption",
+      "arbitration_seq": 0,
+      "identity": {
+        "business_request_id": "br-le1",
+        "operation_id": "op-le1",
+        "logical_execution": {}
+      },
+      "versions": {"evidence": "e", "rule": "r", "model": "m", "readout": "ro", "policy": "p"},
+      "outcome": {"status": "adopted", "detail": "t"},
+      "grants_at_decision": [{"kind": "data", "selector": "s", "actions": ["read"], "effect": "none"}],
+      "idempotency": {"operation_id": "op-le1", "payload_digest": "d1"}
+    }
+  ],
+  "_expect": "REJECT: logical_execution is an atomic 4-tuple — empty object invalid (minProperties=4, batch-0 M-1)"
+}

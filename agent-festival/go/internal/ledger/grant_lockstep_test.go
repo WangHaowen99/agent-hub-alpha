@@ -40,6 +40,7 @@ func TestSharedSubtreeLockstep(t *testing.T) {
 	idemProps, _ := idemDef["properties"].(map[string]any)
 	ledgerProps, _ := adoptionSchema["properties"].(map[string]any)
 	grantsAt, _ := ledgerProps["grants_at_decision"].(map[string]any)
+	adoptionDefs, _ := adoptionSchema["$defs"].(map[string]any)
 	pairs := []struct {
 		name   string
 		ledger map[string]any
@@ -52,6 +53,11 @@ func TestSharedSubtreeLockstep(t *testing.T) {
 		// the fifth shared atom: the payload-digest shape (R9 M-1) — the
 		// machine's "conforming by construction" depends on adoption ⊆ ledger
 		{"payload_digest", idemProps["payload_digest"].(map[string]any), ledgerProps["payload_digest"].(map[string]any)},
+		// v0.2.0 M-3: the sixth atom — logical_execution shape lives in three
+		// places (ledger identity inline + adoption identity inline + adoption
+		// $defs ref). Lockstep must cover the top-level $defs copy too.
+		{"logical_execution", defs["identity"].(map[string]any)["properties"].(map[string]any)["logical_execution"].(map[string]any),
+			adoptionDefs["logical_execution"].(map[string]any)},
 	}
 	for _, pair := range pairs {
 		a, err := json.Marshal(stripDescription(pair.ledger))

@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:remote-call",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "call_id",
+    "task_id",
+    "node_id",
+    "attempt",
+    "input_digest",
+    "agent_id",
+    "message_id",
+    "context_id",
+    "state",
+    "route",
+    "conflicted"
+  ],
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "attempt": {
+      "type": "integer"
+    },
+    "call_id": {
+      "type": "string"
+    },
+    "conflicted": {
+      "type": "boolean"
+    },
+    "context_id": {
+      "type": "string"
+    },
+    "input_digest": {
+      "type": "string"
+    },
+    "message_id": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "remote_task_id": {
+      "type": "string"
+    },
+    "route": true,
+    "state": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,66 @@
+{
+  "profile": "rfc8785/1",
+  "oracle": "existing main-repository frozen Python oracle, independently checked by Go reference library",
+  "vectors": [
+    {
+      "id": "unicode-and-key-order",
+      "input": "{\"z\":\"\u6c49\u5b57\ud83d\ude00\",\"n\":9007199254740991,\"a\":[null,\"\"]}",
+      "canonical": "{\"a\":[null,\"\"],\"n\":9007199254740991,\"z\":\"\u6c49\u5b57\ud83d\ude00\"}",
+      "digest": "sha256:178adaa140554613159136af0c770ed884c2d71f5312872167d6e80ba0fdd417"
+    },
+    {
+      "id": "decimal-exponents",
+      "input": "{\"values\":[-0.0,1e-7,1e-6,1e21,1.2300]}",
+      "canonical": "{\"values\":[0,1e-7,0.000001,1e+21,1.23]}",
+      "digest": "sha256:5db58f0a8d4875fda488063726129ece471b6e753ad078d4d6abad018331dbca"
+    },
+    {
+      "id": "utf16-order",
+      "input": "{\"\\ue000\":2,\"\ud83d\ude00\":1}",
+      "canonical": "{\"\ud83d\ude00\":1,\"\ue000\":2}",
+      "digest": "sha256:04208f6cdb854e2ab1b07dd3633a39dec854344fe72824cf7f2fdb4e2e33129e"
+    },
+    {
+      "id": "absent",
+      "input": "{}",
+      "canonical": "{}",
+      "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "id": "null",
+      "input": "{\"a\":null}",
+      "canonical": "{\"a\":null}",
+      "digest": "sha256:d091f9c83c091f79652fe8786375b3fe4ce0861a56f5bfbafedbe431877ff0e8"
+    },
+    {
+      "id": "empty-array",
+      "input": "{\"a\":[]}",
+      "canonical": "{\"a\":[]}",
+      "digest": "sha256:50e8660084976a10f0b3b9b3a6352d5881cbd219b5587a26224971a60ff2cc55"
+    },
+    {
+      "id": "empty-string",
+      "input": "{\"a\":\"\"}",
+      "canonical": "{\"a\":\"\"}",
+      "digest": "sha256:258555fe010df3da34b3920945d0fbc59cebbcff1878bfc2e9206f0f495d81b9"
+    },
+    {
+      "id": "array-order",
+      "input": "{\"a\":[3,2,1]}",
+      "canonical": "{\"a\":[3,2,1]}",
+      "digest": "sha256:1956211cdd1b997e12419186832911195c511ff444db406c7e53fd35b600e21d"
+    },
+    {
+      "id": "epoch-strings",
+      "input": "{\"epoch\":\"9223372036854775807\",\"generation\":\"9007199254740993\"}",
+      "canonical": "{\"epoch\":\"9223372036854775807\",\"generation\":\"9007199254740993\"}",
+      "digest": "sha256:774af16a241ee0f388aeae436af04eb691a7d9d300405a7c2e48d739ddd29de8"
+    },
+    {
+      "id": "line-separator-and-literal",
+      "input": "{\"s\":\"\\u2028\",\"literal\":\"\\\\u2028\"}",
+      "canonical": "{\"literal\":\"\\\\u2028\",\"s\":\"\u2028\"}",
+      "digest": "sha256:0bf4fc20cbb466ab6d11047025cc355955e7a43c8cd5149a22463ddb8e243a20"
+    }
+  ]
+}

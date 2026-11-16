@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:human-review",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "check_artifact",
+    "object_digest",
+    "decision",
+    "reason",
+    "principal",
+    "receipt"
+  ],
+  "properties": {
+    "check_artifact": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string"
+    },
+    "object_digest": {
+      "type": "string"
+    },
+    "principal": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "receipt": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

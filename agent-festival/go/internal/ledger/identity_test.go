@@ -1,0 +1,59 @@
+package ledger
+
+import (
+	"encoding/json"
+	"os"
+	"reflect"
+	"testing"
+)
+
+func TestGraphIdentityUsesSharedSchemaAndTrustedBindings(t *testing.T) {
+	e := 2
+	valid := Identity{BusinessRequestID: "T1", EvaluationRevision: "g1", OperationID: "attempt-1", LogicalExecution: &LogicalExecution{"T1", "g1", "analysis", "0"}, ExecutionGeneration: &e}
+	if err := ValidateIdentity(valid); err != nil {
+		t.Fatal(err)
+	}
+	for _, kind := range []string{"missing-o", "missing-e", "empty-path", "task-conflict", "graph-conflict", "negative-e"} {
+		t.Run(kind, func(t *testing.T) {
+			v := valid
+			o := *valid.LogicalExecution
+			v.LogicalExecution = &o
+			switch kind {
+			case "missing-o":
+				v.LogicalExecution = nil
+			case "missing-e":
+				v.ExecutionGeneration = nil
+			case "empty-path":
+				o.IterationPath = ""
+			case "task-conflict":
+				o.TaskID = "other"
+			case "graph-conflict":
+				o.GraphVersion = "other"
+			case "negative-e":
+				n := -1
+				v.ExecutionGeneration = &n
+			}
+			if ValidateIdentity(v) == nil {
+				t.Fatal("invalid graph identity accepted")
+			}
+		})
+	}
+}
+
+func TestEmbeddedIdentityMatchesCanonicalSchema(t *testing.T) {
+	raw, err := os.ReadFile(SchemaPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var canonical, embedded map[string]any
+	if err = json.Unmarshal(raw, &canonical); err != nil {
+		t.Fatal(err)
+	}
+	if err = json.Unmarshal([]byte(identitySchemaJSON), &embedded); err != nil {
+		t.Fatal(err)
+	}
+	delete(embedded, "$id")
+	if !reflect.DeepEqual(canonical["$defs"].(map[string]any)["identity"], embedded) {
+		t.Fatal("regenerate schema resource with schema/embed_go.py")
+	}
+}

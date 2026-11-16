@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:effect-observation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "state",
+    "http_status"
+  ],
+  "properties": {
+    "http_status": {
+      "type": "integer"
+    },
+    "payload": true,
+    "state": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

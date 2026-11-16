@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:observation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "event_id",
+    "state",
+    "remote_task_id",
+    "context_id",
+    "payload"
+  ],
+  "properties": {
+    "context_id": {
+      "type": "string"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "payload": true,
+    "remote_task_id": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
