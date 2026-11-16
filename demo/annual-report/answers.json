@@ -1,6 +1,6 @@
 {
   "snapshot": "cmb-2025-annual-report-a",
-  "note": "程序抽取并复算，尚未人工核对；verification.status 为 pending 时不得作为参考答案使用。",
+  "note": "程序抽取并复算，已由独立核对人对照原件逐项人工核对；核对人与时间见各项 verification。",
   "indicators": [
     {
       "id": "revenue",
@@ -27,9 +27,9 @@
         "value": 0.01
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -57,9 +57,9 @@
         "value": 1.21
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -83,9 +83,9 @@
         "line": "净利息收益率(2) 1.87 1.98 下降0.11个百分点 2.15"
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -109,9 +109,9 @@
         "line": "成本收入比(3) 31.98 31.89 上升0.09个百分点 32.96"
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -140,9 +140,9 @@
         "value": 3.96
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -170,9 +170,9 @@
         "value": 0.94
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -200,9 +200,9 @@
         "value": 391.79
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     },
     {
@@ -230,9 +230,9 @@
         "line": "注： 截至报告期末，本集团权重法下核心一级资本充足率11.92%，一级资本充足率13.90%，资本充足率15.00%。"
       },
       "verification": {
-        "status": "pending",
-        "verifier": null,
-        "verified_at": null
+        "status": "verified",
+        "verifier": "WangHaowen99",
+        "verified_at": "2026-11-16T15:00:00+08:00"
       }
     }
   ],
