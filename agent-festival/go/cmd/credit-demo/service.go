@@ -35,6 +35,7 @@ type Config struct {
 	BusRegistryURL   string
 	BusRegistryToken string
 	BusTenant        string
+	ScenarioDir      string // operator-imported approved scenario packages (*.json); built-in packages always load
 }
 
 // StepRec is the authoritative record of one blueprint step in a run.
@@ -119,6 +120,9 @@ type Service struct {
 func OpenService(cfg Config) (*Service, error) {
 	compose.RegisterGraph()
 	if err := os.MkdirAll(filepath.Join(cfg.DataDir, "runs"), 0o755); err != nil {
+		return nil, err
+	}
+	if err := loadScenarioDir(cfg.ScenarioDir); err != nil {
 		return nil, err
 	}
 	cat, err := LoadCatalog(cfg.DataDir)

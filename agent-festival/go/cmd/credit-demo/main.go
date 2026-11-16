@@ -28,6 +28,7 @@ func main() {
 		BusRegistryURL:   envOr("CREDIT_RDC_URL", ""),
 		BusRegistryToken: envOr("RDC_REGISTRY_API_TOKEN", ""),
 		BusTenant:        envOr("CREDIT_BUS_TENANT", "issue16"),
+		ScenarioDir:      envOr("CREDIT_SCENARIO_DIR", ""),
 	}
 	s, err := OpenService(cfg)
 	if err != nil {

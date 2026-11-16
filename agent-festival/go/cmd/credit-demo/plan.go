@@ -81,23 +81,8 @@ func (p *Plan) agent(id string) *PlanAgent {
 	return nil
 }
 
-// The customer manager's grants and budget: what compose checks against.
-var callerHolds = []grant{
-	read("data:credit/applications/*", ""),
-	read("data:credit/financials/*", ""),
-	read("data:industry/*", ""),
-	read("data:credit/bureau/summary/*", ""),
-	read("data:credit/evidence/*", ""),
-	read("data:credit/related/*", ""),
-	read("data:credit/related-bureau/*", ""),
-	{kind: "tool", selector: "credit.apply", actions: []string{"execute"}, effect: "irreversible"},
-}
-
-var parentBounds = map[string]any{
-	"max_cost":             map[string]any{"amount": 500, "unit": "USD-cents"},
-	"max_downstream_calls": 36, // parallel siblings split it evenly; 36 keeps a 7-wide layer above the black box's 5
-	"max_seconds":          1800,
-}
+// The approver's grants (callerHolds) and the budget (parentBounds) that
+// compose checks against come from the scenario package; see scenario.go.
 
 func checkAgents(agents []PlanAgent) error {
 	if len(agents) == 0 {
@@ -173,13 +158,7 @@ func (s *Service) compile(agents []PlanAgent) (*compileResult, []map[string]any,
 }
 
 func expertInstruction(e *Expert) string {
-	if e.Kind == "judge" {
-		return "你是风险判断员，按已发布的授信判断规约给出结构化判断。"
-	}
-	if e.Kind == "effect" {
-		return "你是授信申请提交节点，只按已采纳的判断经网关提交申请。"
-	}
-	return e.Prompt
+	return e.Prompt // the capability card's instruction
 }
 
 // layers orders steps topologically; steps in one layer may run in parallel.
@@ -248,19 +227,9 @@ func execGraph(p *Plan) map[string]any {
 	return jsonDoc(map[string]any{"nodes": nodes, "plan": plan, "caller_holds": holds, "parent_bounds": parentBounds})
 }
 
-// ddCoverage is the published due-diligence rule: every evidence class must be
-// read by some member. list_capabilities shows it and precheck enforces it, so
-// a plan cannot pass by leaving evidence out.
-var ddCoverage = []struct {
-	Name      string
-	Selectors []string // reading any one covers the class
-}{
-	{"申请材料", []string{"data:credit/applications/*"}},
-	{"财务", []string{"data:credit/financials/*"}},
-	{"行业", []string{"data:industry/*"}},
-	{"征信", []string{"data:credit/bureau/full/*", "data:credit/bureau/summary/*"}},
-	{"关联方", []string{"data:credit/related/*"}},
-}
+// ddCoverage (every evidence class must be read by some member) and the
+// effect marker are the scenario package's published rules; list_capabilities
+// shows them and precheck enforces them.
 
 func ddRules() []string {
 	out := []string{}
@@ -269,7 +238,7 @@ func ddRules() []string {
 	}
 	return append(out,
 		"风险判断（kind=judge）直接或间接依赖全部调查步骤和黑盒步骤",
-		"有不可逆效果的步骤依赖风险判断，并设 run_if 含 DECISION=GRANT")
+		"有不可逆效果的步骤依赖风险判断，并设 run_if 含 "+effectMarker)
 }
 
 func ruleViolations(p *Plan) []string {
@@ -330,8 +299,8 @@ func ruleViolations(p *Plan) []string {
 			continue
 		}
 		w := st.When
-		if w == nil || w.Negate || kind[w.Step] != "judge" || !strings.Contains(w.Contains, "DECISION=GRANT") || !ancestors(st.ID)[w.Step] {
-			errs = append(errs, fmt.Sprintf("%s 有不可逆效果，要依赖风险判断并设 run_if 含 DECISION=GRANT", st.ID))
+		if w == nil || w.Negate || kind[w.Step] != "judge" || !strings.Contains(w.Contains, effectMarker) || !ancestors(st.ID)[w.Step] {
+			errs = append(errs, fmt.Sprintf("%s 有不可逆效果，要依赖风险判断并设 run_if 含 %s", st.ID, effectMarker))
 		}
 	}
 	return errs
