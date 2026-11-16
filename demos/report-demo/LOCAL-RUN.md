@@ -218,7 +218,7 @@ $env:PYTHONPATH = $env:WORKSWARM_SOURCE
 | Go 离线回放防篡改 | `REPORT_TEST_SNAPSHOT` 指向先前生成的真实快照 | 未设置快照路径会 skip；用例本身不连接数据库或调用模型 |
 | Go COMMIT 应答切断 | 上述 PG 条件，且测试连接本来就是无 TLS | TLS配置下该用例 skip，不会为测试关闭 TLS |
 | Java canonical 跨语言测试 | `REPORT_CANONICAL_BINARY` 指向实际 Go EXE | 缺 EXE 时相关用例 skip |
-| Java 九个远端窗口 | 私有配置、PG、实际 Go EXE、已运行的 Java compiler 和源任务；材料按 `REPORT_TEST_MATERIAL` 提供 | 缺必要环境时相关用例 skip；使用隔离提供方，不需模型调用 |
+| Java 十个远端窗口 | 私有配置、PG、实际 Go EXE、已运行的 Java compiler 和源任务；材料按 `REPORT_TEST_MATERIAL` 提供 | 缺必要环境时相关用例 skip；使用隔离提供方，不需模型调用 |
 
 不连接 PG 的局部检查可以单独运行：
 
@@ -471,7 +471,7 @@ node --test demos/report-demo/tests/projection.test.cjs
 & $py demos/report-demo/tests/export_handoff.py --private-root $private --task-id <实际任务ID>
 ```
 
-Go专项仍需要上面的真实PG配置。Java完整测试额外覆盖重复GRANTED许可、受理应答丢失、发现期间强杀Go并接管、换执行profile后强杀重启；使用实际Go进程和PG、隔离HTTP提供方，不能记为真实Agent Bus故障签收。页面测试执行实际HTML中的脚本与共用projection.js，使用可控DOM/网络替身；不等于浏览器视觉或断网验收。
+Go专项仍需要上面的真实PG配置。Java完整测试额外覆盖重复GRANTED许可、受理应答丢失、意图落库未发送即强杀Go后保持UNKNOWN/零重发、发现期间强杀Go并接管、换执行profile后强杀重启；使用实际Go进程和PG、隔离HTTP提供方，不能记为真实Agent Bus故障签收。页面测试执行实际HTML中的脚本与共用projection.js，使用可控DOM/网络替身；不等于浏览器视觉或断网验收。
 
 更新本轮版本时，先暂停/收敛活动任务，再更新制品；设置已有模型环境变量，运行bind_profile.py，并重启control/compiler/四个专家。configure_bus.py从cfg.catalog_path读取remote_binding版本用于注册。新目录/执行profile会使旧任务执行返回BINDING_CHANGED；不要修改旧任务或旧批准来绕过，应生成新候选并重新确认。既有已交付报告只读可核对，不因此重新调用模型。
 

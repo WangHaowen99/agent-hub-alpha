@@ -10,8 +10,8 @@
 
 本轮与issue #16、PR #30/#31/#32对齐的是调用/版本/故障边界；未整包合入PR #30，Application Plugin和共同部署仍待接收方联调。agent-festival原共享文件未修改。
 
-- Go/真实PG全量42顶层、含子用例85 pass，0 fail/skip；go vet通过。Java21项、0 failure/error/skip，其中9项为真实Go进程+PG+Java适配器的隔离HTTP窗口；页面实际源脚本Node测试5项通过。
-- SEND仅首次意图提交成功后授予；并发8个请求只有一个SEND，既有task返回QUERY，无task返回UNKNOWN。真实PG COMMIT应答切断后，重复请求保持UNKNOWN、一条原意图；Java重复使用旧GRANTED许可也不增加SendMessage。
+- Go/真实PG全量42顶层、含子用例85 pass，0 fail/skip；go vet通过。Java22项、0 failure/error/skip，其中10项为真实Go进程+PG+Java适配器的隔离HTTP窗口；页面实际源脚本Node测试5项通过。
+- SEND仅首次意图提交成功后授予；并发8个请求只有一个SEND，既有task返回QUERY，无task返回UNKNOWN。真实PG COMMIT应答切断后，重复请求保持UNKNOWN、一条原意图；Java重复使用旧GRANTED许可也不增加SendMessage。另在真实Go进程中完成发送意图提交后立即强制终止，重启接管仍为REMOTE_UNKNOWN，原c/message/context不变、零发送/零查询（没有远端task id），对应S06当前提供方能力边界。
 - 能力remote_binding固定三类版本和可选原始AgentCard字节摘要；Go/Java按采纳绑定校验，未匹配不写意图。2/3/4等非1.0.0配置仅在受控测试验证，真实部署仍为1.0.0。目录/profile变化拒绝旧计划采纳与漂移执行；Go强制终止重启后旧profile不被默认替换；慢RDC期间重启接管后旧执行者返回LEASE_EXPIRED、零意图/零发送。
 - 新Go/Java编排服务、四个真实Runtime专家与注册心跳已启动，真实Keycloak/RDC/Gateway继续使用。新任务`T-6522725dda2fbee2fa541892a06ae976`已DELIVERED、generation=141；四个不同专家/远端task全部COMPLETED，质量Loop两分支；6个正式节点及2个有依据跳过，check0 PASS。
 - 本轮使用历史候选拓扑，显式换用当前获准目录，新建任务并由受控测试账号重新确认；fresh_model_planning=false。没有把这次运行当作新一轮WorkSwarm规划或独立人工业务验收。
@@ -19,7 +19,7 @@
 - 主链10项与身份/对账16项核对通过。4条SEND决策、每条调用记录1条SendMessage HTTP应答观察；这不是独立抓包的物理调用exactly-once证明。交接导出含实际o/a/c、能力绑定、RDC版本、观测、结果关联，不含凭据/模型正文。
 - 部署前后旧任务`T-7853c55c66499997c4597c83e3868949`投影完全一致，旧报告仍可下载且摘要为`sha256:dd34513a337f953fc78d07051986175793fc44d2a9a49fe48db6b5ee26edb617`。真实HTTP确认页已包含共用generation防倒退脚本；未做本轮浏览器视觉/真实断网验收。
 
-最终证据：`w03-w04-final-go-tests.jsonl`、`java-w03-w04-final-pipes.log`、`w03-w04-ui-final.log`、`w03-w04-live-release.json`、`w03-w04-live-send-check.json`、上述任务的trace/report/delivery/main-verification/handoff JSON。证据在本地私有目录，未上传原始模型正文。
+最终证据：`w03-w04-final-go-tests.jsonl`、`java-w03-w04-process-final.log`（最终22项）、`java-w03-w04-final-pipes.log`（前轮21项）、`w03-w04-ui-final.log`、`w03-w04-live-release.json`、`w03-w04-live-send-check.json`、上述任务的trace/report/delivery/main-verification/handoff JSON。证据在本地私有目录，未上传原始模型正文。
 
 首轮schema数量断言12→13、测试夹具固定节点名/旧owner错误码、Windows进程日志句柄清理问题已修正；原始失败分别留在`w03-w04-next-go-tests.jsonl`、`java-w03-w04-next-full.log`、`java-w03-w04-final.log`，最终完整串行回归通过。节点名现在按能力定位；进程输出用管道采集并显式等待退出，已确认无孤立测试Go进程。页面测试为可控DOM/网络替身，不能替代W02的A12共同浏览器验收。
 
@@ -177,7 +177,7 @@ WorkSwarm 常驻一夜后曾出现 supervisor/worker IPC 断开。重启后原�
 | --- | --- | --- |
 | Go 全套，真实 PG 与真实快照 | 42 个顶层测试、含子用例 85 个 pass，0 fail、0 skip | 严格 JSON/JCS/Unicode、10 组 golden vectors、DTO schema 漂移、准入/输入、并发正式提交、过期租约、迟到/冲突观察、必要审计回滚、独立交付租约、HUMAN 审阅、复用/撤销、游标、等待继续、离线回放、真实 COMMIT/HTTP 应答切断、失败收敛、远端输出资格；新增提交后矛盾的跨任务撤回、下载拒绝及事务回滚 |
 | Java 原有与跨语言测试 | 12 个，0 failure/error/skip | 原生图编译、实际 JSON 序列化的跨语言摘要、协议解析/状态分类、固定材料 checker 正反例、schema 与人工审阅选择 |
-| Java 隔离远端窗口测试 | 9 个通过，0 failure/error/skip；与上行合计 21 个 | 真实 Go/PG/Java adapter；本地 HTTP 故障提供方，含显式坏调度策略、实际 worker 失败收敛与慢 RDC/暂停屏障；不代表真实 Runtime/IdP 故障恢复 |
+| Java 隔离远端窗口测试 | 10 个通过，0 failure/error/skip；与上行合计 22 个 | 真实 Go/PG/Java adapter；本地 HTTP 故障提供方，含显式坏调度策略、实际 worker 失败收敛与慢 RDC/暂停屏障；不代表真实 Runtime/IdP 故障恢复 |
 | 最新真实主链证据核对 | 10 项通过 | 新绑定、四专家、两 Loop 分支、观察与正式正文一致、同对象检查/批准/下载及下载原始字节摘要、同交付身份；只读核对已有证据 |
 | 构建依赖冻结 | 4 模块 effective POM 与 dependency tree、Go 实际导入包和 6 份依赖锁已记录 | `freeze_build.py` 串行执行；是当前依赖解析与锁文件证据，不替代独立 clean rebuild 或上游测试 |
 | Python 跨语言样例 | 10 组全部通过 | 既有 Python 冻结 oracle 与实际 Go JCS 相符，大计数字符串不丢精度；不另造生产 canonicalizer |

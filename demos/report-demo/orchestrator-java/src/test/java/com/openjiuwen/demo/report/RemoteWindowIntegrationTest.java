@@ -42,6 +42,25 @@ import org.junit.jupiter.api.io.TempDir;
 class RemoteWindowIntegrationTest {
     @TempDir Path temp;
 
+    @Test void intentBeforeSendSurvivesControlProcessKillWithoutResend() throws Exception {
+        try (var h = new Harness(temp.resolve("intent-before-send-restart"))) {
+            var permit=h.control.post(h.path+"/nodes/"+h.node+"/resolve",Map.of("owner",h.owner,"epoch",h.epoch));
+            var capability=permit.path("binding").path("capability");
+            String agent=capability.path("agent_id").asText();
+            var binding=capability.path("remote_binding");
+            var route=Map.of("agent_id",agent,"card",Map.of("name",agent,"rawJson",Json.write(Map.of("name",agent,"version",binding.path("card_version").asText()))),
+                "instances",Map.of("instances",List.of(Map.of("health","ONLINE","contractVersion",binding.path("contract_version").asText(),
+                    "capabilityVersion",binding.path("capability_version").asText(),"card",Map.of("name",agent)))));
+            assertEquals("SEND",h.control.post(h.path+"/nodes/"+h.node+"/calls",Map.of("owner",h.owner,"epoch",h.epoch,"route",route)).path("action").asText());
+            var original=h.calls().getFirst();
+            h.restartControl();
+            h.epoch=h.control.post(h.path+"/claim",Map.of("owner",h.owner,"domain","graph")).path("epoch").asText();
+            assertEquals("REMOTE_UNKNOWN",assertThrows(ControlClient.ControlFailure.class,h::execute).code);
+            assertEquals(original,h.calls().getFirst());assertEquals(0,h.sends.get());assertEquals(0,h.gets.get());
+            h.saveEvidence("intent-before-send-process-kill",Map.of("intent_persisted_before_kill",true,"resume","REMOTE_UNKNOWN","send_requests",0,"query_requests",0,"same_call_identity",true));
+        }
+    }
+
     @Test void changedProfileAfterProcessRestartDoesNotReplaceOldBinding() throws Exception {
         try (var h = new Harness(temp.resolve("profile-restart"))) {
             var old = h.task().path("execution_profile").asText();
