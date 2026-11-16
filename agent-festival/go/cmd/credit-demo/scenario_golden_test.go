@@ -24,18 +24,19 @@ func goldenSnapshot() map[string]string {
 		out["contract/"+e.ID] = goldenDigest(e.contract())
 		out["card/"+e.ID] = goldenDigest(map[string]any{"id": e.ID, "name": e.Name, "kind": e.Kind, "summary": e.Summary, "tools": toAny(e.Tools), "instruction": expertInstruction(e), "max_iter": e.MaxIter})
 	}
+	pkg := scenarios.get(defaultScenario)
 	holds := []any{}
-	for _, g := range callerHolds {
+	for _, g := range pkg.holds() {
 		holds = append(holds, g.doc())
 	}
 	out["caller_holds"] = goldenDigest(map[string]any{"h": holds})
 	cov := []any{}
-	for _, c := range ddCoverage {
+	for _, c := range pkg.Rules.Coverage {
 		cov = append(cov, map[string]any{"name": c.Name, "selectors": toAny(c.Selectors)})
 	}
 	out["coverage"] = goldenDigest(map[string]any{"c": cov})
-	out["rules"] = goldenDigest(map[string]any{"r": toAny(ddRules())})
-	out["parent_bounds"] = goldenDigest(parentBounds)
+	out["rules"] = goldenDigest(map[string]any{"r": toAny(pkg.planRules())})
+	out["parent_bounds"] = goldenDigest(pkg.ParentBounds)
 	ba := map[string]any{}
 	for k, v := range busAgents {
 		ba[k] = v

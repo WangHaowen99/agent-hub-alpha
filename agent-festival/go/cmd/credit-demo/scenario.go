@@ -57,6 +57,58 @@ type CapabilityCard struct {
 	} `json:"bounds"`
 	MaxIter  int    `json:"max_iter,omitempty"`
 	BusAgent string `json:"bus_agent,omitempty"` // RDC agent id when the capability runs as a remote Agent
+
+	// What selection (ALK-05) reads; packages planned by hand may omit them.
+	Node          string         `json:"node,omitempty"`  // graph node id when a selection maps the capability
+	Focus         []string       `json:"focus,omitempty"` // task focus it covers; none means it serves any focus
+	Applicability *Applicability `json:"applicability,omitempty"`
+	Input         *CapabilityIO  `json:"input,omitempty"`
+	Output        *CapabilityIO  `json:"output,omitempty"`
+	Limits        []string       `json:"limits,omitempty"`
+}
+
+// Applicability is the hard scope a capability declares. A declared dimension
+// that does not cover the task excludes the capability; a dimension the
+// package requires but the card leaves undeclared makes it unknown.
+type Applicability struct {
+	Entities  []string `json:"entities,omitempty"`
+	Basis     []string `json:"basis,omitempty"`
+	Periods   []string `json:"periods,omitempty"`
+	Units     []string `json:"units,omitempty"`
+	Materials []string `json:"materials,omitempty"`
+	Templates []string `json:"templates,omitempty"`
+}
+
+// CapabilityIO describes what a capability consumes or produces, so a
+// selection can bind one member's output to the next member's input.
+type CapabilityIO struct {
+	Schema              string   `json:"schema"`
+	Requires            []string `json:"requires,omitempty"`              // input: items the upstream output must provide
+	RequiresSectionsAny []string `json:"requires_sections_any,omitempty"` // input: at least one upstream section
+	Provides            []string `json:"provides,omitempty"`              // output: items it produces
+	Section             string   `json:"section,omitempty"`               // output: report section it fills
+	Ref                 string   `json:"ref,omitempty"`                   // output: deliverable template it produces
+}
+
+type MaterialRef struct {
+	ID     string `json:"id"`
+	SHA256 string `json:"sha256"`
+	Source string `json:"source,omitempty"`
+}
+
+// SelectionPolicy is how planning picks capabilities for a task in this
+// package (ALK-05). Scores order eligible candidates; they are not success
+// probabilities.
+type SelectionPolicy struct {
+	Recall       string              `json:"recall"`
+	SourceSchema string              `json:"source_schema"` // input schema the task's materials satisfy
+	MustDeclare  map[string][]string `json:"must_declare"`  // input schema -> applicability dimensions a card must declare
+	Weights      struct {
+		Focus   float64 `json:"focus"`
+		IO      float64 `json:"io"`
+		Current float64 `json:"current"`
+	} `json:"weights"`
+	MinScore float64 `json:"min_score"`
 }
 
 type CoverageClass struct {
@@ -84,6 +136,8 @@ type ScenarioPackage struct {
 	CallerHolds  []GrantDoc       `json:"caller_holds"`
 	ParentBounds map[string]any   `json:"parent_bounds"`
 	Capabilities []CapabilityCard `json:"capabilities"`
+	Materials    []MaterialRef    `json:"materials,omitempty"`
+	Selection    *SelectionPolicy `json:"selection,omitempty"` // set when plans come from select_capabilities
 
 	digest string
 }
@@ -115,8 +169,9 @@ func parseScenario(raw []byte) (*ScenarioPackage, error) {
 	if p.Governance.State != "approved" {
 		return nil, fmt.Errorf("scenario package %s is %q, not approved: it stays invisible to planning", p.Ref(), p.Governance.State)
 	}
-	seen := map[string]bool{}
-	for _, c := range p.Capabilities {
+	seen, nodes := map[string]bool{}, map[string]bool{}
+	for i := range p.Capabilities {
+		c := &p.Capabilities[i]
 		if c.ID == "" || c.Kind == "" || c.Version == "" {
 			return nil, fmt.Errorf("%s: capability without id, kind or version", p.Ref())
 		}
@@ -124,8 +179,44 @@ func parseScenario(raw []byte) (*ScenarioPackage, error) {
 			return nil, fmt.Errorf("%s: duplicate capability %s", p.Ref(), c.ID)
 		}
 		seen[c.ID] = true
+		if p.Selection != nil {
+			if c.Node == "" || strings.ContainsAny(c.Node, " /\\\"'") || nodes[c.Node] {
+				return nil, fmt.Errorf("%s: capability %s needs a unique short ascii node id", p.Ref(), c.ID)
+			}
+			nodes[c.Node] = true
+		}
 	}
 	return &p, nil
+}
+
+func (p *ScenarioPackage) card(id string) *CapabilityCard {
+	for i := range p.Capabilities {
+		if p.Capabilities[i].ID == id {
+			return &p.Capabilities[i]
+		}
+	}
+	return nil
+}
+
+// holds are the approver's grants that compose checks plans against.
+func (p *ScenarioPackage) holds() []grant {
+	if p == nil {
+		return nil
+	}
+	out := make([]grant, 0, len(p.CallerHolds))
+	for _, g := range p.CallerHolds {
+		out = append(out, g.grant())
+	}
+	return out
+}
+
+func (p *ScenarioPackage) held(g grant) bool {
+	for _, h := range p.holds() {
+		if h.kind == g.kind && h.selector == g.selector {
+			return true
+		}
+	}
+	return false
 }
 
 // scenarioRegistry holds the approved packages and the expert catalog
@@ -206,14 +297,11 @@ func loadScenarioDir(dir string) error {
 	return nil
 }
 
-// The catalog data the rest of the service reads, derived from the packages.
+// The catalog the rest of the service reads, derived from the packages. A
+// plan's rules, grants and budget come from its own package (Plan.scenario).
 var (
-	experts      []*Expert
-	busAgents    = map[string]string{}
-	callerHolds  []grant
-	parentBounds map[string]any
-	ddCoverage   []CoverageClass
-	effectMarker string
+	experts   []*Expert
+	busAgents = map[string]string{}
 )
 
 func rebuildCatalogData() {
@@ -234,17 +322,29 @@ func rebuildCatalogData() {
 			}
 		}
 	}
-	p := scenarios.get(defaultScenario)
-	callerHolds, parentBounds, ddCoverage, effectMarker = nil, nil, nil, ""
-	if p == nil {
-		return
+}
+
+// scenarioViews is what the planner sees of the approved packages.
+func scenarioViews() []map[string]any {
+	out := []map[string]any{}
+	for _, id := range scenarioOrder() {
+		p := scenarios.packages[id]
+		v := map[string]any{"package": p.Package, "version": p.Version, "title": p.Title, "digest": p.Digest(),
+			"selection": p.Selection != nil, "rules": p.planRules()}
+		var caps, mats []string
+		for _, c := range p.Capabilities {
+			caps = append(caps, c.ID)
+		}
+		for _, m := range p.Materials {
+			mats = append(mats, m.ID)
+		}
+		v["capabilities"] = caps
+		if len(mats) > 0 {
+			v["materials"] = mats
+		}
+		out = append(out, v)
 	}
-	for _, g := range p.CallerHolds {
-		callerHolds = append(callerHolds, g.grant())
-	}
-	parentBounds = p.ParentBounds
-	ddCoverage = p.Rules.Coverage
-	effectMarker = p.Rules.EffectMarker
+	return out
 }
 
 // scenarioOrder keeps the default package first so the credit catalog keeps

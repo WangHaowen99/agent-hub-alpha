@@ -170,7 +170,7 @@ func (c *Catalog) Cards() []map[string]any {
 	for _, e := range experts {
 		doc := e.contract()
 		out = append(out, map[string]any{
-			"id": e.ID, "name": e.Name, "kind": e.Kind, "summary": e.Summary, "tools": e.Tools,
+			"id": e.ID, "name": e.Name, "kind": e.Kind, "summary": e.Summary, "tools": e.Tools, "package": e.Package,
 			"requires": doc["requires"], "effects": doc["effects"], "bounds": doc["bounds"],
 			"contract_hash": c.Hashes[e.ID],
 		})

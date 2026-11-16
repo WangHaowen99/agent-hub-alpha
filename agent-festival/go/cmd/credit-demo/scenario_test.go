@@ -56,8 +56,11 @@ func TestApprovedPackageAddsCapabilityWithoutCodeChange(t *testing.T) {
 	if e == nil || e.Package != "credit-extra" {
 		t.Fatalf("approved capability not in the catalog: %+v", e)
 	}
-	if err := checkAgents([]PlanAgent{{ID: "collateral", Expert: "collateral-appraiser"}}); err != nil {
+	if err := checkAgents(scenarios.get("credit-extra"), []PlanAgent{{ID: "collateral", Expert: "collateral-appraiser"}}); err != nil {
 		t.Fatalf("planner cannot use the new capability: %v", err)
+	}
+	if err := checkAgents(scenarios.get(defaultScenario), []PlanAgent{{ID: "collateral", Expert: "collateral-appraiser"}}); err == nil {
+		t.Fatal("a credit-dd plan used a capability of another package")
 	}
 }
 

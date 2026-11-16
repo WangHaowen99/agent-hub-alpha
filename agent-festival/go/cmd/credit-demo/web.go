@@ -94,6 +94,11 @@ const planBody = `{{with .Plan}}<h1>编排单 {{.ID}} · 第 {{.Version}} 版 <s
 <div class="graph" data-graph="{{$.Base}}/api/graph?plan={{.ID}}&v={{.Version}}"></div>
 {{if .Precheck.OK}}<div class="ok">规约预检通过{{with .Precheck.Composed}} · 合成效果 {{json .effects}} · 合成上限 {{json .bounds}}{{end}}</div>
 {{else if .Precheck.Errors}}<details><summary>compose 原文</summary><ul>{{range .Precheck.Errors}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}
+{{with $.Selection}}<details open><summary>能力选择 {{.ID}}（{{.Package}}）· 选择记录摘要 <code>{{short .Digest}}</code></summary>
+<p class="muted">{{.ScoreSource}}</p>
+<table><tr><th>候选能力</th><th>结果</th><th>分数</th><th>依据</th></tr>
+{{range .Candidates}}<tr><td>{{.Name}} <code>{{.Capability}}</code></td><td>{{if eq .Result "selected"}}<b>选中</b> → <code>{{.Node}}</code>{{else if eq .Result "excluded"}}<span class="bad">排除</span>{{else if eq .Result "unknown"}}未知（不算通过）{{else}}合格未选{{end}}</td><td>{{printf "%.2f" .Score}}</td><td>{{.Reason}}</td></tr>{{end}}</table>
+<ul>{{range .Bindings}}<li><code>{{.From}}</code> → <code>{{.To}}</code>：{{.Check}}</li>{{end}}</ul></details>{{end}}
 <table><tr><th>步骤</th><th>专家</th><th>角色</th><th>子任务</th><th>依赖</th><th>契约</th></tr>
 {{range .Agents}}{{$e := expert .Expert}}<tr><td><code>{{.ID}}</code></td><td>{{$e.Name}}</td><td>{{.Role}}</td><td>{{.Task}}</td><td>{{join .DependsOn}}{{with .RunIf}}<br><span class="muted">条件：{{.Step}} {{if .Negate}}不含{{else}}含{{end}} {{.Contains}}</span>{{end}}</td><td><code>{{short (index $.Hashes .Expert)}}</code> ✓</td></tr>{{end}}</table>
 <p class="muted">编排单摘要 <code>{{.Hash}}</code></p>
@@ -192,9 +197,13 @@ func (s *Service) routes(mux *http.ServeMux) {
 		}
 		s.mu.Lock()
 		versions := append([]*Plan(nil), s.st.Plans[p.ID]...)
+		var sel *GraphSelection
+		if p.Selection != nil && s.st.Selections[p.Selection.ID] != nil {
+			sel = graphSelection(s.st.Selections[p.Selection.ID], p)
+		}
 		s.mu.Unlock()
 		s.render(w, planBody, map[string]any{"Title": "编排单 " + p.Key(), "Plan": p, "Versions": versions,
-			"Hashes": s.cat.Hashes, "User": users[user], "Path": r.URL.Path})
+			"Hashes": s.cat.Hashes, "User": users[user], "Path": r.URL.Path, "Selection": sel})
 	})
 	mux.HandleFunc("/ui/run/", func(w http.ResponseWriter, r *http.Request) {
 		parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/ui/run/"), "/"), "/")
