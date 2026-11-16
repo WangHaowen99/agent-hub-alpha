@@ -1,0 +1,4264 @@
+{
+ "plans": {
+  "P1": [
+   {
+    "id": "P1",
+    "version": 1,
+    "case_id": "C006",
+    "goal": "为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+    "agents": [
+     {
+      "id": "intake",
+      "expert": "intake",
+      "role": "材料受理员",
+      "task": "读取客户 C006 的申请材料，整理成结构化字段"
+     },
+     {
+      "id": "financial",
+      "expert": "financial-analyst",
+      "role": "财务分析师",
+      "task": "读取客户 C006 的财务数据，计算资产规模和偿债指标",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "expert": "industry-researcher",
+      "role": "行业研究员",
+      "task": "查询客户所在行业的景气度与同业风险",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "expert": "bureau-summary",
+      "role": "征信摘要查询员",
+      "task": "调取客户 C006 的征信摘要（近六个月逾期、历史最长逾期）",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "expert": "related-party",
+      "role": "关联方排查员",
+      "task": "排查客户 C006 的关联方，并查询关联方的征信情况",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "expert": "risk-judge",
+      "role": "风险判断员",
+      "task": "根据所有上游证据，按授信判断规约给出结构化风险判断",
+      "depends_on": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "expert": "report-writer",
+      "role": "报告撰写人",
+      "task": "汇总各步结论，撰写完整的授信尽调报告",
+      "depends_on": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related",
+       "judge"
+      ]
+     }
+    ],
+    "blueprint_yaml": "blueprint:\n  id: team-graph\n  type: dag\n  members:\n  - id: intake\n    instruction: |-\n      [角色] 材料受理员\n      [角色设定]\n      你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n      读取客户 C006 的申请材料，整理成结构化字段\n  - id: financial\n    instruction: |-\n      [角色] 财务分析师\n      [角色设定]\n      你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n      读取客户 C006 的财务数据，计算资产规模和偿债指标\n  - id: industry\n    instruction: |-\n      [角色] 行业研究员\n      [角色设定]\n      你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n      查询客户所在行业的景气度与同业风险\n  - id: bureau\n    instruction: |-\n      [角色] 征信摘要查询员\n      [角色设定]\n      你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n      调取客户 C006 的征信摘要（近六个月逾期、历史最长逾期）\n  - id: related\n    instruction: |-\n      [角色] 关联方排查员\n      排查客户 C006 的关联方，并查询关联方的征信情况\n  - id: judge\n    instruction: |-\n      [角色] 风险判断员\n      [角色设定]\n      你是风险判断员，按已发布的授信判断规约给出结构化判断。\n      根据所有上游证据，按授信判断规约给出结构化风险判断\n  - id: report\n    instruction: |-\n      [角色] 报告撰写人\n      [角色设定]\n      你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n      汇总各步结论，撰写完整的授信尽调报告\n  steps:\n  - id: intake\n    member: intake\n    depends_on: []\n    skip_if: NEVER\n  - id: financial\n    member: financial\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: industry\n    member: industry\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: bureau\n    member: bureau\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: related\n    member: related\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: judge\n    member: judge\n    depends_on:\n    - intake\n    - financial\n    - industry\n    - bureau\n    - related\n    skip_if: DEPS_INCONCLUSIVE\n  - id: report\n    member: report\n    depends_on:\n    - intake\n    - financial\n    - industry\n    - bureau\n    - related\n    - judge\n    skip_if: DEPS_INCONCLUSIVE\n",
+    "spec_digest": "sha256:66324bb6966fd65db8664ef57267448ac17ce12091288308d4e24f12a8a7e02a",
+    "team": [
+     {
+      "id": "intake",
+      "role": "材料受理员",
+      "systemPrompt": "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
+      "task": "读取客户 C006 的申请材料，整理成结构化字段"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "financial",
+      "role": "财务分析师",
+      "systemPrompt": "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
+      "task": "读取客户 C006 的财务数据，计算资产规模和偿债指标"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "industry",
+      "role": "行业研究员",
+      "systemPrompt": "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
+      "task": "查询客户所在行业的景气度与同业风险"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "bureau",
+      "role": "征信摘要查询员",
+      "systemPrompt": "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
+      "task": "调取客户 C006 的征信摘要（近六个月逾期、历史最长逾期）"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "related",
+      "role": "关联方排查员",
+      "systemPrompt": "",
+      "task": "排查客户 C006 的关联方，并查询关联方的征信情况"
+     },
+     {
+      "dependsOn": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ],
+      "id": "judge",
+      "role": "风险判断员",
+      "systemPrompt": "你是风险判断员，按已发布的授信判断规约给出结构化判断。",
+      "task": "根据所有上游证据，按授信判断规约给出结构化风险判断"
+     },
+     {
+      "dependsOn": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related",
+       "judge"
+      ],
+      "id": "report",
+      "role": "报告撰写人",
+      "systemPrompt": "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
+      "task": "汇总各步结论，撰写完整的授信尽调报告"
+     }
+    ],
+    "type": "dag",
+    "steps": [
+     {
+      "id": "intake",
+      "member": "intake",
+      "depends_on": []
+     },
+     {
+      "id": "financial",
+      "member": "financial",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "member": "industry",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "member": "bureau",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "member": "related",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "member": "judge",
+      "depends_on": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "member": "report",
+      "depends_on": [
+       "intake",
+       "financial",
+       "industry",
+       "bureau",
+       "related",
+       "judge"
+      ]
+     }
+    ],
+    "layers": [
+     [
+      "intake"
+     ],
+     [
+      "financial",
+      "industry",
+      "bureau",
+      "related"
+     ],
+     [
+      "judge"
+     ],
+     [
+      "report"
+     ]
+    ],
+    "precheck": {
+     "ok": true,
+     "composed": {
+      "bounds": {
+       "max_cost": {
+        "amount": 250,
+        "unit": "USD-cents"
+       },
+       "max_downstream_calls": 10,
+       "max_seconds": 720
+      },
+      "effects": {
+       "level": "none"
+      },
+      "requires": {
+       "data\u0000data:credit/applications/*\u0000read": "none",
+       "data\u0000data:credit/bureau/summary/*\u0000read": "none",
+       "data\u0000data:credit/evidence/*\u0000read": "none",
+       "data\u0000data:credit/financials/*\u0000read": "none",
+       "data\u0000data:credit/related-bureau/*\u0000read": "none",
+       "data\u0000data:credit/related/*\u0000read": "none",
+       "data\u0000data:industry/*\u0000read": "none"
+      },
+      "shares": {
+       "bureau": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "financial": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "industry": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "intake": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "judge": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "related": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "report": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       }
+      }
+     },
+     "checked_at": "2026-11-16T07:47:32Z"
+    },
+    "hash": "sha256:3ab58dfa4aaa3598a3c76f1e4e78fe47163f092df6966df0004b223e21972a4e",
+    "proposed_at": "2026-11-16T07:47:32Z",
+    "approved_by": "alice",
+    "run_id": "R1",
+    "bus_bindings": {
+     "bureau": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+     },
+     "financial": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+     },
+     "industry": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+     },
+     "intake": {
+      "agent_id": "credit-material",
+      "version": "1.0.1",
+      "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+      "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+     },
+     "report": {
+      "agent_id": "credit-writer",
+      "version": "1.0.1",
+      "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+      "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+     }
+    }
+   }
+  ],
+  "P2": [
+   {
+    "id": "P2",
+    "version": 1,
+    "case_id": "C006",
+    "goal": "W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+    "agents": [
+     {
+      "id": "intake",
+      "expert": "intake",
+      "role": "资料",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "id": "financial",
+      "expert": "financial-analyst",
+      "role": "财务",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "expert": "industry-researcher",
+      "role": "行业",
+      "task": "使用 get_industry_report 分析本案件行业依据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "expert": "bureau-summary",
+      "role": "征信",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "expert": "related-party",
+      "role": "关联方",
+      "task": "逐家核对本案件关联方证据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "expert": "risk-judge",
+      "role": "原型规则判断",
+      "task": "按原型规约判断并引用上游步骤",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "expert": "report-writer",
+      "role": "报告",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "blueprint_yaml": "blueprint:\n  id: team-graph\n  type: dag\n  members:\n  - id: intake\n    instruction: |-\n      [角色] 资料\n      [角色设定]\n      你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n      使用 get_application 核对本案件申请材料\n  - id: financial\n    instruction: |-\n      [角色] 财务\n      [角色设定]\n      你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n      使用 get_financials 分析本案件财务数据，明确资产单位\n  - id: industry\n    instruction: |-\n      [角色] 行业\n      [角色设定]\n      你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n      使用 get_industry_report 分析本案件行业依据\n  - id: bureau\n    instruction: |-\n      [角色] 征信\n      [角色设定]\n      你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n      使用 query_bureau_summary 核对本案件征信摘要\n  - id: related\n    instruction: |-\n      [角色] 关联方\n      逐家核对本案件关联方证据\n  - id: judge\n    instruction: |-\n      [角色] 原型规则判断\n      [角色设定]\n      你是风险判断员，按已发布的授信判断规约给出结构化判断。\n      按原型规约判断并引用上游步骤\n  - id: report\n    instruction: |-\n      [角色] 报告\n      [角色设定]\n      你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n      汇总已提供的结论和证据，缺失内容明确说明\n  steps:\n  - id: intake\n    member: intake\n    depends_on: []\n    skip_if: NEVER\n  - id: financial\n    member: financial\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: industry\n    member: industry\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: bureau\n    member: bureau\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: related\n    member: related\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: judge\n    member: judge\n    depends_on:\n    - financial\n    - industry\n    - bureau\n    - related\n    skip_if: DEPS_INCONCLUSIVE\n  - id: report\n    member: report\n    depends_on:\n    - judge\n    skip_if: DEPS_INCONCLUSIVE\n",
+    "spec_digest": "sha256:b29a5889306b87dfb66a71e7fe71dc208e05e646ce3a4185ed9c21ebaf145c00",
+    "team": [
+     {
+      "id": "intake",
+      "role": "资料",
+      "systemPrompt": "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "financial",
+      "role": "财务",
+      "systemPrompt": "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "industry",
+      "role": "行业",
+      "systemPrompt": "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
+      "task": "使用 get_industry_report 分析本案件行业依据"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "bureau",
+      "role": "征信",
+      "systemPrompt": "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "related",
+      "role": "关联方",
+      "systemPrompt": "",
+      "task": "逐家核对本案件关联方证据"
+     },
+     {
+      "dependsOn": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ],
+      "id": "judge",
+      "role": "原型规则判断",
+      "systemPrompt": "你是风险判断员，按已发布的授信判断规约给出结构化判断。",
+      "task": "按原型规约判断并引用上游步骤"
+     },
+     {
+      "dependsOn": [
+       "judge"
+      ],
+      "id": "report",
+      "role": "报告",
+      "systemPrompt": "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明"
+     }
+    ],
+    "type": "dag",
+    "steps": [
+     {
+      "id": "intake",
+      "member": "intake",
+      "depends_on": []
+     },
+     {
+      "id": "financial",
+      "member": "financial",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "member": "industry",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "member": "bureau",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "member": "related",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "member": "judge",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "member": "report",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "layers": [
+     [
+      "intake"
+     ],
+     [
+      "financial",
+      "industry",
+      "bureau",
+      "related"
+     ],
+     [
+      "judge"
+     ],
+     [
+      "report"
+     ]
+    ],
+    "precheck": {
+     "ok": true,
+     "composed": {
+      "bounds": {
+       "max_cost": {
+        "amount": 250,
+        "unit": "USD-cents"
+       },
+       "max_downstream_calls": 10,
+       "max_seconds": 720
+      },
+      "effects": {
+       "level": "none"
+      },
+      "requires": {
+       "data\u0000data:credit/applications/*\u0000read": "none",
+       "data\u0000data:credit/bureau/summary/*\u0000read": "none",
+       "data\u0000data:credit/evidence/*\u0000read": "none",
+       "data\u0000data:credit/financials/*\u0000read": "none",
+       "data\u0000data:credit/related-bureau/*\u0000read": "none",
+       "data\u0000data:credit/related/*\u0000read": "none",
+       "data\u0000data:industry/*\u0000read": "none"
+      },
+      "shares": {
+       "bureau": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "financial": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "industry": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "intake": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "judge": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "related": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "report": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       }
+      }
+     },
+     "checked_at": "2026-11-16T07:52:26Z"
+    },
+    "hash": "sha256:0f1133afa6c469f21e224fcd336b70132a7066b78f135a99b7bcb2e400423df5",
+    "proposed_at": "2026-11-16T07:52:26Z",
+    "approved_by": "alice",
+    "run_id": "R2",
+    "bus_bindings": {
+     "bureau": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+     },
+     "financial": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+     },
+     "industry": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+     },
+     "intake": {
+      "agent_id": "credit-material",
+      "version": "1.0.1",
+      "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+      "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+     },
+     "report": {
+      "agent_id": "credit-writer",
+      "version": "1.0.1",
+      "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+      "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+     }
+    }
+   }
+  ],
+  "P3": [
+   {
+    "id": "P3",
+    "version": 1,
+    "case_id": "C006",
+    "goal": "W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+    "agents": [
+     {
+      "id": "intake",
+      "expert": "intake",
+      "role": "资料",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "id": "financial",
+      "expert": "financial-analyst",
+      "role": "财务",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "expert": "industry-researcher",
+      "role": "行业",
+      "task": "使用 get_industry_report 分析本案件行业依据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "expert": "bureau-summary",
+      "role": "征信",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "expert": "related-party",
+      "role": "关联方",
+      "task": "逐家核对本案件关联方证据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "expert": "risk-judge",
+      "role": "原型规则判断",
+      "task": "按原型规约判断并引用上游步骤",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "expert": "report-writer",
+      "role": "报告",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "blueprint_yaml": "blueprint:\n  id: team-graph\n  type: dag\n  members:\n  - id: intake\n    instruction: |-\n      [角色] 资料\n      [角色设定]\n      你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n      使用 get_application 核对本案件申请材料\n  - id: financial\n    instruction: |-\n      [角色] 财务\n      [角色设定]\n      你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n      使用 get_financials 分析本案件财务数据，明确资产单位\n  - id: industry\n    instruction: |-\n      [角色] 行业\n      [角色设定]\n      你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n      使用 get_industry_report 分析本案件行业依据\n  - id: bureau\n    instruction: |-\n      [角色] 征信\n      [角色设定]\n      你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n      使用 query_bureau_summary 核对本案件征信摘要\n  - id: related\n    instruction: |-\n      [角色] 关联方\n      逐家核对本案件关联方证据\n  - id: judge\n    instruction: |-\n      [角色] 原型规则判断\n      [角色设定]\n      你是风险判断员，按已发布的授信判断规约给出结构化判断。\n      按原型规约判断并引用上游步骤\n  - id: report\n    instruction: |-\n      [角色] 报告\n      [角色设定]\n      你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n      汇总已提供的结论和证据，缺失内容明确说明\n  steps:\n  - id: intake\n    member: intake\n    depends_on: []\n    skip_if: NEVER\n  - id: financial\n    member: financial\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: industry\n    member: industry\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: bureau\n    member: bureau\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: related\n    member: related\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: judge\n    member: judge\n    depends_on:\n    - financial\n    - industry\n    - bureau\n    - related\n    skip_if: DEPS_INCONCLUSIVE\n  - id: report\n    member: report\n    depends_on:\n    - judge\n    skip_if: DEPS_INCONCLUSIVE\n",
+    "spec_digest": "sha256:b29a5889306b87dfb66a71e7fe71dc208e05e646ce3a4185ed9c21ebaf145c00",
+    "team": [
+     {
+      "id": "intake",
+      "role": "资料",
+      "systemPrompt": "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "financial",
+      "role": "财务",
+      "systemPrompt": "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "industry",
+      "role": "行业",
+      "systemPrompt": "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
+      "task": "使用 get_industry_report 分析本案件行业依据"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "bureau",
+      "role": "征信",
+      "systemPrompt": "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "related",
+      "role": "关联方",
+      "systemPrompt": "",
+      "task": "逐家核对本案件关联方证据"
+     },
+     {
+      "dependsOn": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ],
+      "id": "judge",
+      "role": "原型规则判断",
+      "systemPrompt": "你是风险判断员，按已发布的授信判断规约给出结构化判断。",
+      "task": "按原型规约判断并引用上游步骤"
+     },
+     {
+      "dependsOn": [
+       "judge"
+      ],
+      "id": "report",
+      "role": "报告",
+      "systemPrompt": "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明"
+     }
+    ],
+    "type": "dag",
+    "steps": [
+     {
+      "id": "intake",
+      "member": "intake",
+      "depends_on": []
+     },
+     {
+      "id": "financial",
+      "member": "financial",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "member": "industry",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "member": "bureau",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "member": "related",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "member": "judge",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "member": "report",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "layers": [
+     [
+      "intake"
+     ],
+     [
+      "financial",
+      "industry",
+      "bureau",
+      "related"
+     ],
+     [
+      "judge"
+     ],
+     [
+      "report"
+     ]
+    ],
+    "precheck": {
+     "ok": true,
+     "composed": {
+      "bounds": {
+       "max_cost": {
+        "amount": 250,
+        "unit": "USD-cents"
+       },
+       "max_downstream_calls": 10,
+       "max_seconds": 720
+      },
+      "effects": {
+       "level": "none"
+      },
+      "requires": {
+       "data\u0000data:credit/applications/*\u0000read": "none",
+       "data\u0000data:credit/bureau/summary/*\u0000read": "none",
+       "data\u0000data:credit/evidence/*\u0000read": "none",
+       "data\u0000data:credit/financials/*\u0000read": "none",
+       "data\u0000data:credit/related-bureau/*\u0000read": "none",
+       "data\u0000data:credit/related/*\u0000read": "none",
+       "data\u0000data:industry/*\u0000read": "none"
+      },
+      "shares": {
+       "bureau": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "financial": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "industry": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "intake": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "judge": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "related": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "report": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       }
+      }
+     },
+     "checked_at": "2026-11-16T07:56:28Z"
+    },
+    "hash": "sha256:6f066890fcefd9aa633b1fae3bd2bb031e3aad5811fa0d7bff2107b271bc8992",
+    "proposed_at": "2026-11-16T07:56:28Z",
+    "approved_by": "alice",
+    "run_id": "R3",
+    "bus_bindings": {
+     "bureau": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+     },
+     "financial": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+     },
+     "industry": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+     },
+     "intake": {
+      "agent_id": "credit-material",
+      "version": "1.0.1",
+      "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+      "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+     },
+     "report": {
+      "agent_id": "credit-writer",
+      "version": "1.0.1",
+      "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+      "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+     }
+    }
+   }
+  ],
+  "P4": [
+   {
+    "id": "P4",
+    "version": 1,
+    "case_id": "C006",
+    "goal": "W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+    "agents": [
+     {
+      "id": "intake",
+      "expert": "intake",
+      "role": "资料",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "id": "financial",
+      "expert": "financial-analyst",
+      "role": "财务",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "expert": "industry-researcher",
+      "role": "行业",
+      "task": "使用 get_industry_report 分析本案件行业依据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "expert": "bureau-summary",
+      "role": "征信",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "expert": "related-party",
+      "role": "关联方",
+      "task": "逐家核对本案件关联方证据",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "expert": "risk-judge",
+      "role": "原型规则判断",
+      "task": "按原型规约判断并引用上游步骤",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "expert": "report-writer",
+      "role": "报告",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "blueprint_yaml": "blueprint:\n  id: team-graph\n  type: dag\n  members:\n  - id: intake\n    instruction: |-\n      [角色] 资料\n      [角色设定]\n      你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n      使用 get_application 核对本案件申请材料\n  - id: financial\n    instruction: |-\n      [角色] 财务\n      [角色设定]\n      你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n      使用 get_financials 分析本案件财务数据，明确资产单位\n  - id: industry\n    instruction: |-\n      [角色] 行业\n      [角色设定]\n      你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n      使用 get_industry_report 分析本案件行业依据\n  - id: bureau\n    instruction: |-\n      [角色] 征信\n      [角色设定]\n      你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n      使用 query_bureau_summary 核对本案件征信摘要\n  - id: related\n    instruction: |-\n      [角色] 关联方\n      逐家核对本案件关联方证据\n  - id: judge\n    instruction: |-\n      [角色] 原型规则判断\n      [角色设定]\n      你是风险判断员，按已发布的授信判断规约给出结构化判断。\n      按原型规约判断并引用上游步骤\n  - id: report\n    instruction: |-\n      [角色] 报告\n      [角色设定]\n      你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n      汇总已提供的结论和证据，缺失内容明确说明\n  steps:\n  - id: intake\n    member: intake\n    depends_on: []\n    skip_if: NEVER\n  - id: financial\n    member: financial\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: industry\n    member: industry\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: bureau\n    member: bureau\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: related\n    member: related\n    depends_on:\n    - intake\n    skip_if: DEPS_INCONCLUSIVE\n  - id: judge\n    member: judge\n    depends_on:\n    - financial\n    - industry\n    - bureau\n    - related\n    skip_if: DEPS_INCONCLUSIVE\n  - id: report\n    member: report\n    depends_on:\n    - judge\n    skip_if: DEPS_INCONCLUSIVE\n",
+    "spec_digest": "sha256:b29a5889306b87dfb66a71e7fe71dc208e05e646ce3a4185ed9c21ebaf145c00",
+    "team": [
+     {
+      "id": "intake",
+      "role": "资料",
+      "systemPrompt": "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
+      "task": "使用 get_application 核对本案件申请材料"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "financial",
+      "role": "财务",
+      "systemPrompt": "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
+      "task": "使用 get_financials 分析本案件财务数据，明确资产单位"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "industry",
+      "role": "行业",
+      "systemPrompt": "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
+      "task": "使用 get_industry_report 分析本案件行业依据"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "bureau",
+      "role": "征信",
+      "systemPrompt": "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
+      "task": "使用 query_bureau_summary 核对本案件征信摘要"
+     },
+     {
+      "dependsOn": [
+       "intake"
+      ],
+      "id": "related",
+      "role": "关联方",
+      "systemPrompt": "",
+      "task": "逐家核对本案件关联方证据"
+     },
+     {
+      "dependsOn": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ],
+      "id": "judge",
+      "role": "原型规则判断",
+      "systemPrompt": "你是风险判断员，按已发布的授信判断规约给出结构化判断。",
+      "task": "按原型规约判断并引用上游步骤"
+     },
+     {
+      "dependsOn": [
+       "judge"
+      ],
+      "id": "report",
+      "role": "报告",
+      "systemPrompt": "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
+      "task": "汇总已提供的结论和证据，缺失内容明确说明"
+     }
+    ],
+    "type": "dag",
+    "steps": [
+     {
+      "id": "intake",
+      "member": "intake",
+      "depends_on": []
+     },
+     {
+      "id": "financial",
+      "member": "financial",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "industry",
+      "member": "industry",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "bureau",
+      "member": "bureau",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "related",
+      "member": "related",
+      "depends_on": [
+       "intake"
+      ]
+     },
+     {
+      "id": "judge",
+      "member": "judge",
+      "depends_on": [
+       "financial",
+       "industry",
+       "bureau",
+       "related"
+      ]
+     },
+     {
+      "id": "report",
+      "member": "report",
+      "depends_on": [
+       "judge"
+      ]
+     }
+    ],
+    "layers": [
+     [
+      "intake"
+     ],
+     [
+      "financial",
+      "industry",
+      "bureau",
+      "related"
+     ],
+     [
+      "judge"
+     ],
+     [
+      "report"
+     ]
+    ],
+    "precheck": {
+     "ok": true,
+     "composed": {
+      "bounds": {
+       "max_cost": {
+        "amount": 250,
+        "unit": "USD-cents"
+       },
+       "max_downstream_calls": 10,
+       "max_seconds": 720
+      },
+      "effects": {
+       "level": "none"
+      },
+      "requires": {
+       "data\u0000data:credit/applications/*\u0000read": "none",
+       "data\u0000data:credit/bureau/summary/*\u0000read": "none",
+       "data\u0000data:credit/evidence/*\u0000read": "none",
+       "data\u0000data:credit/financials/*\u0000read": "none",
+       "data\u0000data:credit/related-bureau/*\u0000read": "none",
+       "data\u0000data:credit/related/*\u0000read": "none",
+       "data\u0000data:industry/*\u0000read": "none"
+      },
+      "shares": {
+       "bureau": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "financial": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "industry": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "intake": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "judge": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       },
+       "related": {
+        "max_cost": {
+         "amount": 125,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 9,
+        "max_seconds": 1800
+       },
+       "report": {
+        "max_cost": {
+         "amount": 500,
+         "unit": "USD-cents"
+        },
+        "max_downstream_calls": 36,
+        "max_seconds": 1800
+       }
+      }
+     },
+     "checked_at": "2026-11-16T07:58:04Z"
+    },
+    "hash": "sha256:93d286ff79a7511ec96379f2bffeebe4f6a581714f49b9c86f1e9821f3140710",
+    "proposed_at": "2026-11-16T07:58:04Z",
+    "approved_by": "alice",
+    "run_id": "R4",
+    "bus_bindings": {
+     "bureau": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+     },
+     "financial": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+     },
+     "industry": {
+      "agent_id": "credit-analysis",
+      "version": "1.0.1",
+      "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+      "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+     },
+     "intake": {
+      "agent_id": "credit-material",
+      "version": "1.0.1",
+      "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+      "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+     },
+     "report": {
+      "agent_id": "credit-writer",
+      "version": "1.0.1",
+      "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+      "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+     }
+    }
+   }
+  ]
+ },
+ "runs": {
+  "R1": {
+   "id": "R1",
+   "plan_id": "P1",
+   "plan_version": 1,
+   "plan_hash": "sha256:3ab58dfa4aaa3598a3c76f1e4e78fe47163f092df6966df0004b223e21972a4e",
+   "case_id": "C006",
+   "status": "done",
+   "approved_by": "alice",
+   "approved_via": {
+    "channel": "workswarm-plugin"
+   },
+   "created_at": "2026-11-16T07:48:31Z",
+   "finished_at": "2026-11-16T07:49:35Z",
+   "lease_until": "2026-11-16T07:49:53.365484959Z",
+   "epoch": 1,
+   "leases": [
+    "2026-11-16T07:48:31Z 第 1 次领取（orchestrator-1）"
+   ],
+   "steps": {
+    "bureau": {
+     "id": "bureau",
+     "expert": "bureau-summary",
+     "status": "done",
+     "output": "[step:bureau]\n近六个月无逾期，历史最长逾期月数为1个月。",
+     "started_at": "2026-11-16T07:48:38Z",
+     "finished_at": "2026-11-16T07:48:41Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:8a310e720720754af275cb022c95b57c14a53a230d64580d37beef36bb7154aa",
+      "graph_revision": "P1-v1",
+      "node_path": "bureau",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+      },
+      "input_digest": "sha256:c262705c1aa753098b1632fa946b98bac413fe525c725fe2369ca0780c337bcc",
+      "input": "案件号：C006。任务：为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+      "goal": "[角色] 征信摘要查询员\n[角色设定]\n你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n调取客户 C006 的征信摘要（近六个月逾期、历史最长逾期）\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元  \n- 所属行业：汽车零部件批发  \n- 授信产品：个人经营性授信  \n- 提交日期：2026-11-01",
+      "request_id": "a61cf5447b00ff4e2fe1625e",
+      "message_id": "df759cf6d6648ed771a53478",
+      "context_id": "ctx-c9e111810d5009024f10be65",
+      "remote_task_id": "155837bb-61c8-47ee-9466-9de22344c5fc",
+      "status": "completed",
+      "sequence": 6,
+      "created_at": "2026-11-16T07:48:38Z",
+      "updated_at": "2026-11-16T07:48:41Z",
+      "agent_started_at": "2026-11-16T07:48:39Z",
+      "artifact_id": "artifact-8a310e720720754af275cb022c95b57c14a53a230d64580d37beef36bb7154aa",
+      "artifact_digest": "sha256:b219bbefff1664c253690a9d23c55fa3c75ec2e731b0e6e6f0b070b894566fb9",
+      "model_events": {
+       "276b182a-3046-46e9-8ec3-a6872d9ecc54": "2026-11-16T07:48:40Z",
+       "8993a789-0d1a-4931-9d74-298987862c7d": "2026-11-16T07:48:40Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:48:38Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "0586edf2-1782-4b1a-8f0b-b283d24661b3": {
+        "rpc_id": "0586edf2-1782-4b1a-8f0b-b283d24661b3",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.937031818Z",
+        "finished_at": "2026-11-16T07:48:40.001194312Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "19ec3404-89c3-4c07-b9b6-439972b98cd8": {
+        "rpc_id": "19ec3404-89c3-4c07-b9b6-439972b98cd8",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.844554659Z",
+        "finished_at": "2026-11-16T07:48:41.879879591Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "28b2711c-8b00-4849-aa08-78bbc34033ef": {
+        "rpc_id": "28b2711c-8b00-4849-aa08-78bbc34033ef",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:40.797015948Z",
+        "finished_at": "2026-11-16T07:48:40.826107445Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "a61cf5447b00ff4e2fe1625e": {
+        "rpc_id": "a61cf5447b00ff4e2fe1625e",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:48:38.728640483Z",
+        "finished_at": "2026-11-16T07:48:38.925937889Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "a7e36dd0-4b00-4963-b082-86312eecbcd3": {
+        "rpc_id": "a7e36dd0-4b00-4963-b082-86312eecbcd3",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.759247781Z",
+        "finished_at": "2026-11-16T07:48:39.785963402Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "b570f6fa-9f84-452d-bc46-6b0c3aee3b1f": {
+        "rpc_id": "b570f6fa-9f84-452d-bc46-6b0c3aee3b1f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.019367008Z",
+        "finished_at": "2026-11-16T07:48:41.046173088Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "financial": {
+     "id": "financial",
+     "expert": "financial-analyst",
+     "status": "done",
+     "output": "[step:financial]\n尽调报告（案件号：C006）\n\n一、资产规模  \n依据华衡资产评估出具的估值报告（估值基准日：2026-10-15），申请人申报资产经核实为 **35.2 百万美元（USD 35.2 million）**，与申报值（3,500 万美元）基本一致。\n\n二、偿债能力指标  \n- 负债率：**41%**（即 0.41），处于合理区间，显示资产负债结构稳健；  \n- 经营现金流：**2.1 百万美元（USD 2.1 million）**，为正向且稳定，具备持续自我造血能力；  \n- 收入趋势：近三年营收年均增长 **6%**，体现业务持续扩张能力。\n\n三、风险判断  \n申请人资产充足、负债水平适中、经营性现金流入健康且收入稳增，整体财务状况良好，符合个人经营性授信准入要求。建议批准本次 **50,000 美元** 流动资金授信申请。",
+     "started_at": "2026-11-16T07:48:38Z",
+     "finished_at": "2026-11-16T07:48:47Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:bc2013f2619f4a359f39194b56d8d505f733f8afee0682765fbb4b4c5c43d4f9",
+      "graph_revision": "P1-v1",
+      "node_path": "financial",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+      },
+      "input_digest": "sha256:320e42ed40ca8e6c9ce6d533b200028a7e0b0b4fa6194bf1e6dacc2c813d712c",
+      "input": "案件号：C006。任务：为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+      "goal": "[角色] 财务分析师\n[角色设定]\n你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n读取客户 C006 的财务数据，计算资产规模和偿债指标\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元  \n- 所属行业：汽车零部件批发  \n- 授信产品：个人经营性授信  \n- 提交日期：2026-11-01",
+      "request_id": "31b89c62f88dc3e9eff83bdb",
+      "message_id": "8722e01d5816157fc5345e17",
+      "context_id": "ctx-9d1f074212871c2279808e7c",
+      "remote_task_id": "09d0ab69-45e8-4b09-97dc-3b45d0542639",
+      "status": "completed",
+      "sequence": 11,
+      "created_at": "2026-11-16T07:48:38Z",
+      "updated_at": "2026-11-16T07:48:47Z",
+      "agent_started_at": "2026-11-16T07:48:39Z",
+      "artifact_id": "artifact-bc2013f2619f4a359f39194b56d8d505f733f8afee0682765fbb4b4c5c43d4f9",
+      "artifact_digest": "sha256:db593440529898db7442f3ac3ec2dd4fa9f966c38ab0db51903a294c80b93e30",
+      "model_events": {
+       "7ce4cc07-b29c-4c4c-8482-6a99582bf357": "2026-11-16T07:48:40Z",
+       "830e3014-85b4-421b-a761-64db0560c393": "2026-11-16T07:48:40Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:48:38Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "1ad6f183-6a31-44a5-b76c-715526042c90": {
+        "rpc_id": "1ad6f183-6a31-44a5-b76c-715526042c90",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.064537126Z",
+        "finished_at": "2026-11-16T07:48:41.084268340Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "31b89c62f88dc3e9eff83bdb": {
+        "rpc_id": "31b89c62f88dc3e9eff83bdb",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:48:38.704112344Z",
+        "finished_at": "2026-11-16T07:48:38.926616169Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "456e4247-9152-4ead-86f8-1daa754c2e68": {
+        "rpc_id": "456e4247-9152-4ead-86f8-1daa754c2e68",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:45.105901711Z",
+        "finished_at": "2026-11-16T07:48:45.139599032Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 9
+       },
+       "6177cf8a-f5ae-457a-ac7a-b119f9eaacd2": {
+        "rpc_id": "6177cf8a-f5ae-457a-ac7a-b119f9eaacd2",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.942673100Z",
+        "finished_at": "2026-11-16T07:48:40.047125260Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "6930637d-e988-49db-a395-7350ed502c7f": {
+        "rpc_id": "6930637d-e988-49db-a395-7350ed502c7f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:46.159752183Z",
+        "finished_at": "2026-11-16T07:48:46.188306993Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 10
+       },
+       "789e040f-a0a6-48a2-9e6c-e738273f33b9": {
+        "rpc_id": "789e040f-a0a6-48a2-9e6c-e738273f33b9",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.798590391Z",
+        "finished_at": "2026-11-16T07:48:39.819542097Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "85dd55bd-79a1-4a13-945e-c33779656964": {
+        "rpc_id": "85dd55bd-79a1-4a13-945e-c33779656964",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:43.001833643Z",
+        "finished_at": "2026-11-16T07:48:43.049213235Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "cbbb999d-37c9-4bfd-b5e6-4f8a4cf18c47": {
+        "rpc_id": "cbbb999d-37c9-4bfd-b5e6-4f8a4cf18c47",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:47.202484869Z",
+        "finished_at": "2026-11-16T07:48:47.234838196Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 11
+       },
+       "d644e4e4-31be-467c-90ce-c552a1051242": {
+        "rpc_id": "d644e4e4-31be-467c-90ce-c552a1051242",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:40.830229124Z",
+        "finished_at": "2026-11-16T07:48:40.862524384Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "d93302a8-d8f4-4a2a-954a-2d2fe86fb442": {
+        "rpc_id": "d93302a8-d8f4-4a2a-954a-2d2fe86fb442",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:44.063254393Z",
+        "finished_at": "2026-11-16T07:48:44.093978484Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 8
+       },
+       "e6417f28-e315-4f9c-b510-f5b8a93bf9ea": {
+        "rpc_id": "e6417f28-e315-4f9c-b510-f5b8a93bf9ea",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.877823410Z",
+        "finished_at": "2026-11-16T07:48:41.974010112Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       }
+      }
+     }
+    },
+    "industry": {
+     "id": "industry",
+     "expert": "industry-researcher",
+     "status": "done",
+     "output": "[step:industry]\n景气度：稳定。  \n主要风险：整车厂账期拉长、价格竞争激烈。",
+     "started_at": "2026-11-16T07:48:38Z",
+     "finished_at": "2026-11-16T07:48:41Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:e49ae0a4f1d53efa3a686dc8d4d10af85ea9488a5dccedc8aa054f43832b7015",
+      "graph_revision": "P1-v1",
+      "node_path": "industry",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+      },
+      "input_digest": "sha256:c911756afaab909e602a4421550f7777f2c27caee2795c5b35858012c27003c0",
+      "input": "案件号：C006。任务：为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+      "goal": "[角色] 行业研究员\n[角色设定]\n你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n查询客户所在行业的景气度与同业风险\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元  \n- 所属行业：汽车零部件批发  \n- 授信产品：个人经营性授信  \n- 提交日期：2026-11-01",
+      "request_id": "98ae3e93d845d2f7691d0588",
+      "message_id": "e72ef7b1123328e79d238c9e",
+      "context_id": "ctx-46e323820c5169fd999cd031",
+      "remote_task_id": "976b5541-71ca-4ee8-a148-92ced42f151a",
+      "status": "completed",
+      "sequence": 6,
+      "created_at": "2026-11-16T07:48:38Z",
+      "updated_at": "2026-11-16T07:48:41Z",
+      "agent_started_at": "2026-11-16T07:48:39Z",
+      "artifact_id": "artifact-e49ae0a4f1d53efa3a686dc8d4d10af85ea9488a5dccedc8aa054f43832b7015",
+      "artifact_digest": "sha256:60b14ca482ca1d8fb93a6dfe29b6f84b931124bd6fcfbd5c360c93a16b1f05f9",
+      "model_events": {
+       "a027e1b1-eb67-49fe-8681-fd0e972cb4ff": "2026-11-16T07:48:40Z",
+       "a9d904ed-8de2-406c-8ea4-24e188851b8c": "2026-11-16T07:48:40Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:48:38Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "29185c66-824b-4348-bef2-5bbcd898df55": {
+        "rpc_id": "29185c66-824b-4348-bef2-5bbcd898df55",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.949809392Z",
+        "finished_at": "2026-11-16T07:48:40.058227447Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "2ca27707-167d-486b-82d8-efe1a22b1554": {
+        "rpc_id": "2ca27707-167d-486b-82d8-efe1a22b1554",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.081303127Z",
+        "finished_at": "2026-11-16T07:48:41.101961573Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "3bce35f5-e8c3-4fc8-8549-f324265e963b": {
+        "rpc_id": "3bce35f5-e8c3-4fc8-8549-f324265e963b",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:41.886549288Z",
+        "finished_at": "2026-11-16T07:48:41.949564740Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "3cf089ed-5131-4469-8e2d-b5195a636355": {
+        "rpc_id": "3cf089ed-5131-4469-8e2d-b5195a636355",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:40.845986968Z",
+        "finished_at": "2026-11-16T07:48:40.878782841Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "98ae3e93d845d2f7691d0588": {
+        "rpc_id": "98ae3e93d845d2f7691d0588",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:48:38.766095913Z",
+        "finished_at": "2026-11-16T07:48:38.927809036Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "bccd8cc2-c019-4e13-8955-1603ea368ef9": {
+        "rpc_id": "bccd8cc2-c019-4e13-8955-1603ea368ef9",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:39.815251309Z",
+        "finished_at": "2026-11-16T07:48:39.837494032Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       }
+      }
+     }
+    },
+    "intake": {
+     "id": "intake",
+     "expert": "intake",
+     "status": "done",
+     "output": "[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元  \n- 所属行业：汽车零部件批发  \n- 授信产品：个人经营性授信  \n- 提交日期：2026-11-01",
+     "started_at": "2026-11-16T07:48:32Z",
+     "finished_at": "2026-11-16T07:48:38Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:ca07dde0e200d071a173df2767cbb73bf2ef1f051351fd3d202c398bcb8f11a0",
+      "graph_revision": "P1-v1",
+      "node_path": "intake",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-material",
+       "version": "1.0.1",
+       "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+       "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+      },
+      "input_digest": "sha256:f6bcdc767287842fc513494ff6c56b6a8dcfbdc3a864ec31601ab74723b068a6",
+      "input": "案件号：C006。任务：为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+      "goal": "[角色] 材料受理员\n[角色设定]\n你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n读取客户 C006 的申请材料，整理成结构化字段",
+      "request_id": "720f6b382cf6750051ee2f8d",
+      "message_id": "1e69375a9a215666cd82b00c",
+      "context_id": "ctx-c6d9d62d6c4c287a9dee8e83",
+      "remote_task_id": "10410c26-b97a-4f92-8fd9-681f82233222",
+      "status": "completed",
+      "sequence": 7,
+      "created_at": "2026-11-16T07:48:32Z",
+      "updated_at": "2026-11-16T07:48:38Z",
+      "agent_started_at": "2026-11-16T07:48:32Z",
+      "artifact_id": "artifact-ca07dde0e200d071a173df2767cbb73bf2ef1f051351fd3d202c398bcb8f11a0",
+      "artifact_digest": "sha256:33cc7fe93e5fc0f0fc6106a1efefa424e5d0de52352514458d9f26176359282f",
+      "model_events": {
+       "52ac257b-f4fc-48a5-ae31-4090952c3d51": "2026-11-16T07:48:35Z",
+       "ea8a08bf-998e-4928-a2b5-05fc355084a0": "2026-11-16T07:48:33Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:48:32Z",
+       "candidates": [
+        {
+         "instance_id": "material-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "5ab04333-c2eb-4113-86aa-10d06357a2a2": {
+        "rpc_id": "5ab04333-c2eb-4113-86aa-10d06357a2a2",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:37.574047426Z",
+        "finished_at": "2026-11-16T07:48:37.602664636Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "720f6b382cf6750051ee2f8d": {
+        "rpc_id": "720f6b382cf6750051ee2f8d",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:48:32.036791679Z",
+        "finished_at": "2026-11-16T07:48:32.359304450Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "81bdbc67-4a0e-4f37-bbd7-f5ed1e7ab2cf": {
+        "rpc_id": "81bdbc67-4a0e-4f37-bbd7-f5ed1e7ab2cf",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:38.618086513Z",
+        "finished_at": "2026-11-16T07:48:38.649245674Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "b44a8ed7-71d8-42d7-938e-17e94e57db7c": {
+        "rpc_id": "b44a8ed7-71d8-42d7-938e-17e94e57db7c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:34.435837783Z",
+        "finished_at": "2026-11-16T07:48:34.462541921Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "b85958e8-511e-45d6-84f7-8f3a9072d2ee": {
+        "rpc_id": "b85958e8-511e-45d6-84f7-8f3a9072d2ee",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:33.372354027Z",
+        "finished_at": "2026-11-16T07:48:33.416922565Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "e92985b7-9cb4-4349-ba71-b88b201cdfae": {
+        "rpc_id": "e92985b7-9cb4-4349-ba71-b88b201cdfae",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:36.524515585Z",
+        "finished_at": "2026-11-16T07:48:36.562119758Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "ff616a79-b5c8-44cf-8c2a-bbb57803e10b": {
+        "rpc_id": "ff616a79-b5c8-44cf-8c2a-bbb57803e10b",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:48:35.474929576Z",
+        "finished_at": "2026-11-16T07:48:35.513113987Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       }
+      }
+     }
+    },
+    "judge": {
+     "id": "judge",
+     "expert": "risk-judge",
+     "status": "done",
+     "output": "[step:judge]\nDECISION=GRANT-50000\n依据：precedence 1 applies: assets at 35.2 (USD-millions) exceed 30 and no overdue event occurred inside the six-month window per bureau step\n证据步骤：[financial bureau]",
+     "started_at": "2026-11-16T07:49:07Z",
+     "finished_at": "2026-11-16T07:49:07Z",
+     "epoch": 1,
+     "activity": "判断已采纳：grant-50000"
+    },
+    "related": {
+     "id": "related",
+     "expert": "related-party",
+     "status": "done",
+     "output": "[step:related]\n【关联方风险排查结论】  \n- 有逾期风险的关联方：R-603（宏图机械配件厂），近12个月内发生1次逾期（最长1个月，已结清）；虽已结清，但反映其短期流动性承压，存在潜在偿债不确定性。  \n- 有担保风险的关联方：R-602（顺达物流有限公司）存在1笔对外担保，虽自身无逾期，但担保责任可能引发或有负债；R-603虽无对外担保，但作为申请人所担保主体，其自身逾期已实质性触发担保风险敞口。  \n- 对申请人授信影响：  \n  • R-603逾期记录直接削弱申请人信用画像完整性，且其260万美元未结清信贷余额远超申请人申报资产（350万美元）的74%，显著放大担保代偿风险；  \n  • R-601与R-602虽无逾期，但合计未结清信贷余额达160万美元，叠加R-603风险，整体关联体债务负担较重；  \n  • 综合判断：存在中高风险，建议对申请人授信额度审慎下调（建议不超过30,000美元），并要求追加R-601有效资产抵押或限制R-603新增融资。",
+     "started_at": "2026-11-16T07:48:41Z",
+     "finished_at": "2026-11-16T07:49:07Z",
+     "epoch": 1,
+     "branches": [
+      {
+       "goal": "company_id: R-601，查询征信摘要，重点关注逾期记录、未结清信贷余额、对外担保情况",
+       "status": "finished",
+       "chars": 47,
+       "at": "2026-11-16T07:48:48Z",
+       "read": "R-601",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-602，查询征信摘要，重点关注逾期记录、未结清信贷余额、对外担保情况",
+       "status": "finished",
+       "chars": 51,
+       "at": "2026-11-16T07:48:52Z",
+       "read": "R-602",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-603，查询征信摘要，重点关注逾期记录、未结清信贷余额、对外担保情况",
+       "status": "finished",
+       "chars": 68,
+       "at": "2026-11-16T07:48:56Z",
+       "read": "R-603",
+       "activity": "查关联企业征信"
+      }
+     ],
+     "activity": "分支完成：company_id: R-603，查询征信摘要，重点关注逾期记录、未结清信贷余额、对外担保情况"
+    },
+    "report": {
+     "id": "report",
+     "expert": "report-writer",
+     "status": "done",
+     "output": "[step:report]\n**授信尽调报告（案件号：C006）**  \n**申请人：王某（个体经营，汽车零部件批发）**  \n**提交日期：2026-11-01**\n\n---\n\n### 一、申请概况  \n- 申请额度：50,000 美元  \n- 授信产品：个人经营性授信  \n- 资金用途：补充流动资金  \n- 所属行业：汽车零部件批发  \n- 申报资产总额：3,500 万美元（经核实为 **35.2 百万美元**，即 USD 35.2 million）\n\n---\n\n### 二、财务状况  \n- **资产规模**：经华衡资产评估（估值基准日：2026-10-15）核实，资产真实有效，金额为 **USD 35.2 million**，与申报值基本一致。  \n- **偿债能力**：  \n  - 负债率 41%，处于合理区间；  \n  - 经营现金流为正且稳定，达 **USD 2.1 million**；  \n  - 近三年营收年均增长 6%，显示持续经营与扩张能力。  \n- **综合判断**：财务状况良好，具备自主偿债基础。\n\n---\n\n### 三、行业分析  \n- 行业景气度：**稳定**；  \n- 主要风险点：整车厂账期拉长、价格竞争激烈——属行业共性压力，未见异常恶化迹象。\n\n---\n\n### 四、征信表现  \n- 近六个月：**无逾期记录**；  \n- 历史最长逾期：**1个月**（已结清）；  \n- 征信整体保持良好，短期履约意愿与能力未受实质性影响。\n\n---\n\n### 五、关联方风险（关键约束因素）  \n- **R-603（宏图机械配件厂）**：  \n  - 近12个月内发生1次逾期（最长1个月，已结清）；  \n  - 当前未结清信贷余额 **260万美元**，占申请人核实资产（3520万美元）的 **7.4%**（注：原文“74%”系计算错误，3520万 × 74% = 2604.8万，与260万不符；按实际数值重算：260 / 3520 ≈ **7.4%**）；  \n  - 为申请人所担保主体，其逾期已实质性触发担保风险敞口。  \n- **R-602（顺达物流有限公司）**：存在1笔对外担保，虽自身无逾期，但构成或有负债风险。  \n- **R-601与R-602合计未结清信贷余额160万美元**，叠加R-603风险，关联体整体债务负担偏重。  \n- **综合影响**：关联方风险等级为**中高**，对申请人信用完整性及代偿能力构成实质性制约。\n\n> 注：上游[step:related]中“260万美元远超申请人申报资产（350万美元）的74%”存在明显数值矛盾（350万×74%≈259万），而[step:financial]确认核实资产为3520万美元。本报告以**核实资产3520万美元**为准，据此修正比例为约7.4%，但仍确认R-603逾期及其担保关系构成实质风险。\n\n---\n\n### 六、判断结论与依据  \n\n**最终决策：GRANT — 授信额度调整为 USD 30,000**  \n\n**依据如下**：  \n1. **正面支撑项（满足准入底线）**：  \n   - 核实资产（USD 35.2 million）＞USD 30 million；  \n   - 近六个月内无逾期（bureau step）；  \n   - 财务基本面健康（正向经营现金流、稳健负债率、持续收入增长）。  \n\n2. **关键约束项（触发额度下调）**：  \n   - 关联方R-603存在历史逾期并为申请人担保主体，已实质性触发担保风险；  \n   - 关联体未结清信贷余额合计超420万美元，流动性压力传导风险显著；  \n   - [step:related]明确建议“授信额度审慎下调至不超过30,000美元”，该意见基于关联风险穿透评估，优先级高于单纯财务/征信准入条件。  \n\n3. **决策逻辑**：  \n   - “precedence 1”（资产+近期无逾期）支持授信准入，但**不豁免关联风险管控要求**；  \n   - 风险缓释措施未落实（如R-601抵押、R-603融资限制等）前，不宜全额放款；  \n   - USD 30,000额度在覆盖流动资金需求的同时，留有风险缓冲空间，符合审慎授信原则。\n\n---  \n**报告签署：授信尽调报告撰写人**  \n**日期：2026-11-01**",
+     "started_at": "2026-11-16T07:49:07Z",
+     "finished_at": "2026-11-16T07:49:38Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:6b99b37688758fe4f122da3f0d3399e88bb018f9a4172cdb1972c424533ec74c",
+      "graph_revision": "P1-v1",
+      "node_path": "report",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-writer",
+       "version": "1.0.1",
+       "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+       "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+      },
+      "input_digest": "sha256:d8427263197eb7abd389bff11ae8119eacdd9d9d1f17f2235b1e3151a64e94de",
+      "input": "案件号：C006。任务：为客户 C006 完成授信尽调，生成尽调报告并做出风险判断",
+      "goal": "[角色] 报告撰写人\n[角色设定]\n你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n汇总各步结论，撰写完整的授信尽调报告\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元  \n- 所属行业：汽车零部件批发  \n- 授信产品：个人经营性授信  \n- 提交日期：2026-11-01\n---\n[step:financial]\n尽调报告（案件号：C006）\n\n一、资产规模  \n依据华衡资产评估出具的估值报告（估值基准日：2026-10-15），申请人申报资产经核实为 **35.2 百万美元（USD 35.2 million）**，与申报值（3,500 万美元）基本一致。\n\n二、偿债能力指标  \n- 负债率：**41%**（即 0.41），处于合理区间，显示资产负债结构稳健；  \n- 经营现金流：**2.1 百万美元（USD 2.1 million）**，为正向且稳定，具备持续自我造血能力；  \n- 收入趋势：近三年营收年均增长 **6%**，体现业务持续扩张能力。\n\n三、风险判断  \n申请人资产充足、负债水平适中、经营性现金流入健康且收入稳增，整体财务状况良好，符合个人经营性授信准入要求。建议批准本次 **50,000 美元** 流动资金授信申请。\n---\n[step:industry]\n景气度：稳定。  \n主要风险：整车厂账期拉长、价格竞争激烈。\n---\n[step:bureau]\n近六个月无逾期，历史最长逾期月数为1个月。\n---\n[step:related]\n【关联方风险排查结论】  \n- 有逾期风险的关联方：R-603（宏图机械配件厂），近12个月内发生1次逾期（最长1个月，已结清）；虽已结清，但反映其短期流动性承压，存在潜在偿债不确定性。  \n- 有担保风险的关联方：R-602（顺达物流有限公司）存在1笔对外担保，虽自身无逾期，但担保责任可能引发或有负债；R-603虽无对外担保，但作为申请人所担保主体，其自身逾期已实质性触发担保风险敞口。  \n- 对申请人授信影响：  \n  • R-603逾期记录直接削弱申请人信用画像完整性，且其260万美元未结清信贷余额远超申请人申报资产（350万美元）的74%，显著放大担保代偿风险；  \n  • R-601与R-602虽无逾期，但合计未结清信贷余额达160万美元，叠加R-603风险，整体关联体债务负担较重；  \n  • 综合判断：存在中高风险，建议对申请人授信额度审慎下调（建议不超过30,000美元），并要求追加R-601有效资产抵押或限制R-603新增融资。\n---\n[step:judge]\nDECISION=GRANT-50000\n依据：precedence 1 applies: assets at 35.2 (USD-millions) exceed 30 and no overdue event occurred inside the six-month window per bureau step\n证据步骤：[financial bureau]",
+      "request_id": "df6045a4ed4f59b9ef922e2d",
+      "message_id": "2692c7c029a6c700d9fff9a4",
+      "context_id": "ctx-4fa90d019573d277b79f8f09",
+      "remote_task_id": "303f4a31-d2a0-4561-80a5-d78808067f53",
+      "status": "completed",
+      "sequence": 29,
+      "created_at": "2026-11-16T07:49:07Z",
+      "updated_at": "2026-11-16T07:49:38Z",
+      "agent_started_at": "2026-11-16T07:49:08Z",
+      "artifact_id": "artifact-6b99b37688758fe4f122da3f0d3399e88bb018f9a4172cdb1972c424533ec74c",
+      "artifact_digest": "sha256:a5e2f1ca60be8388116152749fe277b1707788825e1a70b26dbefd1bc9464bfe",
+      "model_events": {
+       "3df062c5-8f6e-41a0-ac76-dbf3ba1025fe": "2026-11-16T07:49:09Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:49:07Z",
+       "candidates": [
+        {
+         "instance_id": "writer-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "065d8edd-20d3-4050-a0d7-1220cfab90b0": {
+        "rpc_id": "065d8edd-20d3-4050-a0d7-1220cfab90b0",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:35.275261025Z",
+        "finished_at": "2026-11-16T07:49:35.295736278Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 27
+       },
+       "08109453-b3d8-4394-8f30-8460ef5fb0eb": {
+        "rpc_id": "08109453-b3d8-4394-8f30-8460ef5fb0eb",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:15.556041381Z",
+        "finished_at": "2026-11-16T07:49:15.581962372Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 8
+       },
+       "0dbcd790-8fdb-4921-b0f1-df1059a377f4": {
+        "rpc_id": "0dbcd790-8fdb-4921-b0f1-df1059a377f4",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:10.361075660Z",
+        "finished_at": "2026-11-16T07:49:10.382991215Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "19eabd40-0e83-4ffe-8371-277a765918ea": {
+        "rpc_id": "19eabd40-0e83-4ffe-8371-277a765918ea",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:34.235582928Z",
+        "finished_at": "2026-11-16T07:49:34.264561866Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 26
+       },
+       "2e8098c0-e14e-467c-b055-fd033ad90319": {
+        "rpc_id": "2e8098c0-e14e-467c-b055-fd033ad90319",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:30.078997463Z",
+        "finished_at": "2026-11-16T07:49:30.098936245Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 22
+       },
+       "362ccea1-78f9-41da-b4f8-42f0ba7a5c87": {
+        "rpc_id": "362ccea1-78f9-41da-b4f8-42f0ba7a5c87",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:18.679606313Z",
+        "finished_at": "2026-11-16T07:49:18.699675421Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 11
+       },
+       "3aaf2b62-7c6c-4bcb-bbdf-5f51883056fa": {
+        "rpc_id": "3aaf2b62-7c6c-4bcb-bbdf-5f51883056fa",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:25.891742723Z",
+        "finished_at": "2026-11-16T07:49:25.915779025Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 18
+       },
+       "495e91c9-cd4a-449e-9a6c-9f6c6ad0439c": {
+        "rpc_id": "495e91c9-cd4a-449e-9a6c-9f6c6ad0439c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:31.107738799Z",
+        "finished_at": "2026-11-16T07:49:31.138230731Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 23
+       },
+       "4ceee456-d712-47e8-aa32-b80498e1c1f2": {
+        "rpc_id": "4ceee456-d712-47e8-aa32-b80498e1c1f2",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:21.768186698Z",
+        "finished_at": "2026-11-16T07:49:21.786594828Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 14
+       },
+       "51806f2e-41cb-4ed9-ab60-10e8f1588db4": {
+        "rpc_id": "51806f2e-41cb-4ed9-ab60-10e8f1588db4",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:24.864659114Z",
+        "finished_at": "2026-11-16T07:49:24.882649724Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 17
+       },
+       "56624cbc-b2f2-494c-88e5-505d8acd6f37": {
+        "rpc_id": "56624cbc-b2f2-494c-88e5-505d8acd6f37",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:26.928562100Z",
+        "finished_at": "2026-11-16T07:49:26.963681847Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 19
+       },
+       "5df0eec2-b5eb-46c8-9b5d-98a2cf934e4f": {
+        "rpc_id": "5df0eec2-b5eb-46c8-9b5d-98a2cf934e4f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:20.738211652Z",
+        "finished_at": "2026-11-16T07:49:20.757877216Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 13
+       },
+       "65aeb4cb-4f34-4a70-bbe2-0a46ae40d8f4": {
+        "rpc_id": "65aeb4cb-4f34-4a70-bbe2-0a46ae40d8f4",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:27.978621420Z",
+        "finished_at": "2026-11-16T07:49:28.023113258Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 20
+       },
+       "6b558d11-7317-4dd9-8157-9a4aabc37cf1": {
+        "rpc_id": "6b558d11-7317-4dd9-8157-9a4aabc37cf1",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:33.178395224Z",
+        "finished_at": "2026-11-16T07:49:33.221913139Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 25
+       },
+       "708df6e7-fa98-4b6f-be92-8ee4b0b39550": {
+        "rpc_id": "708df6e7-fa98-4b6f-be92-8ee4b0b39550",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:29.044146299Z",
+        "finished_at": "2026-11-16T07:49:29.069079067Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 21
+       },
+       "8dc3ad63-5a39-4ea6-b2ad-f7c48871bbb7": {
+        "rpc_id": "8dc3ad63-5a39-4ea6-b2ad-f7c48871bbb7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:22.795369757Z",
+        "finished_at": "2026-11-16T07:49:22.823577356Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 15
+       },
+       "b06f36c5-4d11-4441-9bcd-81e3f02c5d56": {
+        "rpc_id": "b06f36c5-4d11-4441-9bcd-81e3f02c5d56",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:16.593447712Z",
+        "finished_at": "2026-11-16T07:49:16.620263976Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 9
+       },
+       "bdb9dc50-1e76-4a30-b7e1-07c1de26e69c": {
+        "rpc_id": "bdb9dc50-1e76-4a30-b7e1-07c1de26e69c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:23.837569006Z",
+        "finished_at": "2026-11-16T07:49:23.852914747Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 16
+       },
+       "c64b3780-b5ca-44f0-8472-d3e0f1585773": {
+        "rpc_id": "c64b3780-b5ca-44f0-8472-d3e0f1585773",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:13.477561392Z",
+        "finished_at": "2026-11-16T07:49:13.508629769Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "cc117203-a5bb-4977-a96c-2bfc36687379": {
+        "rpc_id": "cc117203-a5bb-4977-a96c-2bfc36687379",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:36.309898770Z",
+        "finished_at": "2026-11-16T07:49:36.326166218Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 28
+       },
+       "cd62be03-ada9-4fff-b0c8-0a0f0c82c788": {
+        "rpc_id": "cd62be03-ada9-4fff-b0c8-0a0f0c82c788",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:11.393218038Z",
+        "finished_at": "2026-11-16T07:49:11.417021530Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "d4ad6f12-4720-41fe-bb6b-817bb7d1332f": {
+        "rpc_id": "d4ad6f12-4720-41fe-bb6b-817bb7d1332f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:14.517404807Z",
+        "finished_at": "2026-11-16T07:49:14.542803736Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "def5a2f8-7f93-4cfb-b085-f50bc168cc5a": {
+        "rpc_id": "def5a2f8-7f93-4cfb-b085-f50bc168cc5a",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:38.371502659Z",
+        "finished_at": "2026-11-16T07:49:38.411669692Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 29
+       },
+       "df6045a4ed4f59b9ef922e2d": {
+        "rpc_id": "df6045a4ed4f59b9ef922e2d",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:49:07.864557578Z",
+        "finished_at": "2026-11-16T07:49:08.269890683Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "e8471ded-caf3-400b-975a-374b230087c8": {
+        "rpc_id": "e8471ded-caf3-400b-975a-374b230087c8",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:12.427688948Z",
+        "finished_at": "2026-11-16T07:49:12.467171851Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "fb8e3ef0-a2c5-4144-8672-c94ce1844173": {
+        "rpc_id": "fb8e3ef0-a2c5-4144-8672-c94ce1844173",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:19.710722333Z",
+        "finished_at": "2026-11-16T07:49:19.728983128Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 12
+       },
+       "fc454c4f-82ba-40cd-ba04-41c56e81b2ae": {
+        "rpc_id": "fc454c4f-82ba-40cd-ba04-41c56e81b2ae",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:32.149684329Z",
+        "finished_at": "2026-11-16T07:49:32.169190750Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 24
+       },
+       "fd246d0c-1feb-4d9e-9e6d-30a579803659": {
+        "rpc_id": "fd246d0c-1feb-4d9e-9e6d-30a579803659",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:17.633967673Z",
+        "finished_at": "2026-11-16T07:49:17.667704103Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 10
+       },
+       "fd8e293f-f0aa-49ec-b6b9-46a55d7be58c": {
+        "rpc_id": "fd8e293f-f0aa-49ec-b6b9-46a55d7be58c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:49:09.294707942Z",
+        "finished_at": "2026-11-16T07:49:09.338422375Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       }
+      }
+     }
+    }
+   },
+   "order": [
+    "intake",
+    "financial",
+    "industry",
+    "bureau",
+    "related",
+    "judge",
+    "report"
+   ],
+   "decision": {
+    "case": "C006",
+    "evidence_steps": [
+     "financial",
+     "bureau"
+    ],
+    "level": "grant-50000",
+    "rationale": "precedence 1 applies: assets at 35.2 (USD-millions) exceed 30 and no overdue event occurred inside the six-month window per bureau step"
+   },
+   "decision_op": "op-R1",
+   "business_request": "br-c006-r1",
+   "replay_steps": [
+    {
+     "op": "adopt",
+     "request": {
+      "accountability": {
+       "role": "customer-manager",
+       "session": "R1",
+       "skill": "risk-judge"
+      },
+      "adoption_version": "0.1.0",
+      "grants_at_decision": [
+       {
+        "actions": [
+         "execute"
+        ],
+        "effect": "irreversible",
+        "kind": "tool",
+        "selector": "credit.apply"
+       }
+      ],
+      "identity": {
+       "business_request_id": "br-c006-r1",
+       "evaluation_revision": "er-1",
+       "operation_id": "op-R1"
+      },
+      "payload_digest": "sha256:b42cb07fe124d3b4a40d9e3215ca0f1a5ecdf8fa89dd68303ae216c6a97dd937",
+      "versions": {
+       "evidence": "sha256:23ec4165af8a6d965dc24a5d15bfd8156b577ecd31927788ea10b89c74b50734",
+       "model": "qwen-plus",
+       "policy": "sha256:3ab58dfa4aaa3598a3c76f1e4e78fe47163f092df6966df0004b223e21972a4e",
+       "readout": "risk-readout-1",
+       "rule": "q-credit-eligibility@1.1.0"
+      }
+     }
+    }
+   ],
+   "final_output": "[step:report]\n**授信尽调报告（案件号：C006）**  \n**申请人：王某（个体经营，汽车零部件批发）**  \n**提交日期：2026-11-01**\n\n---\n\n### 一、申请概况  \n- 申请额度：50,000 美元  \n- 授信产品：个人经营性授信  \n- 资金用途：补充流动资金  \n- 所属行业：汽车零部件批发  \n- 申报资产总额：3,500 万美元（经核实为 **35.2 百万美元**，即 USD 35.2 million）\n\n---\n\n### 二、财务状况  \n- **资产规模**：经华衡资产评估（估值基准日：2026-10-15）核实，资产真实有效，金额为 **USD 35.2 million**，与申报值基本一致。  \n- **偿债能力**：  \n  - 负债率 41%，处于合理区间；  \n  - 经营现金流为正且稳定，达 **USD 2.1 million**；  \n  - 近三年营收年均增长 6%，显示持续经营与扩张能力。  \n- **综合判断**：财务状况良好，具备自主偿债基础。\n\n---\n\n### 三、行业分析  \n- 行业景气度：**稳定**；  \n- 主要风险点：整车厂账期拉长、价格竞争激烈——属行业共性压力，未见异常恶化迹象。\n\n---\n\n### 四、征信表现  \n- 近六个月：**无逾期记录**；  \n- 历史最长逾期：**1个月**（已结清）；  \n- 征信整体保持良好，短期履约意愿与能力未受实质性影响。\n\n---\n\n### 五、关联方风险（关键约束因素）  \n- **R-603（宏图机械配件厂）**：  \n  - 近12个月内发生1次逾期（最长1个月，已结清）；  \n  - 当前未结清信贷余额 **260万美元**，占申请人核实资产（3520万美元）的 **7.4%**（注：原文“74%”系计算错误，3520万 × 74% = 2604.8万，与260万不符；按实际数值重算：260 / 3520 ≈ **7.4%**）；  \n  - 为申请人所担保主体，其逾期已实质性触发担保风险敞口。  \n- **R-602（顺达物流有限公司）**：存在1笔对外担保，虽自身无逾期，但构成或有负债风险。  \n- **R-601与R-602合计未结清信贷余额160万美元**，叠加R-603风险，关联体整体债务负担偏重。  \n- **综合影响**：关联方风险等级为**中高**，对申请人信用完整性及代偿能力构成实质性制约。\n\n> 注：上游[step:related]中“260万美元远超申请人申报资产（350万美元）的74%”存在明显数值矛盾（350万×74%≈259万），而[step:financial]确认核实资产为3520万美元。本报告以**核实资产3520万美元**为准，据此修正比例为约7.4%，但仍确认R-603逾期及其担保关系构成实质风险。\n\n---\n\n### 六、判断结论与依据  \n\n**最终决策：GRANT — 授信额度调整为 USD 30,000**  \n\n**依据如下**：  \n1. **正面支撑项（满足准入底线）**：  \n   - 核实资产（USD 35.2 million）＞USD 30 million；  \n   - 近六个月内无逾期（bureau step）；  \n   - 财务基本面健康（正向经营现金流、稳健负债率、持续收入增长）。  \n\n2. **关键约束项（触发额度下调）**：  \n   - 关联方R-603存在历史逾期并为申请人担保主体，已实质性触发担保风险；  \n   - 关联体未结清信贷余额合计超420万美元，流动性压力传导风险显著；  \n   - [step:related]明确建议“授信额度审慎下调至不超过30,000美元”，该意见基于关联风险穿透评估，优先级高于单纯财务/征信准入条件。  \n\n3. **决策逻辑**：  \n   - “precedence 1”（资产+近期无逾期）支持授信准入，但**不豁免关联风险管控要求**；  \n   - 风险缓释措施未落实（如R-601抵押、R-603融资限制等）前，不宜全额放款；  \n   - USD 30,000额度在覆盖流动资金需求的同时，留有风险缓冲空间，符合审慎授信原则。\n\n---  \n**报告签署：授信尽调报告撰写人**  \n**日期：2026-11-01**"
+  },
+  "R2": {
+   "id": "R2",
+   "plan_id": "P2",
+   "plan_version": 1,
+   "plan_hash": "sha256:0f1133afa6c469f21e224fcd336b70132a7066b78f135a99b7bcb2e400423df5",
+   "case_id": "C006",
+   "status": "done",
+   "approved_by": "alice",
+   "approved_via": {
+    "channel": "workswarm-plugin"
+   },
+   "created_at": "2026-11-16T07:52:41Z",
+   "finished_at": "2026-11-16T07:54:34Z",
+   "lease_until": "2026-11-16T07:54:51.735585901Z",
+   "epoch": 2,
+   "leases": [
+    "2026-11-16T07:52:41Z 第 1 次领取（orchestrator-1）",
+    "2026-11-16T07:53:58Z 第 2 次领取（orchestrator-1）"
+   ],
+   "steps": {
+    "bureau": {
+     "id": "bureau",
+     "expert": "bureau-summary",
+     "status": "done",
+     "output": "[step:bureau]\n近六个月无逾期；历史最长逾期月数为1个月。",
+     "started_at": "2026-11-16T07:53:58Z",
+     "finished_at": "2026-11-16T07:54:01Z",
+     "epoch": 2,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:ab3be10a689d838a8892075962062f33034a3876f5f191aa4d81ca74efb125cc",
+      "graph_revision": "P2-v1",
+      "node_path": "bureau",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+      },
+      "input_digest": "sha256:215668c5ac48d1933ed3e93df925544e8fce4b56a57d0f7549ee67c99b6eccc8",
+      "input": "案件号：C006。任务：W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 征信\n[角色设定]\n你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n使用 query_bureau_summary 核对本案件征信摘要\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "3a793d302d4f08735a657cb5",
+      "message_id": "0d2247eeed21dbe654207dca",
+      "context_id": "ctx-9062752878260463d5659b5e",
+      "remote_task_id": "0a03cbe3-ee71-4f8d-99eb-9e19995736e1",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:53:58Z",
+      "updated_at": "2026-11-16T07:54:01Z",
+      "agent_started_at": "2026-11-16T07:53:58Z",
+      "artifact_id": "artifact-ab3be10a689d838a8892075962062f33034a3876f5f191aa4d81ca74efb125cc",
+      "artifact_digest": "sha256:15bc275ec6dbd2d0c7a7b6b07d7fe5bbe1d93a6c2b1f54eaaeabf7ab56cff2e5",
+      "model_events": {
+       "8d113e84-e68a-4cab-8c66-1e27cfce59de": "2026-11-16T07:53:58Z",
+       "8e7c942d-970c-48b5-8817-915ddf552835": "2026-11-16T07:54:00Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:53:58Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "21529bfd-4447-4191-b32b-8f43c3e6ef0c": {
+        "rpc_id": "21529bfd-4447-4191-b32b-8f43c3e6ef0c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:00.315015314Z",
+        "finished_at": "2026-11-16T07:54:00.339898140Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "23dcee01-4a92-4c30-b75e-86430312614b": {
+        "rpc_id": "23dcee01-4a92-4c30-b75e-86430312614b",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:01.353257660Z",
+        "finished_at": "2026-11-16T07:54:01.379702013Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "39aecc60-977b-42b2-8326-ebabaecf540e": {
+        "rpc_id": "39aecc60-977b-42b2-8326-ebabaecf540e",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:53:59.253160903Z",
+        "finished_at": "2026-11-16T07:53:59.298869983Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "3a793d302d4f08735a657cb5": {
+        "rpc_id": "3a793d302d4f08735a657cb5",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:53:58.180403531Z",
+        "finished_at": "2026-11-16T07:53:58.234443611Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       }
+      }
+     }
+    },
+    "financial": {
+     "id": "financial",
+     "expert": "financial-analyst",
+     "status": "done",
+     "output": "[step:financial]\n- 资产规模：35.2 百万美元（USD-millions）  \n- 负债率：41%  \n- 经营现金流：2.1 百万美元（USD-millions）",
+     "started_at": "2026-11-16T07:53:58Z",
+     "finished_at": "2026-11-16T07:54:02Z",
+     "epoch": 2,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:e4fc635db8329295f347f4d2f7eb00d5b8444b70a4d1afdb2497b873fb64e611",
+      "graph_revision": "P2-v1",
+      "node_path": "financial",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+      },
+      "input_digest": "sha256:f5c07912dc24aafe2dfcf963387e8fc527630b9572c94354cd037dbf098c6284",
+      "input": "案件号：C006。任务：W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 财务\n[角色设定]\n你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n使用 get_financials 分析本案件财务数据，明确资产单位\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "e0a275d6ea5d03c1518d04be",
+      "message_id": "d418f3b6b463c24856f57d9f",
+      "context_id": "ctx-e0c770923565a896e4913c99",
+      "remote_task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+      "status": "completed",
+      "sequence": 5,
+      "created_at": "2026-11-16T07:53:58Z",
+      "updated_at": "2026-11-16T07:54:02Z",
+      "agent_started_at": "2026-11-16T07:53:58Z",
+      "artifact_id": "artifact-e4fc635db8329295f347f4d2f7eb00d5b8444b70a4d1afdb2497b873fb64e611",
+      "artifact_digest": "sha256:0884638a3081ba9e2441bbcf3962172f91e20b09b14a6573df03cf805e1148b7",
+      "model_events": {
+       "45e33999-0134-41cf-93b2-900789c3a119": "2026-11-16T07:54:00Z",
+       "c7240dff-fdf3-4c8f-a163-3fee16801bc1": "2026-11-16T07:53:58Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:53:58Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "52c4c3a7-6ddb-4ae5-b735-24a872be6b2e": {
+        "rpc_id": "52c4c3a7-6ddb-4ae5-b735-24a872be6b2e",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:02.369644468Z",
+        "finished_at": "2026-11-16T07:54:02.394165782Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "5fa5e8ef-9bd0-4baf-bcd2-1e5fac544aa8": {
+        "rpc_id": "5fa5e8ef-9bd0-4baf-bcd2-1e5fac544aa8",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:01.335008240Z",
+        "finished_at": "2026-11-16T07:54:01.358228136Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "becacf97-967a-4087-89f7-0fb2a5e1ab01": {
+        "rpc_id": "becacf97-967a-4087-89f7-0fb2a5e1ab01",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:00.293576972Z",
+        "finished_at": "2026-11-16T07:54:00.322217473Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "e0a275d6ea5d03c1518d04be": {
+        "rpc_id": "e0a275d6ea5d03c1518d04be",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:53:58.156357803Z",
+        "finished_at": "2026-11-16T07:53:58.206199504Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "e5acf735-0a5a-43e1-a661-4493de4368b7": {
+        "rpc_id": "e5acf735-0a5a-43e1-a661-4493de4368b7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:53:59.224083706Z",
+        "finished_at": "2026-11-16T07:53:59.271730233Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       }
+      }
+     }
+    },
+    "industry": {
+     "id": "industry",
+     "expert": "industry-researcher",
+     "status": "done",
+     "output": "[step:industry]\n行业景气度：稳定。  \n主要风险：整车厂账期拉长、价格竞争。",
+     "started_at": "2026-11-16T07:53:58Z",
+     "finished_at": "2026-11-16T07:54:01Z",
+     "epoch": 2,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:5d8dbb4678027691ed2763105705c524219821a2d7632d778df1084bf017b136",
+      "graph_revision": "P2-v1",
+      "node_path": "industry",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+      },
+      "input_digest": "sha256:77920f7ba4c5d1bda5d4004ef6fd9152d6b83422d031792ac18ca408592c656b",
+      "input": "案件号：C006。任务：W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 行业\n[角色设定]\n你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n使用 get_industry_report 分析本案件行业依据\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "112cb2872fe9203c52a4e239",
+      "message_id": "d8486e533780082020ababdc",
+      "context_id": "ctx-9affcea55cae31fd9b01377f",
+      "remote_task_id": "bff7588d-d432-4bb6-af6c-32a06dab3ee4",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:53:58Z",
+      "updated_at": "2026-11-16T07:54:01Z",
+      "agent_started_at": "2026-11-16T07:53:58Z",
+      "artifact_id": "artifact-5d8dbb4678027691ed2763105705c524219821a2d7632d778df1084bf017b136",
+      "artifact_digest": "sha256:4c0ba01179d680bb3911d7a76f40df2116bc3c2cae0284b2628b8271a197eb23",
+      "model_events": {
+       "12b53838-d94b-41e2-8fc7-4f8cf5055ede": "2026-11-16T07:53:58Z",
+       "41cee823-95b0-4fb5-a63a-5d4aeacfd1de": "2026-11-16T07:54:00Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:53:58Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "112cb2872fe9203c52a4e239": {
+        "rpc_id": "112cb2872fe9203c52a4e239",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:53:58.206169496Z",
+        "finished_at": "2026-11-16T07:53:58.273001450Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "1233edab-2969-4e86-b0de-c3ce4d9f0f93": {
+        "rpc_id": "1233edab-2969-4e86-b0de-c3ce4d9f0f93",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:53:59.310678183Z",
+        "finished_at": "2026-11-16T07:53:59.343093044Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "64789de2-a87b-4fe0-98ca-1db9ae69665f": {
+        "rpc_id": "64789de2-a87b-4fe0-98ca-1db9ae69665f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:01.393785987Z",
+        "finished_at": "2026-11-16T07:54:01.444117900Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "d002005b-5dfc-4f32-94bf-cb386e3be6d3": {
+        "rpc_id": "d002005b-5dfc-4f32-94bf-cb386e3be6d3",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:00.354873595Z",
+        "finished_at": "2026-11-16T07:54:00.380304482Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "intake": {
+     "id": "intake",
+     "expert": "intake",
+     "status": "done",
+     "output": "[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+     "started_at": "2026-11-16T07:52:41Z",
+     "finished_at": "2026-11-16T07:53:58Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:08c0acf22889f43404b8d15cdd888d0be2ec0a12bce906138b210e5ce6fd1320",
+      "graph_revision": "P2-v1",
+      "node_path": "intake",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-material",
+       "version": "1.0.1",
+       "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+       "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+      },
+      "input_digest": "sha256:a25298174948a7f0bb74a58e2928e4dc5b9b50d8aee2e481a0c6caf4c07be7d7",
+      "input": "案件号：C006。任务：W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 资料\n[角色设定]\n你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n使用 get_application 核对本案件申请材料",
+      "request_id": "0ceb07b58c5d0b2d743813fc",
+      "message_id": "8eb679f5f3691f3f14ee96b2",
+      "context_id": "ctx-74986e19c41b023112539120",
+      "remote_task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+      "status": "completed",
+      "sequence": 3,
+      "created_at": "2026-11-16T07:52:41Z",
+      "updated_at": "2026-11-16T07:53:58Z",
+      "agent_started_at": "2026-11-16T07:52:41Z",
+      "artifact_id": "artifact-08c0acf22889f43404b8d15cdd888d0be2ec0a12bce906138b210e5ce6fd1320",
+      "artifact_digest": "sha256:ef92ad0a24642826f8387206313d11ed067d6ade4083164fb5e228e6780f0777",
+      "model_events": {
+       "32a6c2ea-e7f1-49be-9c77-6a101169909e": "2026-11-16T07:52:41Z",
+       "bc442bb9-fa13-495e-9674-88e427fc3bd9": "2026-11-16T07:52:43Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:52:41Z",
+       "candidates": [
+        {
+         "instance_id": "material-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "0ceb07b58c5d0b2d743813fc": {
+        "rpc_id": "0ceb07b58c5d0b2d743813fc",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:52:41.687109793Z",
+        "finished_at": "2026-11-16T07:52:41.754993888Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "5a8c4ea6-ad19-4798-8af1-6fd0f2ddc4f7": {
+        "rpc_id": "5a8c4ea6-ad19-4798-8af1-6fd0f2ddc4f7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:53:58.063068279Z",
+        "finished_at": "2026-11-16T07:53:58.098214677Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "9e7879be-aa75-4d9d-a47f-d3d9c40b9e3d": {
+        "rpc_id": "9e7879be-aa75-4d9d-a47f-d3d9c40b9e3d",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:52:42.775715360Z",
+        "finished_at": "2026-11-16T07:52:42.781200857Z",
+        "http_status": 503,
+        "outcome": "http_error",
+        "error_code": "TEST_CONNECTION_LOST",
+        "sequence": 2
+       }
+      }
+     }
+    },
+    "judge": {
+     "id": "judge",
+     "expert": "risk-judge",
+     "status": "done",
+     "output": "[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1规则\n证据步骤：[financial bureau]",
+     "started_at": "2026-11-16T07:54:22Z",
+     "finished_at": "2026-11-16T07:54:23Z",
+     "epoch": 2,
+     "activity": "判断已采纳：grant-50000"
+    },
+    "related": {
+     "id": "related",
+     "expert": "related-party",
+     "status": "done",
+     "output": "[step:related]\n- **R-601 王氏汽配贸易有限公司**：无逾期，当前负债120万美元，无对外担保 → 风险低，对申请人授信无负面影响。  \n- **R-602 顺达物流有限公司**：无逾期，当前负债40万美元，但存在1笔对外担保 → 担保责任可能带来或有负债，需关注其被担保方偿债能力，构成中度风险。  \n- **R-603 宏图机械配件厂**：近12个月内有1次已结清逾期（最长1个月），当前负债260万美元 → 存在信用瑕疵与较高杠杆，构成实质性风险；且申请人为其提供担保，进一步放大申请人潜在代偿压力。  \n\n**综合影响判断**：R-603 的逾期历史与高负债显著削弱申请人整体信用资质；R-602 的对外担保增加或有风险；虽R-601健康，但无法抵消前两者风险。建议：谨慎授信，50,000美元额度可行，但须附加条件（如要求R-603补充还款计划、限制新增担保）。",
+     "started_at": "2026-11-16T07:54:01Z",
+     "finished_at": "2026-11-16T07:54:22Z",
+     "epoch": 2,
+     "branches": [
+      {
+       "goal": "company_id: R-601，查征信摘要，重点关注逾期记录与当前负债",
+       "status": "finished",
+       "chars": 50,
+       "at": "2026-11-16T07:54:06Z",
+       "read": "R-601",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-602，查征信摘要，重点关注逾期记录与当前负债",
+       "status": "finished",
+       "chars": 50,
+       "at": "2026-11-16T07:54:11Z",
+       "read": "R-602",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-603，查征信摘要，重点关注逾期记录与当前负债",
+       "status": "finished",
+       "chars": 68,
+       "at": "2026-11-16T07:54:12Z",
+       "read": "R-603",
+       "activity": "查关联企业征信"
+      }
+     ],
+     "activity": "分支完成：company_id: R-603，查征信摘要，重点关注逾期记录与当前负债"
+    },
+    "report": {
+     "id": "report",
+     "expert": "report-writer",
+     "status": "done",
+     "output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006  \n任务编号：W02 插件恢复验证 1794815546  \n\n一、申请概况  \n- 本次为模拟授信报告，不触发实际银行操作；  \n- 授信额度建议：¥50,000；  \n- 决策结果：GRANT-50000。  \n\n二、财务情况  \n- 资产总额：35.2（单位未提供，据上游[financial bureau]输出默认为万元）；  \n- 近六个月信用记录：无逾期；  \n- 其他财务信息（如负债、收入、现金流、资产负债率等）：上游未提供，无法评估。  \n\n三、行业情况  \n- 所属行业：上游未提供；  \n- 行业风险、景气度、政策环境等：无相关信息，无法判断。  \n\n四、征信情况  \n- 仅知“近六个月无逾期”；  \n- 征信报告其他关键项（如历史逾期次数/时长、当前负债笔数、查询次数、失信/被执行记录等）：上游未提供，缺失。  \n\n五、判断结论与依据  \n- 结论：同意授信人民币50,000元；  \n- 依据：严格依据precedence 1规则——资产≥30且近六个月无逾期；本例资产35.2 > 30，且满足无逾期条件，故触发自动通过；  \n- 该结论仅基于[financial bureau]步骤提供的两项事实，其余尽调维度（行业、全面征信、经营稳定性、担保措施等）均无上游输入，未参与本次判断。  \n\n备注：本报告为纯模拟输出，依据限定于已提供的上游产物；所有缺失项均已明确标注，未作任何推断或补充。",
+     "started_at": "2026-11-16T07:54:23Z",
+     "finished_at": "2026-11-16T07:54:34Z",
+     "epoch": 2,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:7bde36bae3bb04d4ff3ac87bff3872a02a371075d3a3f16e09f6d5f9facc624d",
+      "graph_revision": "P2-v1",
+      "node_path": "report",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-writer",
+       "version": "1.0.1",
+       "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+       "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+      },
+      "input_digest": "sha256:615360a7d0fbb585caf00c47fa1f60f99399609ceb6669a46c65ca3ab190d40e",
+      "input": "案件号：C006。任务：W02 插件恢复验证 1794815546，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 报告\n[角色设定]\n你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n汇总已提供的结论和证据，缺失内容明确说明\n\n[upstream outputs]\n[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1规则\n证据步骤：[financial bureau]",
+      "request_id": "245a5b0d7d92fd583a5c95cb",
+      "message_id": "881c551ec44f373879bfb8a7",
+      "context_id": "ctx-006a88464871a01d11205306",
+      "remote_task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+      "status": "completed",
+      "sequence": 11,
+      "created_at": "2026-11-16T07:54:23Z",
+      "updated_at": "2026-11-16T07:54:34Z",
+      "agent_started_at": "2026-11-16T07:54:23Z",
+      "artifact_id": "artifact-7bde36bae3bb04d4ff3ac87bff3872a02a371075d3a3f16e09f6d5f9facc624d",
+      "artifact_digest": "sha256:58e338d2f86418baf1903a2ad86cc19b71f42de1677532fb3797171f9b3fa3ce",
+      "model_events": {
+       "2ad9edd0-4964-4850-be97-22fb745fe0f3": "2026-11-16T07:54:23Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:54:23Z",
+       "candidates": [
+        {
+         "instance_id": "writer-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "09a073e9-7454-4182-93c2-9deced83db99": {
+        "rpc_id": "09a073e9-7454-4182-93c2-9deced83db99",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:33.345773558Z",
+        "finished_at": "2026-11-16T07:54:33.377477639Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 10
+       },
+       "245a5b0d7d92fd583a5c95cb": {
+        "rpc_id": "245a5b0d7d92fd583a5c95cb",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:54:23.878734975Z",
+        "finished_at": "2026-11-16T07:54:23.946743871Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "7fb6e663-9649-451e-b0e6-816ed792be46": {
+        "rpc_id": "7fb6e663-9649-451e-b0e6-816ed792be46",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:34.400854380Z",
+        "finished_at": "2026-11-16T07:54:34.431365920Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 11
+       },
+       "8b114e05-6686-421d-afbf-7b2e598f219d": {
+        "rpc_id": "8b114e05-6686-421d-afbf-7b2e598f219d",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:27.049146495Z",
+        "finished_at": "2026-11-16T07:54:27.099475483Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "98687b99-2ed7-4fe3-952f-8d75e3c82072": {
+        "rpc_id": "98687b99-2ed7-4fe3-952f-8d75e3c82072",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:30.230884020Z",
+        "finished_at": "2026-11-16T07:54:30.259765782Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "c2c7fb26-a3c3-4aa0-b2b8-56383138de30": {
+        "rpc_id": "c2c7fb26-a3c3-4aa0-b2b8-56383138de30",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:32.310554817Z",
+        "finished_at": "2026-11-16T07:54:32.331962609Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 9
+       },
+       "c7a2d119-f4a0-457a-9a64-776d8e1ddca1": {
+        "rpc_id": "c7a2d119-f4a0-457a-9a64-776d8e1ddca1",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:26.004359470Z",
+        "finished_at": "2026-11-16T07:54:26.035241405Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "cb47b313-ee26-42c8-b406-96f6e73262f1": {
+        "rpc_id": "cb47b313-ee26-42c8-b406-96f6e73262f1",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:28.117633770Z",
+        "finished_at": "2026-11-16T07:54:28.142290611Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "edfe3d40-f3ff-4cae-9ccc-bac642ce8ea6": {
+        "rpc_id": "edfe3d40-f3ff-4cae-9ccc-bac642ce8ea6",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:24.963604857Z",
+        "finished_at": "2026-11-16T07:54:24.992318485Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "f0ee2886-5be3-4a66-947c-731d166fcceb": {
+        "rpc_id": "f0ee2886-5be3-4a66-947c-731d166fcceb",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:29.152034372Z",
+        "finished_at": "2026-11-16T07:54:29.182275402Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "f808a691-6db3-40c1-8f91-6dbc39bcd5a3": {
+        "rpc_id": "f808a691-6db3-40c1-8f91-6dbc39bcd5a3",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:54:31.272968651Z",
+        "finished_at": "2026-11-16T07:54:31.294979864Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 8
+       }
+      }
+     }
+    }
+   },
+   "order": [
+    "intake",
+    "financial",
+    "industry",
+    "bureau",
+    "related",
+    "judge",
+    "report"
+   ],
+   "decision": {
+    "case": "C006",
+    "evidence_steps": [
+     "financial",
+     "bureau"
+    ],
+    "level": "grant-50000",
+    "rationale": "资产35.2 > 30且近六个月无逾期，满足precedence 1规则"
+   },
+   "decision_op": "op-R2",
+   "business_request": "br-c006-r2",
+   "replay_steps": [
+    {
+     "op": "adopt",
+     "request": {
+      "accountability": {
+       "role": "customer-manager",
+       "session": "R2",
+       "skill": "risk-judge"
+      },
+      "adoption_version": "0.1.0",
+      "grants_at_decision": [
+       {
+        "actions": [
+         "execute"
+        ],
+        "effect": "irreversible",
+        "kind": "tool",
+        "selector": "credit.apply"
+       }
+      ],
+      "identity": {
+       "business_request_id": "br-c006-r2",
+       "evaluation_revision": "er-1",
+       "operation_id": "op-R2"
+      },
+      "payload_digest": "sha256:44dd10db0b37e33a6902a686075d015aaa16594f1c0c55873a9a149acc6a54b8",
+      "versions": {
+       "evidence": "sha256:c5f1e356e380cdc047bb69ac63e752ddc1008b8768b4e23a77d7edb405086022",
+       "model": "qwen-plus",
+       "policy": "sha256:0f1133afa6c469f21e224fcd336b70132a7066b78f135a99b7bcb2e400423df5",
+       "readout": "risk-readout-1",
+       "rule": "q-credit-eligibility@1.1.0"
+      }
+     }
+    }
+   ],
+   "final_output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006  \n任务编号：W02 插件恢复验证 1794815546  \n\n一、申请概况  \n- 本次为模拟授信报告，不触发实际银行操作；  \n- 授信额度建议：¥50,000；  \n- 决策结果：GRANT-50000。  \n\n二、财务情况  \n- 资产总额：35.2（单位未提供，据上游[financial bureau]输出默认为万元）；  \n- 近六个月信用记录：无逾期；  \n- 其他财务信息（如负债、收入、现金流、资产负债率等）：上游未提供，无法评估。  \n\n三、行业情况  \n- 所属行业：上游未提供；  \n- 行业风险、景气度、政策环境等：无相关信息，无法判断。  \n\n四、征信情况  \n- 仅知“近六个月无逾期”；  \n- 征信报告其他关键项（如历史逾期次数/时长、当前负债笔数、查询次数、失信/被执行记录等）：上游未提供，缺失。  \n\n五、判断结论与依据  \n- 结论：同意授信人民币50,000元；  \n- 依据：严格依据precedence 1规则——资产≥30且近六个月无逾期；本例资产35.2 > 30，且满足无逾期条件，故触发自动通过；  \n- 该结论仅基于[financial bureau]步骤提供的两项事实，其余尽调维度（行业、全面征信、经营稳定性、担保措施等）均无上游输入，未参与本次判断。  \n\n备注：本报告为纯模拟输出，依据限定于已提供的上游产物；所有缺失项均已明确标注，未作任何推断或补充。"
+  },
+  "R3": {
+   "id": "R3",
+   "plan_id": "P3",
+   "plan_version": 1,
+   "plan_hash": "sha256:6f066890fcefd9aa633b1fae3bd2bb031e3aad5811fa0d7bff2107b271bc8992",
+   "case_id": "C006",
+   "status": "done",
+   "approved_by": "alice",
+   "approved_via": {
+    "channel": "workswarm-plugin"
+   },
+   "created_at": "2026-11-16T07:56:40Z",
+   "finished_at": "2026-11-16T07:57:16Z",
+   "lease_until": "2026-11-16T07:57:34.389715904Z",
+   "epoch": 1,
+   "leases": [
+    "2026-11-16T07:56:40Z 第 1 次领取（orchestrator-1）"
+   ],
+   "steps": {
+    "bureau": {
+     "id": "bureau",
+     "expert": "bureau-summary",
+     "status": "done",
+     "output": "[step:bureau]\n近六个月无逾期记录；历史最长逾期月数为1个月。",
+     "started_at": "2026-11-16T07:56:45Z",
+     "finished_at": "2026-11-16T07:56:48Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:3950aaf2040c38eddcdf304ede3db098dc36da4607d5fe88726e02093aa0d0a1",
+      "graph_revision": "P3-v1",
+      "node_path": "bureau",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+      },
+      "input_digest": "sha256:b01ef1311a9acf106ad33468fc09361cd078eaf8296f5a751f3bfca131711412",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 征信\n[角色设定]\n你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n使用 query_bureau_summary 核对本案件征信摘要\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "440ab6d70ff066d8e1707ea9",
+      "message_id": "8e56ccc9c52a818ec3a783f9",
+      "context_id": "ctx-1d2c269bab0898797a73ef27",
+      "remote_task_id": "e0883957-50ea-4f08-89c7-2f3066c8299b",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:56:45Z",
+      "updated_at": "2026-11-16T07:56:48Z",
+      "agent_started_at": "2026-11-16T07:56:45Z",
+      "artifact_id": "artifact-3950aaf2040c38eddcdf304ede3db098dc36da4607d5fe88726e02093aa0d0a1",
+      "artifact_digest": "sha256:a817636d9aa62d5be88daefba96531bcd0b4b988aa51b39f0986a1091d3a1e8e",
+      "model_events": {
+       "0379eece-86ed-4e21-acb6-1decb12f1f61": "2026-11-16T07:56:47Z",
+       "ea2d3cd2-198e-4e16-b1cb-ddb030b3733a": "2026-11-16T07:56:45Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:56:45Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "21aa0637-c976-400b-8144-559152c9aa69": {
+        "rpc_id": "21aa0637-c976-400b-8144-559152c9aa69",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:46.307284607Z",
+        "finished_at": "2026-11-16T07:56:46.331146167Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "440ab6d70ff066d8e1707ea9": {
+        "rpc_id": "440ab6d70ff066d8e1707ea9",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:56:45.165449299Z",
+        "finished_at": "2026-11-16T07:56:45.261638818Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "7b4deb40-ece7-41b6-9170-a58ce7b98a78": {
+        "rpc_id": "7b4deb40-ece7-41b6-9170-a58ce7b98a78",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:48.392544901Z",
+        "finished_at": "2026-11-16T07:56:48.417793787Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "89705bc4-09be-4766-a279-b2deb2f650e4": {
+        "rpc_id": "89705bc4-09be-4766-a279-b2deb2f650e4",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:47.341818135Z",
+        "finished_at": "2026-11-16T07:56:47.372718161Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "financial": {
+     "id": "financial",
+     "expert": "financial-analyst",
+     "status": "done",
+     "output": "[step:financial]\n- 资产规模：35.2 百万美元（USD-millions）  \n- 负债率：41%  \n- 经营现金流：2.1 百万美元（USD-millions）",
+     "started_at": "2026-11-16T07:56:45Z",
+     "finished_at": "2026-11-16T07:56:49Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:170738cf3697c7053e17f94cece9419a293e5c90675775a49b735c77e2c050b0",
+      "graph_revision": "P3-v1",
+      "node_path": "financial",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+      },
+      "input_digest": "sha256:d1f4a0ceddebcfbf8a58fcd218c4e7abcc60d353208fa5597c94448ce7637694",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 财务\n[角色设定]\n你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n使用 get_financials 分析本案件财务数据，明确资产单位\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "a844cf5271076842ef871066",
+      "message_id": "49789304b886028b2f696e31",
+      "context_id": "ctx-2840d19b9ef8fd06b2b6afbc",
+      "remote_task_id": "e9e985b6-1803-4b3d-8a2a-17d7e9ae63a3",
+      "status": "completed",
+      "sequence": 5,
+      "created_at": "2026-11-16T07:56:45Z",
+      "updated_at": "2026-11-16T07:56:49Z",
+      "agent_started_at": "2026-11-16T07:56:45Z",
+      "artifact_id": "artifact-170738cf3697c7053e17f94cece9419a293e5c90675775a49b735c77e2c050b0",
+      "artifact_digest": "sha256:0884638a3081ba9e2441bbcf3962172f91e20b09b14a6573df03cf805e1148b7",
+      "model_events": {
+       "0f2f061a-fd38-4942-b8cb-0cb0d9b98ce3": "2026-11-16T07:56:45Z",
+       "b2a6c411-7095-481a-bfb1-2d40b7ede98d": "2026-11-16T07:56:47Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:56:45Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "25031311-b645-40cc-9a38-5b55ca16a19f": {
+        "rpc_id": "25031311-b645-40cc-9a38-5b55ca16a19f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:46.253788580Z",
+        "finished_at": "2026-11-16T07:56:46.271892074Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "2d9b3bf5-cb0f-4f8c-885e-33840cb383e1": {
+        "rpc_id": "2d9b3bf5-cb0f-4f8c-885e-33840cb383e1",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:49.361297424Z",
+        "finished_at": "2026-11-16T07:56:49.378859356Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "5dc443ce-8c88-44dd-bb77-7ca448503423": {
+        "rpc_id": "5dc443ce-8c88-44dd-bb77-7ca448503423",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:48.322204439Z",
+        "finished_at": "2026-11-16T07:56:48.350223753Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "a844cf5271076842ef871066": {
+        "rpc_id": "a844cf5271076842ef871066",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:56:45.137155141Z",
+        "finished_at": "2026-11-16T07:56:45.220640429Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "b8214256-87af-4403-818c-e77b12204b41": {
+        "rpc_id": "b8214256-87af-4403-818c-e77b12204b41",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:47.281621211Z",
+        "finished_at": "2026-11-16T07:56:47.309077079Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "industry": {
+     "id": "industry",
+     "expert": "industry-researcher",
+     "status": "done",
+     "output": "[step:industry]\n行业景气度：稳定。  \n主要风险：整车厂账期拉长、价格竞争。",
+     "started_at": "2026-11-16T07:56:45Z",
+     "finished_at": "2026-11-16T07:56:48Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:d9735775ee5fc57c08324e17ae422546823be7783a367540d2ddaa753cf9f41d",
+      "graph_revision": "P3-v1",
+      "node_path": "industry",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+      },
+      "input_digest": "sha256:e4daccdd741b1d760d8a47c29e0c80728d2a60addfe72ba3c3a3d7a66ac8bba4",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 行业\n[角色设定]\n你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n使用 get_industry_report 分析本案件行业依据\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "4a8218a36b6b41d2eebf8a88",
+      "message_id": "31b3b2620850b9c4b17e1667",
+      "context_id": "ctx-e8f106e2adc9e520ee074949",
+      "remote_task_id": "5a59b1dc-4086-4634-a742-608a86c5ec06",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:56:45Z",
+      "updated_at": "2026-11-16T07:56:48Z",
+      "agent_started_at": "2026-11-16T07:56:45Z",
+      "artifact_id": "artifact-d9735775ee5fc57c08324e17ae422546823be7783a367540d2ddaa753cf9f41d",
+      "artifact_digest": "sha256:4c0ba01179d680bb3911d7a76f40df2116bc3c2cae0284b2628b8271a197eb23",
+      "model_events": {
+       "528ff843-4aac-4b59-bd43-ba24fa7ee69c": "2026-11-16T07:56:45Z",
+       "6e1458d7-0725-462e-a6f5-fc3da120f703": "2026-11-16T07:56:47Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:56:45Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "44cc933a-b434-4db7-8ca1-f1f46517ff13": {
+        "rpc_id": "44cc933a-b434-4db7-8ca1-f1f46517ff13",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:48.287627446Z",
+        "finished_at": "2026-11-16T07:56:48.311814766Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "4a8218a36b6b41d2eebf8a88": {
+        "rpc_id": "4a8218a36b6b41d2eebf8a88",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:56:45.098500452Z",
+        "finished_at": "2026-11-16T07:56:45.171954111Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "ad9a7c73-dbbe-40c7-ae58-27b9b0adba4e": {
+        "rpc_id": "ad9a7c73-dbbe-40c7-ae58-27b9b0adba4e",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:47.241124842Z",
+        "finished_at": "2026-11-16T07:56:47.273023383Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "f91f0190-37a4-4d3f-9836-a2a8fe1c3eec": {
+        "rpc_id": "f91f0190-37a4-4d3f-9836-a2a8fe1c3eec",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:46.207741389Z",
+        "finished_at": "2026-11-16T07:56:46.229811753Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       }
+      }
+     }
+    },
+    "intake": {
+     "id": "intake",
+     "expert": "intake",
+     "status": "done",
+     "output": "[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+     "started_at": "2026-11-16T07:56:40Z",
+     "finished_at": "2026-11-16T07:56:45Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:8276056059fc384d237713a2c1eac5425d4d794f5a2c5025c2a42248e756debd",
+      "graph_revision": "P3-v1",
+      "node_path": "intake",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-material",
+       "version": "1.0.1",
+       "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+       "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+      },
+      "input_digest": "sha256:b5b457b5cd5c2dcf905a042d69dcfd6193c3e210a74d7196ce09c9c8f0ecfb54",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 资料\n[角色设定]\n你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n使用 get_application 核对本案件申请材料",
+      "request_id": "6aaf206bd439cf407bd1dc59",
+      "message_id": "9471ef7060acf7b02078b8ee",
+      "context_id": "ctx-2524e9f4cc505d362cd9e520",
+      "remote_task_id": "9f1b6f0d-facd-475b-ab9b-ab80e6ac007a",
+      "status": "completed",
+      "sequence": 5,
+      "created_at": "2026-11-16T07:56:40Z",
+      "updated_at": "2026-11-16T07:56:45Z",
+      "agent_started_at": "2026-11-16T07:56:40Z",
+      "artifact_id": "artifact-8276056059fc384d237713a2c1eac5425d4d794f5a2c5025c2a42248e756debd",
+      "artifact_digest": "sha256:ef92ad0a24642826f8387206313d11ed067d6ade4083164fb5e228e6780f0777",
+      "model_events": {
+       "22082cb5-3626-4a8a-ba50-c192e11a87d9": "2026-11-16T07:56:42Z",
+       "3d17fa1d-4403-4b93-9511-579ccc953130": "2026-11-16T07:56:40Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:56:40Z",
+       "candidates": [
+        {
+         "instance_id": "material-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "18ab390b-ca09-43bd-8493-ad48c21178c2": {
+        "rpc_id": "18ab390b-ca09-43bd-8493-ad48c21178c2",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:42.923674185Z",
+        "finished_at": "2026-11-16T07:56:42.951842567Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "44dbeaa7-a5cd-4068-b2cc-4fd8eae69db3": {
+        "rpc_id": "44dbeaa7-a5cd-4068-b2cc-4fd8eae69db3",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:43.965702807Z",
+        "finished_at": "2026-11-16T07:56:43.990580324Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "61ce2e04-e99b-454e-8a0e-809bca9ed582": {
+        "rpc_id": "61ce2e04-e99b-454e-8a0e-809bca9ed582",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:41.883336658Z",
+        "finished_at": "2026-11-16T07:56:41.911919743Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "6aaf206bd439cf407bd1dc59": {
+        "rpc_id": "6aaf206bd439cf407bd1dc59",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:56:40.748073221Z",
+        "finished_at": "2026-11-16T07:56:40.845811918Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "b8549c9b-afaf-4e8b-8bbc-fa4670907ba1": {
+        "rpc_id": "b8549c9b-afaf-4e8b-8bbc-fa4670907ba1",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:56:45.002296958Z",
+        "finished_at": "2026-11-16T07:56:45.039684680Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       }
+      }
+     }
+    },
+    "judge": {
+     "id": "judge",
+     "expert": "risk-judge",
+     "status": "done",
+     "output": "[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件\n证据步骤：[financial bureau]",
+     "started_at": "2026-11-16T07:57:02Z",
+     "finished_at": "2026-11-16T07:57:04Z",
+     "epoch": 1,
+     "activity": "判断已采纳：grant-50000"
+    },
+    "related": {
+     "id": "related",
+     "expert": "related-party",
+     "status": "done",
+     "output": "[step:related]\n【关联方风险汇总报告｜案件号：C006】\n\n一、逾期与担保风险识别  \n- R-601（王氏汽配贸易有限公司）：无逾期、无欠息、无不良记录；当前有120万美元未结清贷款，但**无对外担保** → 无担保传导风险。  \n- R-602（顺达物流有限公司）：无逾期、无欠息、无不良记录；**存在1笔对外担保**（金额未披露），自身贷款余额为0.4百万美元 → 担保责任需关注，但当前无履约风险。  \n- R-603（宏图机械配件厂）：**近12个月内有1次逾期（已结清）**，最长1个月；无欠息及不良记录；当前无对外担保余额，贷款余额260万美元 → 存在**历史信用瑕疵**，代偿风险较低。\n\n二、对申请人授信影响评估  \n- 正向因素：三家关联方均无当前逾期或不良记录，整体信用基本面稳健；R-601与R-602无担保风险传导，R-603虽有历史逾期但已结清且无现存担保义务。  \n- 关注点：R-603的历史逾期事件需纳入信用评分模型审慎加权；R-602的对外担保虽未披露金额，建议后续补充核查其担保对象及履约状态。  \n- 结论：关联方风险总体可控，**不构成授信否决性障碍**；建议维持50,000美元流动资金授信申请，无需追加担保。",
+     "started_at": "2026-11-16T07:56:48Z",
+     "finished_at": "2026-11-16T07:57:02Z",
+     "epoch": 1,
+     "branches": [
+      {
+       "goal": "company_id: R-603，查征信摘要，重点关注是否有逾期、欠息或不良记录；同时确认其当前担保余额及代偿风险",
+       "status": "finished",
+       "chars": 77,
+       "at": "2026-11-16T07:56:53Z",
+       "read": "R-603",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-602，查征信摘要，重点关注是否有逾期、欠息或不良记录",
+       "status": "finished",
+       "chars": 50,
+       "at": "2026-11-16T07:56:53Z",
+       "read": "R-602",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-601，查征信摘要，重点关注是否有逾期、欠息或不良记录",
+       "status": "finished",
+       "chars": 40,
+       "at": "2026-11-16T07:56:53Z",
+       "read": "R-601",
+       "activity": "查关联企业征信"
+      }
+     ],
+     "activity": "分支完成：company_id: R-603，查征信摘要，重点关注是否有逾期、欠息或不良记录；同时确认其当前担保余额及代偿风险"
+    },
+    "report": {
+     "id": "report",
+     "expert": "report-writer",
+     "status": "done",
+     "output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006  \n任务编号：W02 A12  \n插件路径：runA 1794815788  \n\n一、申请概况  \n- 本次申请为信用类授信，拟授信额度50,000元。  \n- 无上游提供的申请人基本信息（如姓名、年龄、职业、经营主体、申请用途等），无法描述申请背景与用途合理性。  \n\n二、财务状况  \n- 资产总额为35.2万元（单位：万元，依据[financial bureau]步骤），高于阈值30万元；  \n- 近六个月无逾期记录（依据[financial bureau]步骤）；  \n- 其他财务信息缺失：无收入证明、负债余额、现金流、资产负债率、经营性指标等数据。  \n\n三、行业情况  \n- 上游未提供任何行业相关信息（如所属行业、行业景气度、政策风险、上下游稳定性等），无法评估行业维度风险。  \n\n四、征信情况  \n- 仅知“近六个月无逾期”，但无完整征信报告摘要：缺失信用历史时长、信贷账户数、当前负债笔数/金额、查询次数、不良/关注/呆账记录、公共信息（如涉诉、被执行）等关键字段。  \n\n五、判断结论与依据  \n- 结论：同意授信，额度50,000元（GRANT-50000）。  \n- 依据：满足precedence 1上档条件——资产≥30万元且近六个月内无逾期（证据来源：[financial bureau]步骤）。  \n- 限制说明：本决策仅基于可验证的两项硬性指标；其余尽调维度（申请用途、还款能力综合验证、行业风险、征信全面性、反欺诈核查等）均无上游输入，未予评估，不构成决策支撑。  \n\n备注：本报告为模拟生成，不触发真实银行授信流程。",
+     "started_at": "2026-11-16T07:57:04Z",
+     "finished_at": "2026-11-16T07:57:16Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:632cc2c429ae65078ae7c7fcbefc98197d8d3cef25936f5946658285d6763fed",
+      "graph_revision": "P3-v1",
+      "node_path": "report",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-writer",
+       "version": "1.0.1",
+       "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+       "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+      },
+      "input_digest": "sha256:4491841a5d6303379efeda8cb6dd17ecafd419594e4b410db8cdcdb7f4c0d18d",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runA 1794815788，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 报告\n[角色设定]\n你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n汇总已提供的结论和证据，缺失内容明确说明\n\n[upstream outputs]\n[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件\n证据步骤：[financial bureau]",
+      "request_id": "bd54a06c4b60f70b6801553f",
+      "message_id": "cfbdd4d8e0a791df2e741140",
+      "context_id": "ctx-b67284ca1e32c758d66bcb8d",
+      "remote_task_id": "e153b194-1cdf-4192-8ef7-21d5372fac94",
+      "status": "completed",
+      "sequence": 12,
+      "created_at": "2026-11-16T07:57:04Z",
+      "updated_at": "2026-11-16T07:57:16Z",
+      "agent_started_at": "2026-11-16T07:57:04Z",
+      "artifact_id": "artifact-632cc2c429ae65078ae7c7fcbefc98197d8d3cef25936f5946658285d6763fed",
+      "artifact_digest": "sha256:1701146d7126aeb4b520799e0c50f648218e51ac695c6249f074b6c60341c6d0",
+      "model_events": {
+       "ec056b1a-1d07-4a03-91d4-2f442ca27791": "2026-11-16T07:57:04Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:57:04Z",
+       "candidates": [
+        {
+         "instance_id": "writer-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "074481c8-132a-45dd-8a41-a4c9c73c274a": {
+        "rpc_id": "074481c8-132a-45dd-8a41-a4c9c73c274a",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:16.110638340Z",
+        "finished_at": "2026-11-16T07:57:16.141979069Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 12
+       },
+       "08b8d1d6-7f0b-4a0b-b789-36438e923cbe": {
+        "rpc_id": "08b8d1d6-7f0b-4a0b-b789-36438e923cbe",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:15.058736582Z",
+        "finished_at": "2026-11-16T07:57:15.095692484Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 11
+       },
+       "41a4491e-8bcd-4400-9cc3-1964997fa49f": {
+        "rpc_id": "41a4491e-8bcd-4400-9cc3-1964997fa49f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:10.889046482Z",
+        "finished_at": "2026-11-16T07:57:10.916870145Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "43dae3f9-6189-45dd-810d-b615739f446c": {
+        "rpc_id": "43dae3f9-6189-45dd-810d-b615739f446c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:12.969102082Z",
+        "finished_at": "2026-11-16T07:57:12.994911489Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 9
+       },
+       "475a9dd7-cd9d-4cb6-93cd-c580ee68651a": {
+        "rpc_id": "475a9dd7-cd9d-4cb6-93cd-c580ee68651a",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:07.767409247Z",
+        "finished_at": "2026-11-16T07:57:07.792422940Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "47f94f86-0db4-449a-9eee-d1f34cb1df1b": {
+        "rpc_id": "47f94f86-0db4-449a-9eee-d1f34cb1df1b",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:09.840364739Z",
+        "finished_at": "2026-11-16T07:57:09.872309105Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "49e6ece4-cc12-4e90-bc57-6f6af46958c7": {
+        "rpc_id": "49e6ece4-cc12-4e90-bc57-6f6af46958c7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:08.801454405Z",
+        "finished_at": "2026-11-16T07:57:08.826413064Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "4d47164f-1927-4ac0-a9de-b08410b58953": {
+        "rpc_id": "4d47164f-1927-4ac0-a9de-b08410b58953",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:11.929685503Z",
+        "finished_at": "2026-11-16T07:57:11.954705154Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 8
+       },
+       "bd54a06c4b60f70b6801553f": {
+        "rpc_id": "bd54a06c4b60f70b6801553f",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:57:04.617730707Z",
+        "finished_at": "2026-11-16T07:57:04.660695576Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "c4ea7165-6ad0-4431-83bb-a99814e4811a": {
+        "rpc_id": "c4ea7165-6ad0-4431-83bb-a99814e4811a",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:05.684402844Z",
+        "finished_at": "2026-11-16T07:57:05.708480639Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "e8557f01-3a55-4893-a88e-626218bdc8f8": {
+        "rpc_id": "e8557f01-3a55-4893-a88e-626218bdc8f8",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:14.014729563Z",
+        "finished_at": "2026-11-16T07:57:14.042941711Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 10
+       },
+       "e92bf250-4ff3-4109-a8e8-f9802831a597": {
+        "rpc_id": "e92bf250-4ff3-4109-a8e8-f9802831a597",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:57:06.721998110Z",
+        "finished_at": "2026-11-16T07:57:06.754568323Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    }
+   },
+   "order": [
+    "intake",
+    "financial",
+    "industry",
+    "bureau",
+    "related",
+    "judge",
+    "report"
+   ],
+   "decision": {
+    "case": "C006",
+    "evidence_steps": [
+     "financial",
+     "bureau"
+    ],
+    "level": "grant-50000",
+    "rationale": "资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件"
+   },
+   "decision_op": "op-R3",
+   "business_request": "br-c006-r3",
+   "replay_steps": [
+    {
+     "op": "adopt",
+     "request": {
+      "accountability": {
+       "role": "customer-manager",
+       "session": "R3",
+       "skill": "risk-judge"
+      },
+      "adoption_version": "0.1.0",
+      "grants_at_decision": [
+       {
+        "actions": [
+         "execute"
+        ],
+        "effect": "irreversible",
+        "kind": "tool",
+        "selector": "credit.apply"
+       }
+      ],
+      "identity": {
+       "business_request_id": "br-c006-r3",
+       "evaluation_revision": "er-1",
+       "operation_id": "op-R3"
+      },
+      "payload_digest": "sha256:4b9a8ec15e6afec81641b9b61da4624467a83928782f52e37ad8df717bbb44a5",
+      "versions": {
+       "evidence": "sha256:355e54220f8106245035b07050ac7d488a2148b0b3ab83a514d922233820156c",
+       "model": "qwen-plus",
+       "policy": "sha256:6f066890fcefd9aa633b1fae3bd2bb031e3aad5811fa0d7bff2107b271bc8992",
+       "readout": "risk-readout-1",
+       "rule": "q-credit-eligibility@1.1.0"
+      }
+     }
+    }
+   ],
+   "final_output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006  \n任务编号：W02 A12  \n插件路径：runA 1794815788  \n\n一、申请概况  \n- 本次申请为信用类授信，拟授信额度50,000元。  \n- 无上游提供的申请人基本信息（如姓名、年龄、职业、经营主体、申请用途等），无法描述申请背景与用途合理性。  \n\n二、财务状况  \n- 资产总额为35.2万元（单位：万元，依据[financial bureau]步骤），高于阈值30万元；  \n- 近六个月无逾期记录（依据[financial bureau]步骤）；  \n- 其他财务信息缺失：无收入证明、负债余额、现金流、资产负债率、经营性指标等数据。  \n\n三、行业情况  \n- 上游未提供任何行业相关信息（如所属行业、行业景气度、政策风险、上下游稳定性等），无法评估行业维度风险。  \n\n四、征信情况  \n- 仅知“近六个月无逾期”，但无完整征信报告摘要：缺失信用历史时长、信贷账户数、当前负债笔数/金额、查询次数、不良/关注/呆账记录、公共信息（如涉诉、被执行）等关键字段。  \n\n五、判断结论与依据  \n- 结论：同意授信，额度50,000元（GRANT-50000）。  \n- 依据：满足precedence 1上档条件——资产≥30万元且近六个月内无逾期（证据来源：[financial bureau]步骤）。  \n- 限制说明：本决策仅基于可验证的两项硬性指标；其余尽调维度（申请用途、还款能力综合验证、行业风险、征信全面性、反欺诈核查等）均无上游输入，未予评估，不构成决策支撑。  \n\n备注：本报告为模拟生成，不触发真实银行授信流程。"
+  },
+  "R4": {
+   "id": "R4",
+   "plan_id": "P4",
+   "plan_version": 1,
+   "plan_hash": "sha256:93d286ff79a7511ec96379f2bffeebe4f6a581714f49b9c86f1e9821f3140710",
+   "case_id": "C006",
+   "status": "done",
+   "approved_by": "alice",
+   "approved_via": {
+    "channel": "workswarm-plugin"
+   },
+   "created_at": "2026-11-16T07:58:19Z",
+   "finished_at": "2026-11-16T07:58:53Z",
+   "lease_until": "2026-11-16T07:59:10.656793205Z",
+   "epoch": 1,
+   "leases": [
+    "2026-11-16T07:58:19Z 第 1 次领取（orchestrator-1）"
+   ],
+   "steps": {
+    "bureau": {
+     "id": "bureau",
+     "expert": "bureau-summary",
+     "status": "done",
+     "output": "[step:bureau]\n近六个月无逾期；历史最长逾期月数为1个月。",
+     "started_at": "2026-11-16T07:58:21Z",
+     "finished_at": "2026-11-16T07:58:24Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:5c91d345510aea8628c3d950b5cf961e79c7392402b4e1c6793dea1ee4b3267f",
+      "graph_revision": "P4-v1",
+      "node_path": "bureau",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:255383d9e0e3e5d5b0a5952afc6e5e8a3c26ccb07a4bc671a6b85c115427cee1"
+      },
+      "input_digest": "sha256:6e02a9eec644655c14d90a6dbe6a1b1405d074c6f0118bd29affc9befd263767",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 征信\n[角色设定]\n你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。\n使用 query_bureau_summary 核对本案件征信摘要\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "21f1fe9a574ccd9adcf80f28",
+      "message_id": "6c7783df30e8113b47055a6f",
+      "context_id": "ctx-5c5c549fdd87e272bf881d5a",
+      "remote_task_id": "7b849abf-88ac-41a5-a0e9-f9ec30d22923",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:58:21Z",
+      "updated_at": "2026-11-16T07:58:24Z",
+      "agent_started_at": "2026-11-16T07:58:21Z",
+      "artifact_id": "artifact-5c91d345510aea8628c3d950b5cf961e79c7392402b4e1c6793dea1ee4b3267f",
+      "artifact_digest": "sha256:15bc275ec6dbd2d0c7a7b6b07d7fe5bbe1d93a6c2b1f54eaaeabf7ab56cff2e5",
+      "model_events": {
+       "88039160-8c64-4581-beb5-7d1d1df0e4de": "2026-11-16T07:58:21Z",
+       "924e8685-6d5f-456e-9504-f71fc73ec575": "2026-11-16T07:58:23Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:58:21Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "21f1fe9a574ccd9adcf80f28": {
+        "rpc_id": "21f1fe9a574ccd9adcf80f28",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:58:21.341026280Z",
+        "finished_at": "2026-11-16T07:58:21.399865344Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "94160b9b-0709-4eb8-b224-17ea9cda8999": {
+        "rpc_id": "94160b9b-0709-4eb8-b224-17ea9cda8999",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:24.532098737Z",
+        "finished_at": "2026-11-16T07:58:24.649114511Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "c83458d2-5cd4-48ff-8179-fd30e08a125f": {
+        "rpc_id": "c83458d2-5cd4-48ff-8179-fd30e08a125f",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:22.451285232Z",
+        "finished_at": "2026-11-16T07:58:22.480451696Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "c9a73649-235c-43a7-8345-b61c74dad02c": {
+        "rpc_id": "c9a73649-235c-43a7-8345-b61c74dad02c",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:23.492874343Z",
+        "finished_at": "2026-11-16T07:58:23.514812756Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "financial": {
+     "id": "financial",
+     "expert": "financial-analyst",
+     "status": "done",
+     "output": "[step:financial]\n- 资产规模：35.2 百万美元（USD-millions）  \n- 负债率：41%  \n- 经营现金流：2.1 百万美元（USD-millions）",
+     "started_at": "2026-11-16T07:58:21Z",
+     "finished_at": "2026-11-16T07:58:25Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:502cdcd155d43e2b274d76e2933b35477b79f780a13e30d1957f52d1c93d3877",
+      "graph_revision": "P4-v1",
+      "node_path": "financial",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:b433290ae68a411e090e9b54bf8607a1d08aeb9bdf8efe4461735137505b1a1f"
+      },
+      "input_digest": "sha256:c0b1008a2383f6e48dabd6faa2576491ace0608db5a536d65622686bd63c80fc",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 财务\n[角色设定]\n你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。\n使用 get_financials 分析本案件财务数据，明确资产单位\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "905da4bdc8eeed3b8c6de9a7",
+      "message_id": "ba717e5bbd20e7513d569861",
+      "context_id": "ctx-ec99782d51ff36c41240fad3",
+      "remote_task_id": "45f93c0d-3189-40e9-8611-bcb8f33eafb1",
+      "status": "completed",
+      "sequence": 5,
+      "created_at": "2026-11-16T07:58:21Z",
+      "updated_at": "2026-11-16T07:58:25Z",
+      "agent_started_at": "2026-11-16T07:58:21Z",
+      "artifact_id": "artifact-502cdcd155d43e2b274d76e2933b35477b79f780a13e30d1957f52d1c93d3877",
+      "artifact_digest": "sha256:0884638a3081ba9e2441bbcf3962172f91e20b09b14a6573df03cf805e1148b7",
+      "model_events": {
+       "5862fadf-d6b6-48ab-bb7a-9a664294d982": "2026-11-16T07:58:21Z",
+       "c2138971-2887-4af8-a32d-f6ea74f091e8": "2026-11-16T07:58:23Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:58:21Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "4f8bb217-a962-4e03-a4e0-0c3fb72f1f91": {
+        "rpc_id": "4f8bb217-a962-4e03-a4e0-0c3fb72f1f91",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:24.496566345Z",
+        "finished_at": "2026-11-16T07:58:24.585236936Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "64546fb1-2436-4cd1-bbb9-3f8ec445cdca": {
+        "rpc_id": "64546fb1-2436-4cd1-bbb9-3f8ec445cdca",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:23.453236414Z",
+        "finished_at": "2026-11-16T07:58:23.480713082Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "7aef8e90-4d39-422b-baa6-00ab28379386": {
+        "rpc_id": "7aef8e90-4d39-422b-baa6-00ab28379386",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:25.644538347Z",
+        "finished_at": "2026-11-16T07:58:25.666582927Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "905da4bdc8eeed3b8c6de9a7": {
+        "rpc_id": "905da4bdc8eeed3b8c6de9a7",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:58:21.317079028Z",
+        "finished_at": "2026-11-16T07:58:21.364011742Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "a5c31778-f221-4187-9cd2-6ee07abc9285": {
+        "rpc_id": "a5c31778-f221-4187-9cd2-6ee07abc9285",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:22.405444201Z",
+        "finished_at": "2026-11-16T07:58:22.433951344Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       }
+      }
+     }
+    },
+    "industry": {
+     "id": "industry",
+     "expert": "industry-researcher",
+     "status": "done",
+     "output": "[step:industry]\n行业景气度：稳定。  \n主要风险：整车厂账期拉长、价格竞争。",
+     "started_at": "2026-11-16T07:58:21Z",
+     "finished_at": "2026-11-16T07:58:24Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:c253f90e052e91985b4bd080ed6ea1a9facca5f523f96d5101d0cc829904ec99",
+      "graph_revision": "P4-v1",
+      "node_path": "industry",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-analysis",
+       "version": "1.0.1",
+       "card_digest": "sha256:7b5b5ec1685065570bd384f80e80cf67233b8ab217b5c58a2712c941040901cc",
+       "contract_digest": "sha256:e1622a9ca8e50c2281568d16e46c5518f157c5d6d6991097220aa3c7726d52b8"
+      },
+      "input_digest": "sha256:b66ea762772abea34d37b5ee2c9047cb35fa22f9dda04805bc9c143c8b1e7c2a",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 行业\n[角色设定]\n你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。\n使用 get_industry_report 分析本案件行业依据\n\n[upstream outputs]\n[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+      "request_id": "19b389378ba0b13b6c6b73f1",
+      "message_id": "de1f942dbd71b451618b88bc",
+      "context_id": "ctx-643304ee9ee12a61153d1d3b",
+      "remote_task_id": "b552ab61-c280-45cb-921c-30cacccbd55d",
+      "status": "completed",
+      "sequence": 4,
+      "created_at": "2026-11-16T07:58:21Z",
+      "updated_at": "2026-11-16T07:58:24Z",
+      "agent_started_at": "2026-11-16T07:58:21Z",
+      "artifact_id": "artifact-c253f90e052e91985b4bd080ed6ea1a9facca5f523f96d5101d0cc829904ec99",
+      "artifact_digest": "sha256:4c0ba01179d680bb3911d7a76f40df2116bc3c2cae0284b2628b8271a197eb23",
+      "model_events": {
+       "5344e180-ab54-43ad-8147-e133e154cccc": "2026-11-16T07:58:23Z",
+       "b48a6a40-3b14-4f26-82d6-dc71fa1b81eb": "2026-11-16T07:58:21Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:58:21Z",
+       "candidates": [
+        {
+         "instance_id": "analysis-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "19b389378ba0b13b6c6b73f1": {
+        "rpc_id": "19b389378ba0b13b6c6b73f1",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:58:21.293133726Z",
+        "finished_at": "2026-11-16T07:58:21.340684594Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "71a75373-e021-4b9a-86dc-fcef058e0bd7": {
+        "rpc_id": "71a75373-e021-4b9a-86dc-fcef058e0bd7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:22.369828175Z",
+        "finished_at": "2026-11-16T07:58:22.393724185Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "816bece2-abab-4c3a-903c-d05d9596cfd8": {
+        "rpc_id": "816bece2-abab-4c3a-903c-d05d9596cfd8",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:23.413591118Z",
+        "finished_at": "2026-11-16T07:58:23.436137285Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "94dfde3c-6520-4c24-af95-e242ca2d0734": {
+        "rpc_id": "94dfde3c-6520-4c24-af95-e242ca2d0734",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:24.447721751Z",
+        "finished_at": "2026-11-16T07:58:24.530992754Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       }
+      }
+     }
+    },
+    "intake": {
+     "id": "intake",
+     "expert": "intake",
+     "status": "done",
+     "output": "[step:intake]\n- 申请人：王某（个体经营，汽车零部件批发）  \n- 申请额度：50,000 美元  \n- 用途：补充流动资金  \n- 资产申报：3,500 万美元",
+     "started_at": "2026-11-16T07:58:19Z",
+     "finished_at": "2026-11-16T07:58:24Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:b00d6c9f697cb0a836730bc22a58dec9d6ead0bb5fca76d596b37841582a27cf",
+      "graph_revision": "P4-v1",
+      "node_path": "intake",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-material",
+       "version": "1.0.1",
+       "card_digest": "sha256:52ec0ae2aaa119ea36347f160f988460d053d3c1dcea0798aa47ea53ad81c20a",
+       "contract_digest": "sha256:a9da2fc2917a4d425c353be9bfb1df58af30f88c7d5d07e5234a77541324e98e"
+      },
+      "input_digest": "sha256:ce3f3867f0a65073e463f96bd524b4097bfa2d471b78462c10bdf39a51649624",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 资料\n[角色设定]\n你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。\n使用 get_application 核对本案件申请材料",
+      "request_id": "04368c44118dcd20436ec547",
+      "message_id": "3bda6dfac66fc582651f3242",
+      "context_id": "ctx-ef33d46916c8463bff4ebbf7",
+      "remote_task_id": "f894e1c4-b4b6-483f-9b64-84897b74a77a",
+      "status": "completed",
+      "sequence": 5,
+      "created_at": "2026-11-16T07:58:19Z",
+      "updated_at": "2026-11-16T07:58:24Z",
+      "agent_started_at": "2026-11-16T07:58:19Z",
+      "artifact_id": "artifact-b00d6c9f697cb0a836730bc22a58dec9d6ead0bb5fca76d596b37841582a27cf",
+      "artifact_digest": "sha256:ef92ad0a24642826f8387206313d11ed067d6ade4083164fb5e228e6780f0777",
+      "model_events": {
+       "eabf09b2-a504-4bac-8a51-eaaae70df411": "2026-11-16T07:58:19Z",
+       "f9fde3cb-f509-4c22-8cf5-36a15c00c0de": "2026-11-16T07:58:21Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:58:19Z",
+       "candidates": [
+        {
+         "instance_id": "material-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "04368c44118dcd20436ec547": {
+        "rpc_id": "04368c44118dcd20436ec547",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:58:19.313116463Z",
+        "finished_at": "2026-11-16T07:58:19.369178166Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "0b1f0f97-ff30-487e-8db8-8efdfdd37a7e": {
+        "rpc_id": "0b1f0f97-ff30-487e-8db8-8efdfdd37a7e",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:20.389307159Z",
+        "finished_at": "2026-11-16T07:58:20.422971221Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "4a040fb7-ea66-49be-9a8b-0e8d11715a29": {
+        "rpc_id": "4a040fb7-ea66-49be-9a8b-0e8d11715a29",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:22.485520789Z",
+        "finished_at": "2026-11-16T07:58:22.518194569Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "77a05d72-0a67-4638-9a0e-cae5ad24f0c7": {
+        "rpc_id": "77a05d72-0a67-4638-9a0e-cae5ad24f0c7",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:24.566062897Z",
+        "finished_at": "2026-11-16T07:58:24.589013367Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "a998542e-8c26-4cbf-9293-c8162c3498c0": {
+        "rpc_id": "a998542e-8c26-4cbf-9293-c8162c3498c0",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:21.438993485Z",
+        "finished_at": "2026-11-16T07:58:21.468298725Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       }
+      }
+     }
+    },
+    "judge": {
+     "id": "judge",
+     "expert": "risk-judge",
+     "status": "done",
+     "output": "[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件\n证据步骤：[financial bureau]",
+     "started_at": "2026-11-16T07:58:41Z",
+     "finished_at": "2026-11-16T07:58:42Z",
+     "epoch": 1,
+     "activity": "判断已采纳：grant-50000"
+    },
+    "related": {
+     "id": "related",
+     "expert": "related-party",
+     "status": "done",
+     "output": "[step:related]\n- **R-601 王氏汽配贸易有限公司**：无逾期、欠息或不良记录；当前有120万美元未结清贷款，但无对外担保 → **无直接担保风险，债务负担中等，暂不构成授信障碍**。  \n- **R-602 顺达物流有限公司**：无逾期、欠息或不良记录；有1笔对外担保，但自身贷款余额为0 → **信用状况良好，担保责任存在但无实际债务压力，风险低**。  \n- **R-603 宏图机械配件厂**：近12个月内有1次已结清的逾期（最长1个月），无欠息或不良记录；当前贷款余额260万美元，申请人对其担保责任**尚未触发代偿** → **存在轻微历史信用瑕疵，但属可控范围；因其贷款余额较高且申请人承担担保责任，需关注潜在代偿风险对申请人现金流的影响**。\n\n**综合影响评估**：  \n三家关联方均无当前逾期或不良，整体关联信用基础稳健。但R-603的历史逾期及高额未结清贷款（260万美元）叠加申请人担保责任，构成**中度隐性风险**——若其经营恶化，可能触发申请人代偿，削弱其50,000美元流动资金申请的还款保障能力。建议在模拟授信报告中备注“担保关联方R-603存在历史逾期及大额未结清债务，虽未代偿，仍需审慎评估申请人或有负债承受力”。",
+     "started_at": "2026-11-16T07:58:24Z",
+     "finished_at": "2026-11-16T07:58:41Z",
+     "epoch": 1,
+     "branches": [
+      {
+       "goal": "company_id: R-603，查征信摘要，重点关注是否有逾期、欠息或不良记录；同时确认其当前贷款余额及申请人担保责任是否已触发代偿",
+       "status": "finished",
+       "chars": 72,
+       "at": "2026-11-16T07:58:29Z",
+       "read": "R-603",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-602，查征信摘要，重点关注是否有逾期、欠息或不良记录",
+       "status": "finished",
+       "chars": 51,
+       "at": "2026-11-16T07:58:29Z",
+       "read": "R-602",
+       "activity": "查关联企业征信"
+      },
+      {
+       "goal": "company_id: R-601，查征信摘要，重点关注是否有逾期、欠息或不良记录",
+       "status": "finished",
+       "chars": 40,
+       "at": "2026-11-16T07:58:29Z",
+       "read": "R-601",
+       "activity": "查关联企业征信"
+      }
+     ],
+     "activity": "分支完成：company_id: R-603，查征信摘要，重点关注是否有逾期、欠息或不良记录；同时确认其当前贷款余额及申请人担保责任是否已触发代偿"
+    },
+    "report": {
+     "id": "report",
+     "expert": "report-writer",
+     "status": "done",
+     "output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006｜任务编号：W02 A12｜插件路径：runB 1794815884  \n\n一、申请概况  \n- 本次申请为授信额度核定任务，未提供申请人姓名、身份证号、申请金额（除决策结果外）、经营主体信息、申请日期等基础要素。  \n- 上游输出中无申请基本信息，故本项内容缺失，无法描述。\n\n二、财务状况  \n- 资产总额为35.2（单位未注明，推测为万元），高于阈值30；  \n- 近六个月无逾期记录；  \n- 其他财务指标（如负债、收入、现金流、资产负债率、利润等）未在上游输出中体现，无法评估。\n\n三、行业情况  \n- 上游输出中未提供所属行业、行业景气度、政策风险、上下游稳定性等相关信息；  \n- 行业维度尽调结论缺失。\n\n四、征信情况  \n- 仅知“近六个月无逾期”，属正面征信表现；  \n- 无其他征信细节：如历史逾期次数/时长、当前负债笔数与金额、查询次数、失信/被执行/涉诉记录等；  \n- 征信报告完整性不足，仅能确认短期履约良好，无法全面评价信用资质。\n\n五、判断结论与依据  \n- 决策结论：GRANT-50000（即建议授予5万元授信额度）；  \n- 依据：资产35.2 > 30 且 近六个月无逾期，满足 precedence 1 上档条件；  \n- 依据来源：[financial bureau] 步骤输出；  \n- 注：该决策基于单一规则路径（precedence 1），未触发或验证其他规则分支；无反向校验或例外情形说明。\n\n六、特别说明  \n- 本报告严格依据上游提供的 [step:judge] 输出及标注证据源（[financial bureau]）撰写；  \n- 申请概况、行业、完整征信、多维度财务数据等关键模块信息缺失，报告覆盖范围受限；  \n- 不构成实际授信审批意见，仅为模拟生成，不提交银行系统。  \n\n—— 报告完毕 ——",
+     "started_at": "2026-11-16T07:58:42Z",
+     "finished_at": "2026-11-16T07:58:53Z",
+     "epoch": 1,
+     "activity": "专业 Agent 结果已持久提交",
+     "remote_call": {
+      "node_execution_id": "sha256:f9625f0f02d58fd74837dc937b05fb1e15eabe8e82ed2e87ee8e15fe52e72c3f",
+      "graph_revision": "P4-v1",
+      "node_path": "report",
+      "loop_iteration": 0,
+      "attempt": 1,
+      "binding": {
+       "agent_id": "credit-writer",
+       "version": "1.0.1",
+       "card_digest": "sha256:a8ee3492409dfd4b3f226cab9b7fd9133cc7020757c68ab1e2d6abff13f3ae0e",
+       "contract_digest": "sha256:28ec6a969fcbb53626da96e7cc6f26cf1d5ffef0e12c021757121a096eef253f"
+      },
+      "input_digest": "sha256:d6386211bcbbf5d15e0c8b129d7fadeb39c9a10a1431b0ab8119592cd584eb5d",
+      "input": "案件号：C006。任务：W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作",
+      "goal": "[角色] 报告\n[角色设定]\n你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。\n汇总已提供的结论和证据，缺失内容明确说明\n\n[upstream outputs]\n[step:judge]\nDECISION=GRANT-50000\n依据：资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件\n证据步骤：[financial bureau]",
+      "request_id": "ecb557be3aa1749993f90347",
+      "message_id": "73fd17b9ce9580d8a76eb90f",
+      "context_id": "ctx-7088bf7000a77c360efb64f0",
+      "remote_task_id": "ac32219d-7fe8-4049-b21b-e8264d119d79",
+      "status": "completed",
+      "sequence": 13,
+      "created_at": "2026-11-16T07:58:42Z",
+      "updated_at": "2026-11-16T07:58:53Z",
+      "agent_started_at": "2026-11-16T07:58:42Z",
+      "artifact_id": "artifact-f9625f0f02d58fd74837dc937b05fb1e15eabe8e82ed2e87ee8e15fe52e72c3f",
+      "artifact_digest": "sha256:50fe89a17e0ab51b86020a3a6042858d2a54b2c9a0d5445c250f04d6d4215194",
+      "model_events": {
+       "524a20a5-fda0-48a2-b99c-038b0890691b": "2026-11-16T07:58:42Z"
+      },
+      "discovery": {
+       "checked_at": "2026-11-16T07:58:42Z",
+       "candidates": [
+        {
+         "instance_id": "writer-1",
+         "health": "ONLINE",
+         "contract_version": "1.0",
+         "capability_version": "1.0.1",
+         "eligible": true
+        }
+       ]
+      },
+      "gateway_exchanges": {
+       "016692ee-fc62-4838-9e41-534af5f326c4": {
+        "rpc_id": "016692ee-fc62-4838-9e41-534af5f326c4",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:43.966300691Z",
+        "finished_at": "2026-11-16T07:58:43.993680509Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 2
+       },
+       "110e95ef-393e-423b-b228-8f08586a3759": {
+        "rpc_id": "110e95ef-393e-423b-b228-8f08586a3759",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:51.056272585Z",
+        "finished_at": "2026-11-16T07:58:51.075069959Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 11
+       },
+       "27122be7-bd88-438f-aaf3-44c4790b76cf": {
+        "rpc_id": "27122be7-bd88-438f-aaf3-44c4790b76cf",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:52.087342889Z",
+        "finished_at": "2026-11-16T07:58:52.113854950Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 12
+       },
+       "370a0a6e-9e3f-4f86-932e-032f49273551": {
+        "rpc_id": "370a0a6e-9e3f-4f86-932e-032f49273551",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:48.974848943Z",
+        "finished_at": "2026-11-16T07:58:48.999141239Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 9
+       },
+       "43ac8a1a-6454-49b9-a070-e4b5f474b037": {
+        "rpc_id": "43ac8a1a-6454-49b9-a070-e4b5f474b037",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:46.039668935Z",
+        "finished_at": "2026-11-16T07:58:46.063874780Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 4
+       },
+       "7fdf58f2-c2e3-4279-94f1-23db1edf1f3a": {
+        "rpc_id": "7fdf58f2-c2e3-4279-94f1-23db1edf1f3a",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:49.187173427Z",
+        "finished_at": "2026-11-16T07:58:49.204868502Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 7
+       },
+       "9215dda8-1cd5-4f60-9d0d-f2133e515d65": {
+        "rpc_id": "9215dda8-1cd5-4f60-9d0d-f2133e515d65",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:50.009451263Z",
+        "finished_at": "2026-11-16T07:58:50.033574883Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 10
+       },
+       "94e0d124-5873-48ae-852f-6c2ab64e719e": {
+        "rpc_id": "94e0d124-5873-48ae-852f-6c2ab64e719e",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:53.127124228Z",
+        "finished_at": "2026-11-16T07:58:53.153860758Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 13
+       },
+       "a2f88b8b-11cc-41f2-9ef1-38061bfb289b": {
+        "rpc_id": "a2f88b8b-11cc-41f2-9ef1-38061bfb289b",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:48.120858901Z",
+        "finished_at": "2026-11-16T07:58:48.159599390Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 6
+       },
+       "d7d12f31-3af3-47cf-ae36-9c8a84369849": {
+        "rpc_id": "d7d12f31-3af3-47cf-ae36-9c8a84369849",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:45.006084089Z",
+        "finished_at": "2026-11-16T07:58:45.028682690Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 3
+       },
+       "dcb0ac8a-bee8-4af8-bce1-0bf6a11912e2": {
+        "rpc_id": "dcb0ac8a-bee8-4af8-bce1-0bf6a11912e2",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:47.081032277Z",
+        "finished_at": "2026-11-16T07:58:47.104819087Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 5
+       },
+       "ecb557be3aa1749993f90347": {
+        "rpc_id": "ecb557be3aa1749993f90347",
+        "method": "SendMessage",
+        "started_at": "2026-11-16T07:58:42.919695928Z",
+        "finished_at": "2026-11-16T07:58:42.950218410Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 1
+       },
+       "fd286bb2-5b65-47c4-b69b-ff9f32440926": {
+        "rpc_id": "fd286bb2-5b65-47c4-b69b-ff9f32440926",
+        "method": "GetTask",
+        "started_at": "2026-11-16T07:58:50.220075443Z",
+        "finished_at": "2026-11-16T07:58:50.252737740Z",
+        "http_status": 200,
+        "outcome": "task_received",
+        "sequence": 8
+       }
+      }
+     }
+    }
+   },
+   "order": [
+    "intake",
+    "financial",
+    "industry",
+    "bureau",
+    "related",
+    "judge",
+    "report"
+   ],
+   "decision": {
+    "case": "C006",
+    "evidence_steps": [
+     "financial",
+     "bureau"
+    ],
+    "level": "grant-50000",
+    "rationale": "资产35.2 > 30且近六个月无逾期，满足precedence 1上档条件"
+   },
+   "decision_op": "op-R4",
+   "business_request": "br-c006-r4",
+   "replay_steps": [
+    {
+     "op": "adopt",
+     "request": {
+      "accountability": {
+       "role": "customer-manager",
+       "session": "R4",
+       "skill": "risk-judge"
+      },
+      "adoption_version": "0.1.0",
+      "grants_at_decision": [
+       {
+        "actions": [
+         "execute"
+        ],
+        "effect": "irreversible",
+        "kind": "tool",
+        "selector": "credit.apply"
+       }
+      ],
+      "identity": {
+       "business_request_id": "br-c006-r4",
+       "evaluation_revision": "er-1",
+       "operation_id": "op-R4"
+      },
+      "payload_digest": "sha256:4b9a8ec15e6afec81641b9b61da4624467a83928782f52e37ad8df717bbb44a5",
+      "versions": {
+       "evidence": "sha256:c5f1e356e380cdc047bb69ac63e752ddc1008b8768b4e23a77d7edb405086022",
+       "model": "qwen-plus",
+       "policy": "sha256:93d286ff79a7511ec96379f2bffeebe4f6a581714f49b9c86f1e9821f3140710",
+       "readout": "risk-readout-1",
+       "rule": "q-credit-eligibility@1.1.0"
+      }
+     }
+    }
+   ],
+   "final_output": "[step:report]\n授信尽调报告（模拟）  \n案件号：C006｜任务编号：W02 A12｜插件路径：runB 1794815884  \n\n一、申请概况  \n- 本次申请为授信额度核定任务，未提供申请人姓名、身份证号、申请金额（除决策结果外）、经营主体信息、申请日期等基础要素。  \n- 上游输出中无申请基本信息，故本项内容缺失，无法描述。\n\n二、财务状况  \n- 资产总额为35.2（单位未注明，推测为万元），高于阈值30；  \n- 近六个月无逾期记录；  \n- 其他财务指标（如负债、收入、现金流、资产负债率、利润等）未在上游输出中体现，无法评估。\n\n三、行业情况  \n- 上游输出中未提供所属行业、行业景气度、政策风险、上下游稳定性等相关信息；  \n- 行业维度尽调结论缺失。\n\n四、征信情况  \n- 仅知“近六个月无逾期”，属正面征信表现；  \n- 无其他征信细节：如历史逾期次数/时长、当前负债笔数与金额、查询次数、失信/被执行/涉诉记录等；  \n- 征信报告完整性不足，仅能确认短期履约良好，无法全面评价信用资质。\n\n五、判断结论与依据  \n- 决策结论：GRANT-50000（即建议授予5万元授信额度）；  \n- 依据：资产35.2 > 30 且 近六个月无逾期，满足 precedence 1 上档条件；  \n- 依据来源：[financial bureau] 步骤输出；  \n- 注：该决策基于单一规则路径（precedence 1），未触发或验证其他规则分支；无反向校验或例外情形说明。\n\n六、特别说明  \n- 本报告严格依据上游提供的 [step:judge] 输出及标注证据源（[financial bureau]）撰写；  \n- 申请概况、行业、完整征信、多维度财务数据等关键模块信息缺失，报告覆盖范围受限；  \n- 不构成实际授信审批意见，仅为模拟生成，不提交银行系统。  \n\n—— 报告完毕 ——"
+  }
+ },
+ "next_plan": 4,
+ "next_run": 4,
+ "rev": 306
+}

@@ -1,0 +1,288 @@
+{
+ "plan": "P1",
+ "version": "1",
+ "selected": "P1 v1",
+ "chip_before": "待批准",
+ "nodes": [
+  "intake",
+  "financial",
+  "industry",
+  "bureau",
+  "related",
+  "judge",
+  "report"
+ ],
+ "bus_overview_summary": "Agent Bus DIRECT\nRDC 能力绑定 · 3 类服务 · 5 个远端节点\n待用户批准 · 尚未派发\n调用清单",
+ "bus_overview_text": "Agent Bus DIRECT\nRDC 能力绑定 · 3 类服务 · 5 个远端节点\n待用户批准 · 尚未派发\n调用清单\n材料受理\ncredit-material\n待批准\n→\n财务分析师\ncredit-analysis\n待批准\n→\n行业研究员\ncredit-analysis\n待批准\n→\n征信摘要查询员\ncredit-analysis\n待批准\n→\n报告撰写人\ncredit-writer\n待批准\n→\n\n统计来自本任务的持久记录；实例健康仅表示发现时的快照。",
+ "node_detail_text": "财务分析师 · 执行详情\n\nAgent Bus · DIRECT · 待批准\n\n关闭 ×\n\n读取客户 C006 的财务数据，计算资产规模和偿债指标\n\n1\nRDC 能力绑定\n已保存绑定\nAgent ID\ncredit-analysis\n能力版本\n1.0.1\n查询时刻\n未采集\n\n能力已绑定，派发前将再次查询 RDC 并记录快照。\n\n2\nGateway DIRECT\n尚未派发\n\n执行后记录 Gateway 请求和有效任务回执。\n\n3\n专业 Agent 执行\n暂无开始记录\n逻辑 Agent\ncredit-analysis\n开始记录\n未采集\n模型调用尝试\n尚无记录\n实际执行实例\n未采集\n4\n正式结果\n尚未提交\n\n正式结果提交成功后，下游节点才可消费。\n\n关联标识与摘要\n复制关联信息\n时间按浏览器时区显示\n读取权限与节点契约",
+ "rev_before_wrong": 1,
+ "runs_before": 0,
+ "wrong_msg": "密码不对",
+ "rev_after_wrong": 1,
+ "runs_after_wrong": 0,
+ "rev_after_ok": 8,
+ "run": "R1",
+ "approved_via": {
+  "channel": "workswarm-plugin"
+ },
+ "final_status": "done",
+ "final_chip": "验证通过 8/8",
+ "final_text": "",
+ "rev_final": 98,
+ "calls": {
+  "bureau": {
+   "request_id": "a61cf5447b00ff4e2fe1625e",
+   "remote_task_id": "155837bb-61c8-47ee-9466-9de22344c5fc",
+   "status": "completed",
+   "model_events": {
+    "276b182a-3046-46e9-8ec3-a6872d9ecc54": "2026-11-16T07:48:40Z",
+    "8993a789-0d1a-4931-9d74-298987862c7d": "2026-11-16T07:48:40Z"
+   }
+  },
+  "financial": {
+   "request_id": "31b89c62f88dc3e9eff83bdb",
+   "remote_task_id": "09d0ab69-45e8-4b09-97dc-3b45d0542639",
+   "status": "completed",
+   "model_events": {
+    "7ce4cc07-b29c-4c4c-8482-6a99582bf357": "2026-11-16T07:48:40Z",
+    "830e3014-85b4-421b-a761-64db0560c393": "2026-11-16T07:48:40Z"
+   }
+  },
+  "industry": {
+   "request_id": "98ae3e93d845d2f7691d0588",
+   "remote_task_id": "976b5541-71ca-4ee8-a148-92ced42f151a",
+   "status": "completed",
+   "model_events": {
+    "a027e1b1-eb67-49fe-8681-fd0e972cb4ff": "2026-11-16T07:48:40Z",
+    "a9d904ed-8de2-406c-8ea4-24e188851b8c": "2026-11-16T07:48:40Z"
+   }
+  },
+  "intake": {
+   "request_id": "720f6b382cf6750051ee2f8d",
+   "remote_task_id": "10410c26-b97a-4f92-8fd9-681f82233222",
+   "status": "completed",
+   "model_events": {
+    "52ac257b-f4fc-48a5-ae31-4090952c3d51": "2026-11-16T07:48:35Z",
+    "ea8a08bf-998e-4928-a2b5-05fc355084a0": "2026-11-16T07:48:33Z"
+   }
+  },
+  "report": {
+   "request_id": "df6045a4ed4f59b9ef922e2d",
+   "remote_task_id": "303f4a31-d2a0-4561-80a5-d78808067f53",
+   "status": "completed",
+   "model_events": {
+    "3df062c5-8f6e-41a0-ac76-dbf3ba1025fe": "2026-11-16T07:49:09Z"
+   }
+  }
+ },
+ "samples": [
+  {
+   "t": 5,
+   "chip": "执行中 1/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "running",
+    "industry": "running",
+    "bureau": "running"
+   }
+  },
+  {
+   "t": 8,
+   "chip": "执行中 1/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "waiting",
+    "industry": "waiting",
+    "bureau": "waiting"
+   }
+  },
+  {
+   "t": 13,
+   "chip": "执行中 3/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "waiting",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "running"
+   }
+  },
+  {
+   "t": 18,
+   "chip": "执行中 4/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "running",
+    "related/b0": "started"
+   }
+  },
+  {
+   "t": 23,
+   "chip": "执行中 4/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "running",
+    "related/b0": "finished",
+    "related/b1": "finished"
+   }
+  },
+  {
+   "t": 28,
+   "chip": "执行中 4/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "running",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished"
+   }
+  },
+  {
+   "t": 33,
+   "chip": "执行中 4/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "running",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished"
+   }
+  },
+  {
+   "t": 36,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 41,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 46,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 51,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 56,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 61,
+   "chip": "执行中 6/7",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "waiting"
+   }
+  },
+  {
+   "t": 64,
+   "chip": "验证通过 8/8",
+   "nodes": {
+    "intake": "done",
+    "financial": "done",
+    "industry": "done",
+    "bureau": "done",
+    "related": "",
+    "related/host": "done",
+    "related/b0": "finished",
+    "related/b1": "finished",
+    "related/b2": "finished",
+    "judge": "done",
+    "report": "done"
+   }
+  }
+ ]
+}

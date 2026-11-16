@@ -1,0 +1,1898 @@
+[
+ {
+  "t": 14.7,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "待批准",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "plan",
+   "financial": "plan",
+   "industry": "plan",
+   "bureau": "plan",
+   "related": "plan",
+   "judge": "plan",
+   "report": "plan"
+  }
+ },
+ {
+  "t": 15.2,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "排队中",
+  "banner": "",
+  "graph": true,
+  "nodes": {}
+ },
+ {
+  "t": 15.7,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "排队中",
+  "banner": "",
+  "graph": true,
+  "nodes": {}
+ },
+ {
+  "t": 16.2,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 16.7,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 17.2,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 17.7,
+  "phase": "run",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 17.0,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 17.6,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 18.1,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 18.6,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 19.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 19.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 20.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 20.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 21.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 21.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 22.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 22.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 23.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 23.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 24.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 24.7,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 25.2,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 25.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 26.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 26.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 27.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 27.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 28.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 28.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 29.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 29.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 30.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 30.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 31.3,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 31.8,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 32.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 32.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 33.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 33.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 34.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 34.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 35.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 35.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 36.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "请求超时",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 36.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 0/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "waiting"
+  }
+ },
+ {
+  "t": 37.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 5/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "running"
+  }
+ },
+ {
+  "t": 37.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 5/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "running"
+  }
+ },
+ {
+  "t": 38.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 5/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "running"
+  }
+ },
+ {
+  "t": 38.9,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 39.4,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 40.0,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 40.5,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 41.0,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 41.5,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 42.0,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 42.5,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 43.0,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 43.5,
+  "phase": "hold",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 44.0,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 44.5,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 45.0,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 45.5,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 46.0,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 46.5,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 44.8,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 45.3,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 45.8,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 46.3,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 46.8,
+  "phase": "late-delivered",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 48.4,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 49.0,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 49.5,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 50.0,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 50.5,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 51.0,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 51.6,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 52.1,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 52.6,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 53.1,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "执行中 6/7",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "waiting"
+  }
+ },
+ {
+  "t": 53.6,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "已完成",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 54.1,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "已完成",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 54.6,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 55.1,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 55.6,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 56.2,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 56.7,
+  "phase": "offline",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 59.1,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 59.7,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 60.2,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 60.7,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 61.2,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 61.7,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 62.2,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 62.7,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 63.2,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 63.7,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 64.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 64.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 65.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 65.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 66.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 66.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 67.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 67.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 68.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 68.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 69.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 69.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 70.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 70.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 71.3,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 71.8,
+  "phase": "godown",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 75.3,
+  "phase": "goup",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "编排服务暂时连不上",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ },
+ {
+  "t": 73.5,
+  "phase": "goup",
+  "selected": "P4 v1",
+  "chip": "验证通过 8/8",
+  "banner": "",
+  "graph": true,
+  "nodes": {
+   "intake": "done",
+   "financial": "done",
+   "industry": "done",
+   "bureau": "done",
+   "related/host": "done",
+   "related/b0": "finished",
+   "related/b1": "finished",
+   "related/b2": "finished",
+   "judge": "done",
+   "report": "done"
+  }
+ }
+]

@@ -1,0 +1,65 @@
+{
+ "plan": "P4 v1",
+ "run": "R4",
+ "disturbances": [
+  {
+   "what": "hold:25",
+   "at": 3.0,
+   "done": true,
+   "t": 3.0
+  },
+  {
+   "what": "offline:6",
+   "at": 32.0,
+   "done": true,
+   "t": 32.1
+  },
+  {
+   "what": "godown",
+   "at": 42.0,
+   "done": true,
+   "t": 42.0,
+   "rc": 0
+  },
+  {
+   "what": "goup",
+   "at": 57.0,
+   "done": true,
+   "t": 57.1,
+   "rc": 0
+  }
+ ],
+ "late_reply": [
+  {
+   "rev": 247,
+   "run_status": "running",
+   "held_s": 25.0,
+   "newer_revs_shown_meanwhile": 6,
+   "max_rev_before_release": 296,
+   "delivered": true,
+   "release_t": 28.8
+  }
+ ],
+ "samples": 116,
+ "gaps": 0,
+ "phases_with_frame_gaps": [],
+ "selected_after_reload": null,
+ "banner_samples": 15,
+ "first_banner": "36.4s hold: 请求超时",
+ "last_banner": "75.3s goup: 编排服务暂时连不上",
+ "graph_hidden_while_service_down": 0,
+ "final_chip": "验证通过 8/8",
+ "final_nodes": {
+  "intake": "done",
+  "financial": "done",
+  "industry": "done",
+  "bureau": "done",
+  "related/host": "done",
+  "related/b0": "finished",
+  "related/b1": "finished",
+  "related/b2": "finished",
+  "judge": "done",
+  "report": "done"
+ },
+ "regressions": []
+}

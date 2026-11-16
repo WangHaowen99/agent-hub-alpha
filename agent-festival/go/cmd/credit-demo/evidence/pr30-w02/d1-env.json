@@ -1,0 +1,145 @@
+{
+ "combo_commit": "7dfd061dc679beb84731377b15680ac0cbb4e43c",
+ "compose_project": "pr30-w02",
+ "ports": {
+  "credit_debug": "127.0.0.1:5291",
+  "workswarm_front": "127.0.0.1:5292"
+ },
+ "network": {
+  "name": "pr30-w02_default",
+  "subnet": "192.168.64.0/20",
+  "note": "pre-created: docker default address pools exhausted on host"
+ },
+ "sources": {
+  "workswarm": "1142e5fb3984a2b1bc6352669a464976e204b2dc",
+  "agent-solution": "bf702bc95064d3491cf8b374f54d271363d84230"
+ },
+ "go_tarball_sha256": "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613",
+ "go_tarball_from": "https://golang.google.cn/dl/go1.25.0.linux-amd64.tar.gz",
+ "uv": "uv 0.11.7 (x86_64-unknown-linux-gnu)",
+ "maven": "Maven Central direct (repo.maven.apache.org), no private m2",
+ "config_sha256": {
+  "compose.yaml": "3766502dc524aed036cb3c8956930814dd3beaa530e79c768ed8851ff729ff34",
+  "compose.bus.yaml": "9be9ee4c3ddf6ed4d20d1bb4cb1d4bdf968cff20da70d9e0ede920cd069146fb",
+  "compose.bus-test.yaml": "ac4461f03d1d47e66ed445d84af749b04f4799b4602c224289bf0badd11a7555",
+  "bus/rdc.yml": "d48e67478f189088744442a28bede8e145c8310d538216a17aaccc83b3f3f7c1",
+  "sources.lock.json": "bbf15ebf3a25dea6b1f6685062b88e35a93c536192c5e705f8b97e0bc8cfa329",
+  "front/default.conf": "aebfdc4153abd1399fd6e03bc2d37a586e703ea25327e88a1ba99415b3f1b7c1"
+ },
+ "images": {
+  "pr30-w02-front-1": {
+   "ref": "nginx:alpine",
+   "image_id": "sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752",
+   "repo_digests": [
+    "docker.1ms.run/library/nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752",
+    "nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752"
+   ],
+   "created": "2026-07-15T23:57:33.943663441Z",
+   "health": null
+  },
+  "pr30-w02-swarm-1": {
+   "ref": "agent-hub-issue16/workswarm:1142e5fb3-local",
+   "image_id": "sha256:629874eca16b429e883c3bb01bc84066a39dccac8ae617b620370fe62d058157",
+   "repo_digests": [
+    "agent-hub-issue16/workswarm@sha256:629874eca16b429e883c3bb01bc84066a39dccac8ae617b620370fe62d058157"
+   ],
+   "created": "2026-11-16T07:38:41.301195488Z",
+   "health": "healthy"
+  },
+  "pr30-w02-gateway-1": {
+   "ref": "agent-hub-issue16/gateway:bf702bc",
+   "image_id": "sha256:1c91b141d1f1fa00de3d61646100251034631505950f075a3bb75e23d508ac32",
+   "repo_digests": [
+    "agent-hub-issue16/gateway@sha256:1c91b141d1f1fa00de3d61646100251034631505950f075a3bb75e23d508ac32"
+   ],
+   "created": "2026-11-16T07:43:11.795165418Z",
+   "health": "healthy"
+  },
+  "pr30-w02-rdc-1": {
+   "ref": "agent-hub-issue16/rdc:bf702bc",
+   "image_id": "sha256:a560d14bcc5910ab6eec59a068fc5dd92cd23503d6733be42c26c3dd5c8e1b4c",
+   "repo_digests": [
+    "agent-hub-issue16/rdc@sha256:a560d14bcc5910ab6eec59a068fc5dd92cd23503d6733be42c26c3dd5c8e1b4c"
+   ],
+   "created": "2026-11-16T07:43:10.658469786Z",
+   "health": "healthy"
+  },
+  "pr30-w02-orchestrator-1": {
+   "ref": "agent-hub-issue16/orchestrator:bus-v1",
+   "image_id": "sha256:527bac1463b2a323d87c9d965332b1099f31ac72a4b757480a11745adf79f33d",
+   "repo_digests": [
+    "agent-hub-issue16/orchestrator@sha256:527bac1463b2a323d87c9d965332b1099f31ac72a4b757480a11745adf79f33d"
+   ],
+   "created": "2026-11-16T07:33:46.40794233Z",
+   "health": "healthy"
+  },
+  "pr30-w02-bus-db-1": {
+   "ref": "postgres:15-alpine@sha256:09e4f20b14ddb3dfe3a0c825b206032aaf8f28300ba2070c0b60fc1c10c6abc7",
+   "image_id": "sha256:09e4f20b14ddb3dfe3a0c825b206032aaf8f28300ba2070c0b60fc1c10c6abc7",
+   "repo_digests": [
+    "docker.1ms.run/library/postgres@sha256:09e4f20b14ddb3dfe3a0c825b206032aaf8f28300ba2070c0b60fc1c10c6abc7",
+    "postgres@sha256:09e4f20b14ddb3dfe3a0c825b206032aaf8f28300ba2070c0b60fc1c10c6abc7"
+   ],
+   "created": "2026-04-21T23:10:14.725040244Z",
+   "health": "healthy"
+  },
+  "pr30-w02-writer-agent-1": {
+   "ref": "agent-hub-issue16/professional:bus-v1",
+   "image_id": "sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2",
+   "repo_digests": [
+    "agent-hub-issue16/professional@sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2"
+   ],
+   "created": "2026-11-16T07:41:23.696405308Z",
+   "health": "healthy"
+  },
+  "pr30-w02-credit-1": {
+   "ref": "agent-hub-issue16/credit:bus-v1",
+   "image_id": "sha256:3c92498d7492b0b6ef542d84eeb7a7c793cb5d3fdbfa7ab478c9d222dffbc034",
+   "repo_digests": [
+    "agent-hub-issue16/credit@sha256:3c92498d7492b0b6ef542d84eeb7a7c793cb5d3fdbfa7ab478c9d222dffbc034"
+   ],
+   "created": "2026-11-16T07:23:11.496165798Z",
+   "health": "healthy"
+  },
+  "pr30-w02-material-agent-1": {
+   "ref": "agent-hub-issue16/professional:bus-v1",
+   "image_id": "sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2",
+   "repo_digests": [
+    "agent-hub-issue16/professional@sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2"
+   ],
+   "created": "2026-11-16T07:41:23.696405308Z",
+   "health": "healthy"
+  },
+  "pr30-w02-analysis-agent-1": {
+   "ref": "agent-hub-issue16/professional:bus-v1",
+   "image_id": "sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2",
+   "repo_digests": [
+    "agent-hub-issue16/professional@sha256:91b3ff0fc3116b079879a7e8b2d753eb43317ce5107fdd9ea4690d5fab5747a2"
+   ],
+   "created": "2026-11-16T07:41:23.696405308Z",
+   "health": "healthy"
+  }
+ },
+ "base_images": {
+  "python:3.11-slim": {
+   "id": "sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377",
+   "repo_digests": [
+    "python@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377"
+   ]
+  },
+  "node:22-slim": {
+   "id": "sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46",
+   "repo_digests": [
+    "docker.1ms.run/library/node@sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46",
+    "node@sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46"
+   ]
+  },
+  "nginx:alpine": {
+   "id": "sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752",
+   "repo_digests": [
+    "docker.1ms.run/library/nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752",
+    "nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752"
+   ]
+  }
+ }
+}

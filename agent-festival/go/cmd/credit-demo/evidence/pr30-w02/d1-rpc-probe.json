@@ -1,0 +1,47 @@
+[
+ {
+  "method": "plugin.credit_workbench.plans",
+  "params": {},
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": {
+   "plans": []
+  }
+ },
+ {
+  "method": "plugin.credit_workbench.graph",
+  "params": {
+   "plan": "NOPE",
+   "v": "1"
+  },
+  "ok": false,
+  "code": "BAD_REQUEST",
+  "error": "需要 plan 和 v，或 run",
+  "payload": {}
+ },
+ {
+  "method": "plugin.credit_workbench.approve",
+  "params": {},
+  "ok": false,
+  "code": "BAD_REQUEST",
+  "error": "需要 plan、version、hash 和密码",
+  "payload": {}
+ },
+ {
+  "method": "plugin.credit_workbench.resume",
+  "params": {},
+  "ok": false,
+  "code": "BAD_REQUEST",
+  "error": "需要 run 和密码",
+  "payload": {}
+ },
+ {
+  "method": "plugin.credit_workbench.no_such_method",
+  "params": {},
+  "ok": false,
+  "code": "METHOD_NOT_FOUND",
+  "error": "unknown method: plugin.credit_workbench.no_such_method",
+  "payload": {}
+ }
+]

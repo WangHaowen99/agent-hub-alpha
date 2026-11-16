@@ -1,0 +1,60 @@
+{
+ "plan": "P3 v1",
+ "run": "R3",
+ "disturbances": [
+  {
+   "what": "hold",
+   "at": 3.0,
+   "done": true,
+   "t": 3.6
+  },
+  {
+   "what": "reload",
+   "at": 16.0,
+   "done": true,
+   "t": 16.4
+  },
+  {
+   "what": "restart",
+   "at": 26.0,
+   "done": true,
+   "t": 26.6,
+   "rc": 0
+  }
+ ],
+ "late_reply": [
+  {
+   "rev": 178,
+   "run_status": "running",
+   "held_s": 8.1,
+   "newer_revs_shown_meanwhile": 0,
+   "max_rev_before_release": 176,
+   "delivered": true,
+   "release_t": 11.8
+  }
+ ],
+ "samples": 89,
+ "gaps": 43,
+ "phases_with_frame_gaps": [
+  "restart"
+ ],
+ "selected_after_reload": "P3 v1",
+ "banner_samples": 0,
+ "first_banner": null,
+ "last_banner": null,
+ "graph_hidden_while_service_down": 0,
+ "final_chip": "验证通过 8/8",
+ "final_nodes": {
+  "intake": "done",
+  "financial": "done",
+  "industry": "done",
+  "bureau": "done",
+  "related/host": "done",
+  "related/b0": "finished",
+  "related/b1": "finished",
+  "related/b2": "finished",
+  "judge": "done",
+  "report": "done"
+ },
+ "regressions": []
+}

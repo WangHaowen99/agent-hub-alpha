@@ -1,0 +1,348 @@
+{
+ "run": "R2",
+ "plan": "P2",
+ "version": "1",
+ "status_at_open": "waiting",
+ "resume_control_visible": true,
+ "resume_control_text": "R2 正在等待核对。使用演示账号 alice 恢复原任务。\n演示密码 \n核对原任务并继续",
+ "list_chip": "等待核对",
+ "head_chip": "等待核对远端结果",
+ "calls_before_resume": {
+  "intake": {
+   "request_id": "0ceb07b58c5d0b2d743813fc",
+   "remote_task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+   "status": "unknown",
+   "artifact_id": null,
+   "model_events": {
+    "32a6c2ea-e7f1-49be-9c77-6a101169909e": "2026-11-16T07:52:41Z",
+    "bc442bb9-fa13-495e-9674-88e427fc3bd9": "2026-11-16T07:52:43Z"
+   },
+   "step_status": "unknown"
+  }
+ },
+ "wrong_msg": "账号或密码不对。请先查看原任务最新状态，勿连续重试。",
+ "wrong": {
+  "rev_before": 108,
+  "rev_after": 108,
+  "status_after": "waiting",
+  "transport_events_delta": 0,
+  "rpc_sends": 1,
+  "password_cleared": true
+ },
+ "ok_msg": null,
+ "rpc_sends_after_double_submit": 1,
+ "ok": {
+  "rev_before": 108,
+  "rev_after": 128,
+  "status_after": "running"
+ },
+ "second_resume": {
+  "ok": false,
+  "code": "REJECTED",
+  "error": "任务不存在或已不在等待状态，请刷新查看原任务"
+ },
+ "after_second": {
+  "rev": 133,
+  "status": "running"
+ },
+ "calls_after": {
+  "bureau": {
+   "request_id": "3a793d302d4f08735a657cb5",
+   "remote_task_id": "0a03cbe3-ee71-4f8d-99eb-9e19995736e1",
+   "status": "completed",
+   "artifact_id": "artifact-ab3be10a689d838a8892075962062f33034a3876f5f191aa4d81ca74efb125cc",
+   "model_events": {
+    "8d113e84-e68a-4cab-8c66-1e27cfce59de": "2026-11-16T07:53:58Z",
+    "8e7c942d-970c-48b5-8817-915ddf552835": "2026-11-16T07:54:00Z"
+   },
+   "step_status": "done"
+  },
+  "financial": {
+   "request_id": "e0a275d6ea5d03c1518d04be",
+   "remote_task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+   "status": "completed",
+   "artifact_id": "artifact-e4fc635db8329295f347f4d2f7eb00d5b8444b70a4d1afdb2497b873fb64e611",
+   "model_events": {
+    "45e33999-0134-41cf-93b2-900789c3a119": "2026-11-16T07:54:00Z",
+    "c7240dff-fdf3-4c8f-a163-3fee16801bc1": "2026-11-16T07:53:58Z"
+   },
+   "step_status": "done"
+  },
+  "industry": {
+   "request_id": "112cb2872fe9203c52a4e239",
+   "remote_task_id": "bff7588d-d432-4bb6-af6c-32a06dab3ee4",
+   "status": "completed",
+   "artifact_id": "artifact-5d8dbb4678027691ed2763105705c524219821a2d7632d778df1084bf017b136",
+   "model_events": {
+    "12b53838-d94b-41e2-8fc7-4f8cf5055ede": "2026-11-16T07:53:58Z",
+    "41cee823-95b0-4fb5-a63a-5d4aeacfd1de": "2026-11-16T07:54:00Z"
+   },
+   "step_status": "done"
+  },
+  "intake": {
+   "request_id": "0ceb07b58c5d0b2d743813fc",
+   "remote_task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+   "status": "completed",
+   "artifact_id": "artifact-08c0acf22889f43404b8d15cdd888d0be2ec0a12bce906138b210e5ce6fd1320",
+   "model_events": {
+    "32a6c2ea-e7f1-49be-9c77-6a101169909e": "2026-11-16T07:52:41Z",
+    "bc442bb9-fa13-495e-9674-88e427fc3bd9": "2026-11-16T07:52:43Z"
+   },
+   "step_status": "done"
+  },
+  "report": {
+   "request_id": "245a5b0d7d92fd583a5c95cb",
+   "remote_task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": "completed",
+   "artifact_id": "artifact-7bde36bae3bb04d4ff3ac87bff3872a02a371075d3a3f16e09f6d5f9facc624d",
+   "model_events": {
+    "2ad9edd0-4964-4850-be97-22fb745fe0f3": "2026-11-16T07:54:23Z"
+   },
+   "step_status": "done"
+  }
+ },
+ "final_status": "done",
+ "final_chip": "验证通过 8/8",
+ "resume_control_after": false,
+ "transport_events_all": [
+  {
+   "at": 1794815561.750206,
+   "method": "SendMessage",
+   "id": "0ceb07b58c5d0b2d743813fc",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815562.7788153,
+   "method": "GetTask",
+   "id": "9e7879be-aa75-4d9d-a47f-d3d9c40b9e3d",
+   "task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+   "status": 503,
+   "fault": "drop-query-once"
+  },
+  {
+   "at": 1794815638.0948372,
+   "method": "GetTask",
+   "id": "5a8c4ea6-ad19-4798-8af1-6fd0f2ddc4f7",
+   "task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815638.203102,
+   "method": "SendMessage",
+   "id": "e0a275d6ea5d03c1518d04be",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815638.229729,
+   "method": "SendMessage",
+   "id": "3a793d302d4f08735a657cb5",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815638.267167,
+   "method": "SendMessage",
+   "id": "112cb2872fe9203c52a4e239",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815639.2663944,
+   "method": "GetTask",
+   "id": "e5acf735-0a5a-43e1-a661-4493de4368b7",
+   "task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815639.2951722,
+   "method": "GetTask",
+   "id": "39aecc60-977b-42b2-8326-ebabaecf540e",
+   "task_id": "0a03cbe3-ee71-4f8d-99eb-9e19995736e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815639.3405042,
+   "method": "GetTask",
+   "id": "1233edab-2969-4e86-b0de-c3ce4d9f0f93",
+   "task_id": "bff7588d-d432-4bb6-af6c-32a06dab3ee4",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815640.3201003,
+   "method": "GetTask",
+   "id": "becacf97-967a-4087-89f7-0fb2a5e1ab01",
+   "task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815640.3368936,
+   "method": "GetTask",
+   "id": "21529bfd-4447-4191-b32b-8f43c3e6ef0c",
+   "task_id": "0a03cbe3-ee71-4f8d-99eb-9e19995736e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815640.3766208,
+   "method": "GetTask",
+   "id": "d002005b-5dfc-4f32-94bf-cb386e3be6d3",
+   "task_id": "bff7588d-d432-4bb6-af6c-32a06dab3ee4",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815641.3560934,
+   "method": "GetTask",
+   "id": "5fa5e8ef-9bd0-4baf-bcd2-1e5fac544aa8",
+   "task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815641.377613,
+   "method": "GetTask",
+   "id": "23dcee01-4a92-4c30-b75e-86430312614b",
+   "task_id": "0a03cbe3-ee71-4f8d-99eb-9e19995736e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815641.4397366,
+   "method": "GetTask",
+   "id": "64789de2-a87b-4fe0-98ca-1db9ae69665f",
+   "task_id": "bff7588d-d432-4bb6-af6c-32a06dab3ee4",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815642.3921416,
+   "method": "GetTask",
+   "id": "52c4c3a7-6ddb-4ae5-b735-24a872be6b2e",
+   "task_id": "d8c36f79-d029-410c-ac5e-88f1f9b935df",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815663.942566,
+   "method": "SendMessage",
+   "id": "245a5b0d7d92fd583a5c95cb",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815664.9898188,
+   "method": "GetTask",
+   "id": "edfe3d40-f3ff-4cae-9ccc-bac642ce8ea6",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815666.0328279,
+   "method": "GetTask",
+   "id": "c7a2d119-f4a0-457a-9a64-776d8e1ddca1",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815667.0973773,
+   "method": "GetTask",
+   "id": "8b114e05-6686-421d-afbf-7b2e598f219d",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815668.1396306,
+   "method": "GetTask",
+   "id": "cb47b313-ee26-42c8-b406-96f6e73262f1",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815669.1793196,
+   "method": "GetTask",
+   "id": "f0ee2886-5be3-4a66-947c-731d166fcceb",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815670.2571247,
+   "method": "GetTask",
+   "id": "98687b99-2ed7-4fe3-952f-8d75e3c82072",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815671.2928295,
+   "method": "GetTask",
+   "id": "f808a691-6db3-40c1-8f91-6dbc39bcd5a3",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815672.3298204,
+   "method": "GetTask",
+   "id": "c2c7fb26-a3c3-4aa0-b2b8-56383138de30",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815673.3755236,
+   "method": "GetTask",
+   "id": "09a073e9-7454-4182-93c2-9deced83db99",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794815674.4293625,
+   "method": "GetTask",
+   "id": "7fb6e663-9649-451e-b0e6-816ed792be46",
+   "task_id": "db84f9ac-cf36-41cd-a447-d972679c40c5",
+   "status": 200,
+   "fault": "pass"
+  }
+ ],
+ "sendmessage_per_request": {
+  "112cb2872fe9203c52a4e239": 1,
+  "245a5b0d7d92fd583a5c95cb": 1,
+  "0ceb07b58c5d0b2d743813fc": 1,
+  "e0a275d6ea5d03c1518d04be": 1,
+  "3a793d302d4f08735a657cb5": 1
+ },
+ "remote_nodes": 5,
+ "same_request_ids": true,
+ "same_task_ids": true,
+ "unknown_nodes_before": [
+  "intake"
+ ],
+ "unknown_node_gettask_after_resume": [
+  {
+   "at": 1794815638.0948372,
+   "method": "GetTask",
+   "id": "5a8c4ea6-ad19-4798-8af1-6fd0f2ddc4f7",
+   "task_id": "6c39de6d-ac96-4101-939c-aa5f18c1796a",
+   "status": 200,
+   "fault": "pass"
+  }
+ ]
+}
