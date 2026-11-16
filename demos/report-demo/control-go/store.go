@@ -11,7 +11,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/openjiuwen/agent-festival/go/internal/result"
 )
 
 //go:embed migrations/*.sql
@@ -385,7 +384,7 @@ func (s *Store) ResolveNode(ctx context.Context, id, node, owner, epoch, expecte
 		if ns.InputDigest != "" && ns.InputDigest != h {
 			return nil, fault("INPUT_CONFLICT", "same node has different binding", 409)
 		}
-		if committed, serve, _ := result.QueryForReconciliation(resultRecord(ns.Result), h); committed {
+		if committed, serve, _ := QueryForReconciliation(resultRecord(ns.Result), h); committed {
 			if !serve {
 				return nil, fault("INPUT_CONFLICT", "formal result input differs", 409)
 			}

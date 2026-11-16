@@ -68,7 +68,7 @@ func TestPGSharedIdentityAndReconciliationConsumer(t *testing.T) {
 		t.Fatal(err)
 	}
 	r := v.(*Result)
-	if r.Identity == nil || ledger.ValidateIdentity(*r.Identity) != nil {
+	if r.Identity == nil || validateIdentity(*r.Identity) != nil {
 		t.Fatal("formal result lacks shared identity")
 	}
 	if r.Identity.LogicalExecution.TaskID != task.ID || r.Identity.LogicalExecution.NodePath != "extract" {
@@ -87,7 +87,7 @@ func TestPGSharedIdentityAndReconciliationConsumer(t *testing.T) {
 		t.Fatal(err)
 	}
 	var identity ledger.Identity
-	if err = json.Unmarshal(persisted, &identity); err != nil || ledger.ValidateIdentity(identity) != nil {
+	if err = json.Unmarshal(persisted, &identity); err != nil || validateIdentity(identity) != nil {
 		t.Fatal("identity not durably stored", err)
 	}
 	snapshot, err := s.Backup(ctx, Files{cfg.ArtifactRoot}, cat, material)

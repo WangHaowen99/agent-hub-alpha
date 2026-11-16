@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/openjiuwen/agent-festival/go/internal/ledger"
 )
 
 var snapshotTables = []string{"tasks", "commands", "run_leases", "artifacts", "committed_results", "artifact_dependencies", "node_attempts", "remote_calls", "observations", "checks", "approvals", "delivery_intents", "cases_and_validity", "extraction_reuse", "audit_outbox"}
@@ -261,7 +260,7 @@ func (snapshot Snapshot) projections() (map[string]any, error) {
 					return nil, errors.New("task projection and normalized result disagree")
 				}
 				if task.IdentityContract != "" {
-					if task.IdentityContract != pr25Contract || saved.Identity == nil || ledger.ValidateIdentity(*saved.Identity) != nil || *saved.Identity.LogicalExecution != *logicalExecution(&task, node.ID) {
+					if task.IdentityContract != pr25Contract || saved.Identity == nil || validateIdentity(*saved.Identity) != nil || *saved.Identity.LogicalExecution != *logicalExecution(&task, node.ID) {
 						return nil, errors.New("formal result structured identity differs")
 					}
 				}

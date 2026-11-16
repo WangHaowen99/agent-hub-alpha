@@ -6,6 +6,16 @@
 
 ## 1. 已验证的真实主链
 
+### Demo 适配与共享规约的边界
+
+`agent-festival` 中本PR的95个变化文件直接来自PR #25，内容与固定来源版本一致。Demo专用的身份字段映射、生成资源、查重/对账策略及其测试位于 `control-go`，生成器位于 `deploy/embed_identity_schema.py`；共享模块不承担本场景特有的 task/revision 相等关系。
+
+当前串行完整Go/PG回归为37顶层、含子用例80 pass，0 fail/skip，其中包括身份和结果规则的9项测试；不把测试归属调整计为新增业务能力。证据为 `demo-owned-adapters-serial-tests.jsonl`。共享模块Linux全量21包、313顶层/342项通过，1项参考T1模型实验未启用而skip。
+
+首轮并发回归中的迁移死锁（40P01）及Windows临时日志清理错误分别保留在 `demo-owned-adapters-full-tests.jsonl`、`java-demo-owned-adapters-tests.log`；不删除或改写成通过。共享PG的Go与Java跨进程回归采用串行执行，Java串行16项通过、0 failure/error/skip（`java-demo-owned-adapters-serial-tests.log`）。不宣称并发测试设施或多实例迁移已验收。
+
+现有正式报告下载、主链10项只读核对、身份/对账16项核对仍通过；生成schema正文和对外协议不变，本轮不重复执行模型。
+
 ### 公开报告准入与当前实施基线
 
 HTTP `POST /v1/commands` 与 MCP `propose_plan` 共用 `checkCandidate`：先校验材料、基础图与报告交付结构，再请求 Java 编译和保存候选。每份初稿/修订稿有同分支检查，一个无条件 selector 消费全部检查；缺少路径时返回 POLICY_REJECTED。纯计算控制夹具仍可使用基础 ValidateGraph，外部无绕过开关，报告实际交付的检查/批准门禁保留。
@@ -20,12 +30,12 @@ HTTP `POST /v1/commands` 与 MCP `propose_plan` 共用 `checkCandidate`：先校
 
 ### 共享契约与结果读面（PR #25）
 
-使用 PR #25 `539d17a47eb01c178e789fc8fcd68c17d791baa3` 的 schema、结构化身份与配套样例，代码位于 `agent-festival` 原模块。Demo 导入共享 ledger/result 包；PG 正式提交、结果复用及只读 HTTP 对账是实际消费者。共享资源从原 schema 生成；不额外部署文件结果服务。
+使用 PR #25 `539d17a47eb01c178e789fc8fcd68c17d791baa3` 的 schema、结构化身份与配套样例，代码位于 `agent-festival` 原模块。Demo 导入共享 ledger 类型，身份映射及查重/对账策略在 Demo 内实现；PG 正式提交、结果复用及只读 HTTP 对账是实际消费者。共享资源从原 schema 生成；不额外部署文件结果服务。
 
 - 实际任务 `T-7853c55c66499997c4597c83e3868949`，DELIVERED；图来自之前真实规划任务，`fresh_model_planning=false`，不是本轮新规划。Java、四个 Runtime/Core 专家及 Gateway/RDC 本轮真实执行，两个质量 Loop 分支完成，check0 PASS，测试账号批准和同交付身份重试通过。
 - 正式报告 `sha256:dd34513a337f953fc78d07051986175793fc44d2a9a49fe48db6b5ee26edb617`，回执 `delivery-receipt-9f8f051a4a30c4980fc47ee8a2b8dee9`。主链 10 项核对与共享契约 16 项核对通过，所有 6 个正式节点有结构化身份，对账不改变投影版本。模型/提示词执行绑定仍为 `d7576071…`。
 - Go/PG/HTTP 夹具验证：未提交但已有 call 不获得新执行许可；输入相同返回原结果，receipt 不能替代输入摘要；同 o 的第二行被 PG 唯一约束拒绝；撤回后 committed=true、serve=false；未认证及无权角色不能读对账结果；备份中伪造身份即使重算快照摘要也被拒绝。
-- 共享模块 Linux 全量：22 包通过、316 顶层 / 含子用例 351 pass，1 项真实 T1 模型实验未启用而 skip；该实验不属于本 Demo 四专家调用。Windows 全量另存失败记录，涉及 syscall.Umask、Unix 文件权限、路径分隔符与 python3 启动入口，不把 Windows 全量写成通过。Windows 下实际使用的 ledger/result 与 Demo 服务另有通过证据。
+- 共享模块 Linux 全量：21 包通过、313 顶层 / 含子用例 342 pass，1 项真实 T1 模型实验未启用而 skip；该实验不属于本 Demo 四专家调用。Windows 全量另存失败记录，涉及 syscall.Umask、Unix 文件权限、路径分隔符与 python3 启动入口，不把 Windows 全量写成通过。Windows 下实际使用的 ledger 类型与 Demo 适配另有通过证据。
 - PR #25 接入版本（cd44c55）的全套真实 PG 回归：32 顶层 / 含子用例 63 pass，0 fail/skip；Java 16 项本轮重新执行，0 failure/error/skip，六个远端窗口使用当前 Go 制品。共享资源导出与 DTO 漂移检查通过；最新补充的对账角色拒绝单独复跑。
 - 当前 PG 快照包含 48 份内容，摘要 `sha256:ad42a984918e5be2cd53af60744791e8fa6b8ce524be4a36a364891732911f30`；新旧任务、结构化 identity 与规范化结果一致，离线回放验证通过，数据库/Runtime/模型/发布调用均为 0。未覆盖或清空既有隔离恢复库。
 - 证据：`shared-contract-consumer.json`、`shared-contract-model-verification.json`、新任务 `-trace/-report/-delivery/-main-verification.json`、`shared-module-linux-tests.jsonl`、`demo-shared-contract-final-tests.jsonl`、`java-shared-contract-tests.log`。原模型输出留在私有目录，不将测试账号交付当独立人工业务核验。
@@ -148,7 +158,7 @@ WorkSwarm 常驻一夜后曾出现 supervisor/worker IPC 断开。重启后原�
 
 | 验证类别 | 结果 | 覆盖边界 |
 | --- | --- | --- |
-| Go 全套，真实 PG 与真实快照 | 34 个顶层测试、含子用例 71 个 pass，0 fail、0 skip | 严格 JSON/JCS/Unicode、10 组 golden vectors、DTO schema 漂移、准入/输入、并发正式提交、过期租约、迟到/冲突观察、必要审计回滚、独立交付租约、HUMAN 审阅、复用/撤销、游标、等待继续、离线回放、真实 COMMIT/HTTP 应答切断、失败收敛、远端输出资格；新增提交后矛盾的跨任务撤回、下载拒绝及事务回滚 |
+| Go 全套，真实 PG 与真实快照 | 37 个顶层测试、含子用例 80 个 pass，0 fail、0 skip | 严格 JSON/JCS/Unicode、10 组 golden vectors、DTO schema 漂移、准入/输入、并发正式提交、过期租约、迟到/冲突观察、必要审计回滚、独立交付租约、HUMAN 审阅、复用/撤销、游标、等待继续、离线回放、真实 COMMIT/HTTP 应答切断、失败收敛、远端输出资格；新增提交后矛盾的跨任务撤回、下载拒绝及事务回滚 |
 | Java 原有与跨语言测试 | 10 个，0 failure、0 skip | 原生图编译、实际 JSON 序列化的跨语言摘要、协议解析/状态分类、固定材料 checker 正反例、schema 与人工审阅选择 |
 | Java 隔离远端窗口测试 | 6 个通过，0 skip；与上行合计 16 个 | 真实 Go/PG/Java adapter；本地 HTTP 故障提供方，含显式坏调度策略、实际 worker 失败收敛与慢 RDC/暂停屏障；不代表真实 Runtime/IdP 故障恢复 |
 | 最新真实主链证据核对 | 10 项通过 | 新绑定、四专家、两 Loop 分支、观察与正式正文一致、同对象检查/批准/下载及下载原始字节摘要、同交付身份；只读核对已有证据 |

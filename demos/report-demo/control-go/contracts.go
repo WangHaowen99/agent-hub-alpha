@@ -15,7 +15,7 @@ import (
 
 func ContractSchemas() (map[string]*jsonschema.Schema, error) {
 	var identity, logical jsonschema.Schema
-	raw := ledger.IdentitySchema()
+	raw := identitySchema()
 	if err := json.Unmarshal(raw, &identity); err != nil {
 		return nil, err
 	}

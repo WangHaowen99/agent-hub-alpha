@@ -14,7 +14,6 @@ import (
 	"runtime"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/openjiuwen/agent-festival/go/internal/result"
 )
 
 type Files struct{ Root string }
@@ -124,7 +123,7 @@ func (s *Store) Commit(ctx context.Context, id, node string, r CommitRequest, ra
 		}
 		ns := t.Nodes[node]
 		if ns.Result != nil {
-			if result.CanReuseCommit(resultRecord(ns.Result), expected, r.ArtifactID) {
+			if CanReuseCommit(resultRecord(ns.Result), expected, r.ArtifactID) {
 				return ns.Result, nil
 			}
 			return nil, fault("INPUT_CONFLICT", "formal result cannot be overwritten", 409)

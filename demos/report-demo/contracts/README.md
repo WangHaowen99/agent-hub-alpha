@@ -11,7 +11,7 @@
 | 只读对账 | `GET /v1/tasks/{T}/nodes/{o}/result?input_digest=...`，worker/operator/用户身份；返回 committed/serve/stored、状态和只读标记。无结果不能推导可重执行；失效结果 committed=true、serve=false |
 | 旧任务 | 保留原绑定与原结果。新任务固定 `identity_contract=pr25/0.2.0@539d17a`；旧记录无此字段时不补写猜测的历史身份 |
 
-共享类型来自 `internal/ledger`，共享查重/对账规则来自 `internal/result`；PG 是唯一正式结果存储，Demo 不维护文件结果库或第二份内存结果缓存。参考宿主的文件实现不提供本应用的事务保证。共享身份的嵌入资源由 `agent-festival/schema/embed_go.py` 生成，不依赖服务启动 CWD；导出 DTO 不另行手写一套身份约束。
+共享类型来自 `agent-festival/go/internal/ledger`；当前 Demo 的字段绑定、查重/对账适配位于 `control-go/identity.go`、`control-go/result_policy.go`，PG 是唯一正式结果存储，Demo 不维护文件结果库或第二份内存结果缓存。参考宿主的文件实现不提供本应用的事务保证。共享身份的嵌入资源由 `demos/report-demo/deploy/embed_identity_schema.py` 生成，不依赖服务启动 CWD；导出 DTO 不另行手写一套身份结构约束。`business_request_id=task_id`、`evaluation_revision=graph_version` 是本 Demo 的映射，由 Demo 校验，不作为共享组件的通用规定。
 
 当前物理映射将已采纳图和节点投影保存在 `tasks.document`，尝试与正式结果分别在 `node_attempts`、`committed_results`；规范化结果和任务投影同事务更新。唯一正式结果受数据库主键及 o 四元组唯一索引约束。
 

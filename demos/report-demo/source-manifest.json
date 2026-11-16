@@ -99,7 +99,7 @@
         "agent-festival/go/internal/replay",
         "agent-festival/go/internal/e2e"
       ],
-      "reason": "Shared structured identity/schema and companion fixtures in their original module locations; Demo imports shared ledger/result packages. Result read/commit rules use PG transactions and input/content bindings; reference file test host is not a Demo result authority."
+      "reason": "PR25 original structured identity/schema and companion fixtures in their original module locations. Demo imports ledger types; Demo-specific identity mapping, generated resource and result/PG policies are owned by control-go and deploy. Reference file test host is not a Demo result authority."
     }
   ],
   "integration_qualified": false,

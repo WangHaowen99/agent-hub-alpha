@@ -242,6 +242,8 @@ mvn -s .local/maven-settings.xml -f demos/report-demo/orchestrator-java/pom.xml 
 
 Go 测试使用独立 `test-...` scope，实际连接 PG；会构造控制协议夹具和故障，不能计为真实业务专家结果。未设置 PG 配置时测试可能 skip，不能只用退出码 0 宣称数据库测试通过。
 
+共用同一 PG 实例时，Go/PG全量与Java跨进程测试按上面的顺序串行执行；两者都会执行迁移和构造隔离环境。并发DDL/测试环境清理不作为已验证保证，失败应保留日志后区分业务断言与测试设施问题。
+
 JSON日志中应核对 `Action=fail` 和 `Action=skip`，当前完整 Demo 口径为二者均为0；TLS等环境差异导致的预期skip须单列。Java查看 Surefire XML 的 tests/failures/errors/skipped，不能只看构建成功。
 
 这些回归覆盖同 command 的并发去重、同节点正式结果唯一、改载冲突、过期租约不能续命、迟到/冲突观察、强制审计失败时业务回滚、延迟验收独立交付、跨任务提取复用、文件篡改和撤销传播。Java 测试覆盖真实固定材料上的 W01 12 个正反例、协议 Part 解析、HTTP 409 分类与 schema。具体数量和最后一次运行结果见实际报告。
@@ -403,11 +405,11 @@ Windows 兼容层仅适配固定上游源码，保留原历史校验；未知源
 
 ### 8.11 共享契约（PR #25）与真实消费者
 
-共享模块在本分支的 `agent-festival` 原目录，Demo 的 Go replace 仍指向该模块，不需要额外 PR25 目录或服务。构建后执行原有 `-migrate`，会应用 `002_pr25_identity.sql`；它保留旧任务和结果。
+PR #25 原有类型和 schema 保留在 `agent-festival` 原目录，Demo 的 Go replace 仍指向该模块；Demo 专用适配、生成资源与测试位于本应用内，不需要额外 PR25 目录或服务。构建后执行原有 `-migrate`，会应用 `002_pr25_identity.sql`；它保留旧任务和结果。
 
 ```powershell
-& $py agent-festival/schema/embed_go.py
-& $go -C agent-festival/go test ./internal/ledger ./internal/result -count=1
+& $py demos/report-demo/deploy/embed_identity_schema.py
+& $go -C demos/report-demo/control-go test ./... -run 'TestGraphIdentity|TestEmbeddedIdentity|TestReconciliation' -count=1
 & $go -C demos/report-demo/control-go test ./... -run 'TestPGSharedIdentity|TestSharedIdentity|TestExportedContracts' -count=1 -v
 ```
 

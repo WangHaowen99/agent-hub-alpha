@@ -25,7 +25,7 @@ def main():
     # claim this scan covers short, generic credentials or every log format.
     secrets={s for s in secrets if isinstance(s,str) and len(s)>=12}
     findings=[];files=[];source_files={}
-    roots=[demo,repo/'agent-festival/schema',repo/'agent-festival/go/internal/ledger',repo/'agent-festival/go/internal/result']
+    roots=[demo,repo/'agent-festival/schema',repo/'agent-festival/go/internal/ledger']
     for path in sorted(p for source in roots for p in source.rglob('*')):
         if not path.is_file() or {'target','__pycache__','.git'}.intersection(path.parts):continue
         if path.suffix not in ('.md','.go','.java','.json','.html','.py','.xml','.yaml','.yml','.txt','.sql'):continue

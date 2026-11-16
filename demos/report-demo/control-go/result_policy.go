@@ -1,4 +1,4 @@
-package result
+package main
 
 // Adapted from PR #25, internal/e2e/t2host_test.go put/queryForReconciliation.
 // Storage and transaction ownership remain with the PG caller. This package

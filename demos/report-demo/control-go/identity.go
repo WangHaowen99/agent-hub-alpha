@@ -1,4 +1,4 @@
-package ledger
+package main
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/openjiuwen/agent-festival/go/internal/ledger"
 	"github.com/openjiuwen/agent-festival/go/internal/schemalib"
 	jsonschema "github.com/santhosh-tekuri/jsonschema/v6"
 )
@@ -18,13 +19,13 @@ var identityValidator = sync.OnceValues(func() (*jsonschema.Schema, error) {
 	return schemalib.Compile(doc["$id"].(string), doc)
 })
 
-// IdentitySchema returns the shared schema resource for transport exporters.
+// identitySchema returns the shared schema resource for transport exporters.
 // It is generated from event-ledger.schema.json, never inferred from Go tags.
-func IdentitySchema() json.RawMessage { return json.RawMessage(identitySchemaJSON) }
+func identitySchema() json.RawMessage { return json.RawMessage(identitySchemaJSON) }
 
-// ValidateIdentity checks the PR25 graph-aware identity against the shared
-// schema and rejects conflicting aliases. No file lookup depends on CWD.
-func ValidateIdentity(identity Identity) error {
+// validateIdentity checks the PR25 graph-aware identity against the shared
+// schema and enforces the report Demo mapping of task/revision aliases. No file lookup depends on CWD.
+func validateIdentity(identity ledger.Identity) error {
 	schema, err := identityValidator()
 	if err != nil {
 		return err

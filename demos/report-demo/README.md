@@ -2,7 +2,7 @@
 
 WorkSwarm 对话消费获准能力并生成候选图；Go/PG 控制图采纳、正式结果与交付；Java 原生 BlueprintScheduler 经 Gateway/RDC 调用四个真实 Runtime/Core 专家。Core/Runtime 使用原生内存，PG保存正式业务状态。
 
-当前实现接入 PR #25 的共享 schema/结构化身份及结果规约，直接依赖 agent-festival 原模块。实际验证范围与未完成项以验证报告为准；本地测试账号交付不代表独立人工业务验收。
+当前实现直接使用 agent-festival 原模块中 PR #25 的 schema/结构化身份；字段映射、schema资源打包和查重/对账策略属于 Demo 适配。实际验证范围与未完成项以验证报告为准；本地测试账号交付不代表独立人工业务验收。
 
 - [环境准备、逐步启动与验证](LOCAL-RUN.md)
 - [实际验证报告与未覆盖范围](VERIFICATION.md)

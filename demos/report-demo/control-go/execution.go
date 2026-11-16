@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/openjiuwen/agent-festival/go/internal/ledger"
-	"github.com/openjiuwen/agent-festival/go/internal/result"
 )
 
 const pr25Contract = "pr25/0.2.0@539d17a"
@@ -36,17 +35,17 @@ func executionIdentity(t *Task, node string, attempt int, epoch string) (*ledger
 		return nil, err
 	}
 	identity := &ledger.Identity{BusinessRequestID: t.ID, EvaluationRevision: t.Revision, OperationID: key, LogicalExecution: o, ExecutionGeneration: &e}
-	if err = ledger.ValidateIdentity(*identity); err != nil {
+	if err = validateIdentity(*identity); err != nil {
 		return nil, fault("INVALID_REQUEST", "invalid PR25 structured identity", 422)
 	}
 	return identity, nil
 }
 
-func resultRecord(r *Result) *result.Record[*Result] {
+func resultRecord(r *Result) *Record[*Result] {
 	if r == nil {
 		return nil
 	}
-	return &result.Record[*Result]{InputDigest: r.InputDigest, ContentDigest: r.ArtifactID, Value: r}
+	return &Record[*Result]{InputDigest: r.InputDigest, ContentDigest: r.ArtifactID, Value: r}
 }
 
 // ReconcileResult never mutates a task/lease or authorizes a new attempt.
@@ -62,7 +61,7 @@ func (s *Store) ReconcileResult(ctx context.Context, id, node, h string) (any, e
 	if ns == nil {
 		return nil, fault("NOT_FOUND", "node not in admitted graph", 404)
 	}
-	committed, serve, stored := result.QueryForReconciliation(resultRecord(ns.Result), h)
+	committed, serve, stored := QueryForReconciliation(resultRecord(ns.Result), h)
 	state := "UNCOMMITTED"
 	if committed {
 		state = "CONFLICT"

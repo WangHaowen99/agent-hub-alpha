@@ -1,16 +1,18 @@
-package ledger
+package main
 
 import (
 	"encoding/json"
+	"github.com/openjiuwen/agent-festival/go/internal/ledger"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
 
 func TestGraphIdentityUsesSharedSchemaAndTrustedBindings(t *testing.T) {
 	e := 2
-	valid := Identity{BusinessRequestID: "T1", EvaluationRevision: "g1", OperationID: "attempt-1", LogicalExecution: &LogicalExecution{"T1", "g1", "analysis", "0"}, ExecutionGeneration: &e}
-	if err := ValidateIdentity(valid); err != nil {
+	valid := ledger.Identity{BusinessRequestID: "T1", EvaluationRevision: "g1", OperationID: "attempt-1", LogicalExecution: &ledger.LogicalExecution{TaskID: "T1", GraphVersion: "g1", NodePath: "analysis", IterationPath: "0"}, ExecutionGeneration: &e}
+	if err := validateIdentity(valid); err != nil {
 		t.Fatal(err)
 	}
 	for _, kind := range []string{"missing-o", "missing-e", "empty-path", "task-conflict", "graph-conflict", "negative-e"} {
@@ -33,7 +35,7 @@ func TestGraphIdentityUsesSharedSchemaAndTrustedBindings(t *testing.T) {
 				n := -1
 				v.ExecutionGeneration = &n
 			}
-			if ValidateIdentity(v) == nil {
+			if validateIdentity(v) == nil {
 				t.Fatal("invalid graph identity accepted")
 			}
 		})
@@ -41,7 +43,7 @@ func TestGraphIdentityUsesSharedSchemaAndTrustedBindings(t *testing.T) {
 }
 
 func TestEmbeddedIdentityMatchesCanonicalSchema(t *testing.T) {
-	raw, err := os.ReadFile(SchemaPath)
+	raw, err := os.ReadFile(filepath.Join("../../../agent-festival/schema/event-ledger.schema.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,6 +56,6 @@ func TestEmbeddedIdentityMatchesCanonicalSchema(t *testing.T) {
 	}
 	delete(embedded, "$id")
 	if !reflect.DeepEqual(canonical["$defs"].(map[string]any)["identity"], embedded) {
-		t.Fatal("regenerate schema resource with schema/embed_go.py")
+		t.Fatal("regenerate schema resource with deploy/embed_identity_schema.py")
 	}
 }
