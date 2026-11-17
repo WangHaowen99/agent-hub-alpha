@@ -1,0 +1,192 @@
+{
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "plan": "P5",
+ "version": 1,
+ "fault_mode": "drop-query-once",
+ "plugin_has_notice_code": "http://127.0.0.1:5292/api/application-plugins/credit-workbench/assets/app.js",
+ "run": "R5",
+ "status_after_fault": "waiting",
+ "resume_control_visible": true,
+ "calls_before_resume": {
+  "intake": {
+   "request_id": "e2d52617b794fe53ad9b11c6",
+   "remote_task_id": "f10fbbbf-a30c-49b9-9859-af445530ea29",
+   "status": "unknown",
+   "artifact_id": null,
+   "model_events": {
+    "d7cfcd70-0d10-43b6-bf1b-107cad43a08f": "2026-11-17T08:56:42Z",
+    "ee8ec0dc-5869-430b-80f8-8083c06e8711": "2026-11-17T08:56:44Z"
+   },
+   "step_status": "unknown"
+  }
+ },
+ "completed_before": [],
+ "wrong": {
+  "notice": "R5：账号或密码不对。请先查看原任务最新状态，勿连续重试。",
+  "rev_before": 316,
+  "rev_after": 316,
+  "status_after": "waiting",
+  "transport_events_delta": 0
+ },
+ "after_accept_samples": [
+  {
+   "t": 0.0,
+   "run_status": "queued",
+   "control": 1,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "排队中"
+  },
+  {
+   "t": 1.0,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "排队中"
+  },
+  {
+   "t": 2.0,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 1/7"
+  },
+  {
+   "t": 3.0,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 1/7"
+  },
+  {
+   "t": 4.1,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 1/7"
+  },
+  {
+   "t": 5.1,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 1/7"
+  },
+  {
+   "t": 6.1,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 3/7"
+  },
+  {
+   "t": 7.1,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 3/7"
+  },
+  {
+   "t": 8.1,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 3/7"
+  },
+  {
+   "t": 9.2,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 4/7"
+  },
+  {
+   "t": 10.2,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 4/7"
+  },
+  {
+   "t": 11.2,
+   "run_status": "running",
+   "control": 0,
+   "notice": "R5：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+   "head_chip": "执行中 4/7"
+  }
+ ],
+ "other_item": "P4 v1",
+ "after_switch": {
+  "notice": null,
+  "head": "W02 A12 插件路径 runB 1794815884，仅生成模拟授信报告，不提交银行操作"
+ },
+ "after_switch_back": {
+  "notice": null
+ },
+ "calls_after": {
+  "bureau": {
+   "request_id": "8aed1c039e446beacab035e6",
+   "remote_task_id": "e0107869-8f9c-4067-a1e0-e75fa2fe9ea3",
+   "status": "completed",
+   "artifact_id": "artifact-74033a3180d24d99c066cb84a47aeef4875ff8f5fd2620573dfa9990a6840314",
+   "model_events": {
+    "04c0db6b-1261-4bfd-9a88-e4cce05ef63c": "2026-11-17T08:56:57Z",
+    "814bb836-bcc4-4813-8c9a-13a38394d3ad": "2026-11-17T08:56:55Z"
+   },
+   "step_status": "done"
+  },
+  "financial": {
+   "request_id": "fb9aceeabd97c3b26a341b10",
+   "remote_task_id": "ecafd181-28d7-49c3-a5f4-e98fedf5332f",
+   "status": "completed",
+   "artifact_id": "artifact-d274af288b05328646a154f426fb4049f9ad78e308fcc0cb29b949a1851d7af4",
+   "model_events": {
+    "02248109-4c49-4054-b463-ba2378575410": "2026-11-17T08:56:55Z",
+    "dfbc81b2-a03c-4a3f-b24a-6117d9f8db8a": "2026-11-17T08:56:57Z"
+   },
+   "step_status": "done"
+  },
+  "industry": {
+   "request_id": "64306b2ec3e3305b46918e31",
+   "remote_task_id": "3cb9afee-fed9-4a18-bb10-df48175a292f",
+   "status": "completed",
+   "artifact_id": "artifact-53b0610ba20027da8e86125af548c03092aca5945975791be85543e8ede9e768",
+   "model_events": {
+    "6436dcd0-d4b2-46d2-94b0-a7e0e6d00686": "2026-11-17T08:56:57Z",
+    "773f0602-3a07-4d13-9087-6af1a21ab287": "2026-11-17T08:56:55Z"
+   },
+   "step_status": "done"
+  },
+  "intake": {
+   "request_id": "e2d52617b794fe53ad9b11c6",
+   "remote_task_id": "f10fbbbf-a30c-49b9-9859-af445530ea29",
+   "status": "completed",
+   "artifact_id": "artifact-994054ee999b96ec5710ab155121c3dc8a23831da2ba9533ba087b1f572c0b80",
+   "model_events": {
+    "d7cfcd70-0d10-43b6-bf1b-107cad43a08f": "2026-11-17T08:56:42Z",
+    "ee8ec0dc-5869-430b-80f8-8083c06e8711": "2026-11-17T08:56:44Z"
+   },
+   "step_status": "done"
+  },
+  "report": {
+   "request_id": "b5b6e44d1226af055cb52528",
+   "remote_task_id": "fded5859-b4bb-48a1-84c9-de7b8323765b",
+   "status": "completed",
+   "artifact_id": "artifact-e79e3684776014ff848c950b12563c4a7d25399fbfa03160788fe327511e98e5",
+   "model_events": {
+    "23838dd5-0801-4601-80aa-5a409e93932b": "2026-11-17T08:57:25Z"
+   },
+   "step_status": "done"
+  }
+ },
+ "final_status": "done",
+ "final_chip": "验证通过 8/8",
+ "sendmessage_per_request": {
+  "e2d52617b794fe53ad9b11c6": 1,
+  "fb9aceeabd97c3b26a341b10": 1,
+  "64306b2ec3e3305b46918e31": 1,
+  "b5b6e44d1226af055cb52528": 1,
+  "8aed1c039e446beacab035e6": 1
+ },
+ "same_request_ids": true,
+ "same_task_ids": true
+}

@@ -1,0 +1,39 @@
+{
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "compose_project": "pr30-w02",
+ "rebuilt_for_41a3675": [
+  "credit"
+ ],
+ "reason": "41a3675 changes only app/, web/graph-flow.js, workbench-plugin/frontend/dist and tests; credit is the only image whose build context contains them; the plugin directory is mounted read-only into WorkSwarm",
+ "images": {
+  "credit": "92d0ccccf464",
+  "orchestrator": "527bac1463b2",
+  "workswarm": "629874eca16b",
+  "professional": "91b3ff0fc311",
+  "rdc": "a560d14bcc59",
+  "gateway": "1c91b141d1f1",
+  "bus-db": "postgres:15-alpine@sha256:09e4f20b14ddb3dfe3a0c825b206032aaf8f28300ba2070c0b60fc1c10c6abc7",
+  "fault-proxy": "python:3.11-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377"
+ },
+ "base_images": {
+  "python:3.11-slim": "sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377",
+  "node:22-slim": "sha256:f32b81066cde10a75dbac96646099533316d94bac4150c55da1636e1f0ffdc46"
+ },
+ "config_sha256_16": {
+  "compose.yaml": "3766502dc524aed0",
+  "compose.bus.yaml": "9be9ee4c3ddf6ed4",
+  "compose.bus-test.yaml": "ac4461f03d1d47e6",
+  "sources.lock.json": "bbf15ebf3a25dea6",
+  "bus/rdc.yml": "d48e67478f189088"
+ },
+ "mounted_plugin_sha256_16": {
+  "frontend/dist/app.js": "df366b46d0c5a512",
+  "extension.py": "d3b9a19256be3e00",
+  "extension.yaml": "4e2543f79d48343d"
+ },
+ "model": {
+  "name": "qwen-plus",
+  "endpoint_profile": "dashscope (OpenAI-compatible)"
+ },
+ "fault_injection": "compose.bus-test.yaml fault-proxy, mode drop-query-once"
+}
