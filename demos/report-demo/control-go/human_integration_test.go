@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestPGHumanReviewDoesNotRewriteCheckerAndRevocationStillWins(t *testing.T) {
-	ctx, s, _, cat := integration(t)
+	ctx, s, cfg, cat := integration(t)
 	_, g := sample(t)
 	g.Nodes = append(g.Nodes, Node{ID: "check", Expert: "checker@1", Role: "program", Task: "isolated checker fixture", DependsOn: []string{"draft"}})
 	task, err := s.Propose(ctx, "planner", "human-path", g, "compiler-fixture")
@@ -61,8 +62,29 @@ func TestPGHumanReviewDoesNotRewriteCheckerAndRevocationStillWins(t *testing.T) 
 		t.Fatal("HUMAN bypassed")
 	}
 	in := CheckReview{CheckArtifact: check, ObjectDigest: digest, Decision: "ACCEPT", Reason: "CONTROL TEST ONLY: simulate a qualified reviewer decision; not a real business signature"}
+	server := &Server{Store: s, Config: cfg, Catalog: cat, Files: files}
+	readReview := func() map[string]any {
+		r := httptest.NewRequest("GET", "/v1/workbench/tasks/"+task.ID, nil)
+		r.Header.Set("Authorization", "Bearer "+cfg.Tokens["operator"])
+		w := httptest.NewRecorder()
+		server.Routes().ServeHTTP(w, r)
+		if w.Code != 200 {
+			t.Fatalf("workbench projection rejected: %d", w.Code)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(w.Body.Bytes(), &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	if readReview()["human_review"] == nil {
+		t.Fatal("HUMAN task has no trusted fallback in the HTTP projection")
+	}
 	if _, err = s.ReviewCheck(ctx, task.ID, "check", in, "test-reviewer"); err != nil {
 		t.Fatal(err)
+	}
+	if readReview()["human_review"] != nil {
+		t.Fatal("resolved check still offers pending manual review")
 	}
 	in.Reason = "changed explanation is a new fact and cannot replace the original review"
 	_, err = s.ReviewCheck(ctx, task.ID, "check", in, "test-reviewer")

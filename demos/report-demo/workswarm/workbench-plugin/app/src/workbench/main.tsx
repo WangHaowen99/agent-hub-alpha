@@ -9,6 +9,7 @@ import type { Graph, Options } from "../types";
 import { newer } from "../order";
 import { Gateway, type GatewayError } from "./gateway";
 import pageCss from "./page.css";
+import { HumanReviewNotice } from "./HumanReviewNotice";
 
 interface PlanRow { plan: string; version: number; case: string; goal: string; ok: boolean; run?: string; run_status?: string }
 type Pick = { plan: string; v: number };
@@ -68,6 +69,7 @@ function ReportControl({g,refresh}:{g:Graph;refresh:()=>void}) {
  const pending=useRef(false);
  const receipt=useRef(new Map<string,string>());
  return <div className="wb-notice"><strong>正式状态：{g.task_status}</strong>
+ <HumanReviewNotice review={g.human_review} />
  {g.run && ['running','queued'].includes(g.run.status) && <button disabled={busy} onClick={()=>act('pause','')}>暂停新节点</button>}
  {g.reports?.map(r=><details key={r.artifact_id} data-artifact={r.artifact_id}><summary>报告 {r.node} · {r.check_outcome} · {r.digest.slice(0,22)}</summary><pre>{JSON.stringify(r.output,null,2)}</pre>
  <button disabled={busy || !r.can_approve} onClick={()=>act('approve_report',r.artifact_id)}>批准此报告</button> <button disabled={busy || !r.can_approve} onClick={()=>act('deliver',r.artifact_id)}>交付此报告</button>

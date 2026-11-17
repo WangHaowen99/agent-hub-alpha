@@ -23,6 +23,7 @@ type Store struct {
 	MaterialProjectionDigest string
 	ExecutionProfile         string
 	ModelBindingDigest       string
+	BusBinding               *BusBinding
 	CurrentCatalogDigest     string
 	DeliveryPolicyVersion    string
 	ReuseFiles               *Files
@@ -200,6 +201,10 @@ func (s *Store) Propose(ctx context.Context, principal, key string, g Graph, run
 	t := Task{IdentityContract: pr25Contract, SchemaVersion: Protocol, ID: newID("T-"), Revision: "g1", Status: "AWAITING_APPROVAL", Generation: "1", Graph: g, GraphDigest: h, RuntimeDigest: runtimeDigest, Nodes: map[string]*NodeState{}, CreatedAt: time.Now().UTC()}
 	t.ExecutionProfile = s.ExecutionProfile
 	t.ModelBindingDigest = s.ModelBindingDigest
+	if s.BusBinding != nil {
+		frozen := *s.BusBinding
+		t.BusBinding = &frozen
+	}
 	for _, n := range g.Nodes {
 		t.Nodes[n.ID] = &NodeState{Status: "READY"}
 	}
@@ -309,6 +314,9 @@ func (s *Store) Admit(ctx context.Context, id, digest, principal string) (any, e
 		if t.Status != "AWAITING_APPROVAL" {
 			return map[string]string{"task_id": id, "graph_digest": digest, "status": t.Status}, nil
 		}
+		if err := s.checkBusBinding(t); err != nil {
+			return nil, err
+		}
 		if t.ExecutionProfile != s.ExecutionProfile || t.ModelBindingDigest != s.ModelBindingDigest || (s.CurrentCatalogDigest != "" && t.Graph.CatalogDigest != s.CurrentCatalogDigest) {
 			return nil, fault("BINDING_CHANGED", "release changed after proposal; review a new candidate", 409)
 		}
@@ -328,6 +336,9 @@ func (s *Store) Admit(ctx context.Context, id, digest, principal string) (any, e
 }
 
 func (s *Store) Binding(ctx context.Context, t *Task, node string, c Catalog, materialDigest string) (Binding, error) {
+	if err := s.checkBusBinding(t); err != nil {
+		return Binding{}, err
+	}
 	if t.ExecutionProfile != s.ExecutionProfile || t.ModelBindingDigest != s.ModelBindingDigest {
 		return Binding{}, fault("BINDING_CHANGED", "execution source/model profile changed; new graph confirmation required", 409)
 	}
@@ -355,6 +366,7 @@ func (s *Store) Binding(ctx context.Context, t *Task, node string, c Catalog, ma
 	b := Binding{SchemaVersion: Protocol, TaskID: t.ID, Revision: t.Revision, NodeID: node, Instruction: n.Task, Goal: t.Graph.Goal, Focus: t.Graph.Focus, MaterialDigest: materialDigest, MaterialProjectionDigest: s.MaterialProjectionDigest, Capability: cap, PolicyVersion: t.Graph.PolicyVersion, Upstream: []Result{}, AuthorizedSkips: []SkipProof{}}
 	b.ExecutionProfile = s.ExecutionProfile
 	b.ModelBindingDigest = t.ModelBindingDigest
+	b.BusBinding = t.BusBinding
 	if t.IdentityContract != "" {
 		if t.IdentityContract != pr25Contract {
 			return Binding{}, fault("BINDING_CHANGED", "identity contract unavailable", 409)

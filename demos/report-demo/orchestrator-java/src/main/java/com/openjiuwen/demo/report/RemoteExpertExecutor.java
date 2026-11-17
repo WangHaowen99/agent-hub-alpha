@@ -23,11 +23,15 @@ final class RemoteExpertExecutor {
     private String cachedToken;
     private long tokenExpires;
 
-    RemoteExpertExecutor(ControlClient control, JsonNode bus) { this.control = control; this.bus = bus; }
+    RemoteExpertExecutor(ControlClient control, JsonNode bus) { this.control = control; this.bus = bus.deepCopy(); }
 
     JsonNode execute(String taskID, String nodeID, String owner, String epoch, JsonNode permit) {
         String path = "/v1/tasks/" + taskID + "/nodes/" + nodeID;
         JsonNode binding = permit.path("binding");
+        if (!binding.isObject()) { throw new ControlClient.ControlFailure("WAIT", 409); }
+        // Check before discovery, persisting an intent, or querying an old task.
+        // Old records without an environment are readable but cannot dispatch.
+        requireBusBinding(binding.path("bus_binding"), bus);
         JsonNode call;
         boolean send = false;
         if (permit.path("status").asText().equals("GRANTED")) {
@@ -94,6 +98,18 @@ final class RemoteExpertExecutor {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ControlClient.ControlFailure("REMOTE_UNKNOWN", 503);
+        }
+    }
+
+    static void requireBusBinding(JsonNode expected, JsonNode actual) {
+        for (String field : List.of("environment_id", "tenant", "issuer", "audience", "caller_subject")) {
+            String current = actual.path(field.equals("caller_subject") ? "subject" : field).asText();
+            if (current.isBlank() || !current.equals(expected.path(field).asText())) {
+                throw new ControlClient.ControlFailure("BUS_BINDING_CHANGED", 409);
+            }
+        }
+        if (!actual.path("token_url").asText().equals(actual.path("issuer").asText() + "/protocol/openid-connect/token")) {
+            throw new ControlClient.ControlFailure("BUS_BINDING_CHANGED", 409);
         }
     }
 

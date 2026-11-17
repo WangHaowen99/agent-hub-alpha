@@ -45,6 +45,18 @@ def fingerprint(repo: Path) -> str:
     return "sha256:" + hashlib.sha256(body).hexdigest()
 
 
+def bus_binding(bus: dict) -> dict:
+    """Public logical identity only; never hash routes, bearer tokens or secrets."""
+    result = {key: bus.get(source, "") for key, source in (
+        ("environment_id", "environment_id"), ("tenant", "tenant"),
+        ("issuer", "issuer"), ("audience", "audience"), ("caller_subject", "subject"))}
+    if any(not isinstance(value, str) or not value.strip() for value in result.values()):
+        raise SystemExit("Configure identity and an explicit Bus environment before binding this release")
+    if bus.get("token_url") != result["issuer"] + "/protocol/openid-connect/token":
+        raise SystemExit("Bus token URL must belong to its explicit issuer")
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--private-root", type=Path, required=True)
@@ -55,6 +67,8 @@ def main() -> None:
         data = json.loads(path.read_text(encoding="utf-8"))
         data["execution_profile"] = digest
         data["model_binding_digest"] = model_binding_digest()
+        if path.name == "config.json":
+            data["bus_binding"] = bus_binding(data.get("bus", {}))
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
     print(json.dumps({"execution_profile": digest, "model_settings_persisted": False,
                       "next": "Restart control/compiler/experts before admitting a new graph"}))

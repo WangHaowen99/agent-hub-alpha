@@ -4,7 +4,23 @@
 
 按用户本次“核心继续验证、非核心留交接”的要求，当前年报 Demo 核心链已完成实现与验证：真实对话规划、四个真实专家、持久结果、程序检查、受信测试账号交付，以及关键失败不假成功。非核心工作及其完成依据集中在 [验证报告](VERIFICATION.md)。独立人工业务验收与外部 issue 的完整联合门禁仍未完成，不因本轮核心收敛而自动通过。
 
-## 当前双平台结果：2026-11-17
+## HUMAN 入口与 Bus 环境绑定增量：2026-11-17
+
+插件对当前有效、尚未处理的 HUMAN 检查显示 Go 可信处理页链接；仍使用独立登录、会话/CSRF 和检查/报告对象绑定审核。人工处理后刷新投影移除待审提示，保留原始 HUMAN 检查；没有把完整审核表单复制到插件。
+
+Task/Binding 固定 `environment_id/tenant/issuer/audience/caller_subject`，进入输入摘要。Go 在采纳、解析/提交、发送意图前检查；Java 在发现、发送和恢复查询前检查。失配返回 `BUS_BINDING_CHANGED`，节点进入 BLOCKED；历史缺绑定记录只读，不从当前配置补齐。逻辑身份不包含 Gateway/RDC 地址和秘密，支持同环境代理及凭据轮换。
+
+| 实际检查 | 结果及边界 |
+| --- | --- |
+| Windows 完整 Go/真实 PG | 49 顶层、101 含子用例，0失败、0跳过测试；vet通过。新增换租户/环境/身份域、缺绑定历史记录、零发送意图、原记录不变反例；补测 HUMAN HTTP 投影处理前后变化 |
+| Windows Java | 29 项，0 failure/error/skip。真实 Go 进程/PG + 隔离 HTTP 提供方：发送前及旧任务查询前换环境零外呼；同环境新代理只 GetTask、无第二次 SendMessage，原 call/remote task 不变 |
+| Windows 插件 | 类型检查、构建、5项 Node 测试和4项实际构建页面浏览器测试通过。浏览器使用模拟 RPC，证明提示、链接和处理后投影刷新；不称真实 WorkSwarm HUMAN 业务验收 |
+| Linux 原生针对性回归 | Go 3顶层/13含子用例、Java协议与跨语言10项、插件类型检查/构建/5项测试通过。未重新跑本增量的 Linux 完整 PG 或真实模型主链 |
+| Windows 更新后真实模型主链 | 新对话规划→插件确认→4专家/5次远端调用→一次定向修订→最终程序PASS→插件交付/原字节下载，8节点全部正式提交。规划6项、主链10项、PR25身份/对账20项核对通过 |
+
+真实新任务 `T-753df58e598a9aa5244ea5e374cedb9a`，状态 DELIVERED；最终报告 `sha256:92a3164634b20bf385a07dc061150d6e5e8f2150bcf5e816d79747f9e4def79c`。任务中固定的 Bus 绑定与发布配置相同，原 delivery_id 重放返回同一 receipt。实际模型结果与增量制品摘要见脱敏样例的 `bus_environment_and_human_validation`；上一轮双平台完整主链及制品保留为下节固定基线，不能将它们标为本增量的 Linux 全链证据。独立业务签认、真实 HUMAN 全链和外部协作者复跑仍未由这些检查证明。
+
+## 基线双平台结果：2026-11-17（f657d9f）
 
 实现提交 `f657d9fa31eedb39b5c9fadcd09a928a0c5ab790`。同一套 Go/Java/Python/WorkSwarm 插件代码，分别在 Windows 和本机 WSL2 的独立 Linux 工作区构建、启动和执行真实模型任务。浏览器客户端均为 Windows Edge；Linux 验证的后端、静态前端构建和服务均由 Linux 原生进程承担，未借用 Windows exe。测试前停止 Windows 实例，并核对 Windows 客户端与 WSL 内部返回同一 Go control_session_id，排除误连旧服务。
 

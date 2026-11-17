@@ -74,9 +74,13 @@ def main() -> None:
     cfg_path = root / "config.json"
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     registry_token = cfg.get("bus", {}).get("registry_token", secrets.token_urlsafe(32))
+    environment_id = cfg.get("bus", {}).get("environment_id") or "report-demo-" + secrets.token_hex(16)
     cfg["bus"] = {"gateway_url": "http://127.0.0.1:8080", "rdc_url": "http://127.0.0.1:8092", "tenant": "demo",
+                  "environment_id": environment_id, "issuer": args.base + "/realms/report-demo", "audience": "report-demo",
                   "registry_token": registry_token, "token_url": args.base + "/realms/report-demo/protocol/openid-connect/token",
                   **clients["report-worker"]}
+    from bind_profile import bus_binding
+    cfg["bus_binding"] = bus_binding(cfg["bus"])
     cfg_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     identity = {"issuer": args.base + "/realms/report-demo", "audience": "report-demo", "clients": clients,
                 "registry_token": registry_token, "route_handle_secret": secrets.token_urlsafe(40)}

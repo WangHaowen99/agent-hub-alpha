@@ -22,6 +22,7 @@ export interface Graph {
   selection?: {id:string;digest:string;eligibility:unknown[];ranking:unknown[];selection:string[];composition:unknown};
   reports?: {node:string;artifact_id:string;digest:string;output:unknown;check_outcome:string;can_approve:boolean}[];
   task_status?: string; delivery_receipts?: unknown[];
+  human_review?: {url:string;checks:{node:string;check_artifact:string;object_digest:string}[]};
   live?: string;
   bus?: BusSummary;
   rev?: string; // state revision the snapshot was read at (see order.ts)

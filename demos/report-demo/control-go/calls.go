@@ -43,6 +43,9 @@ func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, ro
 		if err := s.leaseCheck(ctx, tx, id, "graph", owner, epoch); err != nil {
 			return nil, err
 		}
+		if err := s.checkBusBinding(t); err != nil {
+			return nil, err
+		}
 		cd, err := Digest(c)
 		if err != nil {
 			return nil, err

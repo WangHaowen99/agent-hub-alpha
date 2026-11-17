@@ -126,6 +126,9 @@ func (s *Server) checkPublicCandidate(ctx context.Context, g Graph) (string, err
 		if s.Config.ExecutionProfile == "" || s.Config.ModelBindingDigest == "" {
 			return "", fault("BINDING_CHANGED", "publish a reviewed source and actual-model binding before proposing executable work", 409)
 		}
+		if !s.Config.BusBinding.valid() {
+			return "", fault("BUS_BINDING_CHANGED", "publish an explicit Bus environment binding before proposing executable work", 409)
+		}
 		if err := s.Store.validateSelection(ctx, s.Store.Pool, g); err != nil {
 			return "", err
 		}
@@ -412,6 +415,7 @@ func NewServer(s *Store, c Config, cat Catalog, material Material) *Server {
 	s.MaterialProjectionDigest = material.ProjectionDigest
 	s.ExecutionProfile = c.ExecutionProfile
 	s.ModelBindingDigest = c.ModelBindingDigest
+	s.BusBinding = c.BusBinding
 	s.CurrentCatalogDigest, _ = Digest(cat)
 	s.DeliveryPolicyVersion = cat.PolicyVersion
 	s.ReuseFiles = &Files{Root: c.ArtifactRoot}

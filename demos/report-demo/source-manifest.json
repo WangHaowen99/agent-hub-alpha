@@ -216,15 +216,15 @@
     "agent-festival/schema/event-ledger.schema.json": "5696fcb19c1876d95d23f4606ca6cb87aba9b138128e9a7eb1c9e42408f04a3c"
   },
   "latest_shared_contract_run": {
-    "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+    "task_id": "T-753df58e598a9aa5244ea5e374cedb9a",
     "fresh_model_planning": true,
     "actor": "isolated operator test via W02 plugin",
     "identity_contract": "pr25/0.2.0@539d17a",
     "status": "DELIVERED",
-    "report_digest": "sha256:9332d816d604d632213a5826e15cab61b5cc9c5e61c75ab048b2d6efbb313735",
+    "report_digest": "sha256:92a3164634b20bf385a07dc061150d6e5e8f2150bcf5e816d79747f9e4def79c",
     "real_experts": 4,
     "read_only_evidence_checks_passed": 10,
-    "structured_contract_checks_passed": 16,
+    "structured_contract_checks_passed": 20,
     "independent_business_acceptance": false
   },
   "integration_review": {
@@ -261,5 +261,21 @@
     },
     "implementation_sha": "f657d9fa31eedb39b5c9fadcd09a928a0c5ab790",
     "verification": "evidence/integration-sample.json#current_platform_validation"
+  },
+  "bus_environment_and_human": {
+    "bus_binding_fields": [
+      "environment_id",
+      "tenant",
+      "issuer",
+      "audience",
+      "caller_subject"
+    ],
+    "error": "BUS_BINDING_CHANGED",
+    "binding_source": "configure_identity.py + bind_profile.py; freeze on proposal; check admission, input, intent and Java SEND/QUERY",
+    "route_and_credential_rotation": "Excluded from logical identity; token_url belongs to issuer",
+    "historical_records": "Readable; missing binding blocks execution; no automatic backfill",
+    "human_entry": "W02 plugin notice/link -> existing Go task page with session, CSRF and exact object review",
+    "verification": "evidence/integration-sample.json#bus_environment_and_human_validation",
+    "linux_scope": "Native targeted regression; previous full Linux model run retained as baseline"
   }
 }

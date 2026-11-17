@@ -1,5 +1,9 @@
 # 跨服务协议交接
 
+当前 Task/Binding 还冻结非秘密的 `bus_binding={environment_id,tenant,issuer,audience,caller_subject}`。它进入节点输入摘要；Go 在采纳、解析/提交、发送意图前检查当前环境，Java 在发现、发送、恢复查询前检查实际 Bus 配置，失配返回 `BUS_BINDING_CHANGED` 并阻止外呼。发布的执行 profile 必须带显式环境绑定；历史缺字段只读兼容，不回填当前环境后继续执行。Gateway/RDC 地址、令牌、client secret 不属于逻辑身份，更换同环境代理和轮换凭据不改变既有远端任务身份。token_url 必须属于绑定 issuer；身份真实性仍由现有 Gateway/IdP 校验。
+
+工作台投影仅对当前有效、尚未处理的 HUMAN 检查返回 `human_review={url,checks:[{node,check_artifact,object_digest}]}`。url 由 Go 的 public_url 与任务 ID 构造，不含登录凭据；插件打开可信页，用户重新登录并走原有会话/CSRF 和对象绑定审核。审核后投影不再展示待处理提示；原始检查产物不变。
+
 这是当前实现的应用协议 `report-demo/1`。这里的 Cxx 是设计中的 **Contract-Cxx**，不替代项目 issue 的其它同名编号。接入 [PR #25](https://github.com/chaosxingxc-orion/agent-hub-alpha/pull/25) `539d17a` 的结构化身份/schema；共享定义在主模块原目录，应用 schema 由实际 DTO 和共享身份资源导出。能力口径、前驱资格、租约、检查/批准和事务不变量仍由 Go 领域规则执行，不以“schema 合法”推断“业务获准”。
 
 | 身份 / 读面 | 实际映射 |

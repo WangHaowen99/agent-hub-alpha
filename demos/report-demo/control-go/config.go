@@ -21,6 +21,7 @@ type Config struct {
 	LeaseSeconds       int               `json:"lease_seconds"`
 	ExecutionProfile   string            `json:"execution_profile"`
 	ModelBindingDigest string            `json:"model_binding_digest,omitempty"`
+	BusBinding         *BusBinding       `json:"bus_binding,omitempty"`
 	Tokens             map[string]string `json:"tokens"`
 	User               string            `json:"user"`
 	UserPassword       string            `json:"user_password"`
@@ -57,6 +58,9 @@ func LoadConfig(path string) (Config, Catalog, Material, error) {
 	}
 	if cfg.ExecutionProfile != "" && cfg.ModelBindingDigest == "" {
 		return cfg, cat, m, errors.New("published execution profile requires its reviewed actual-model binding")
+	}
+	if cfg.ExecutionProfile != "" && !cfg.BusBinding.valid() {
+		return cfg, cat, m, errors.New("published execution profile requires an explicit Bus environment binding")
 	}
 	if cfg.TestEffect != nil {
 		if err = cfg.TestEffect.validate(); err != nil {

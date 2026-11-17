@@ -13,6 +13,20 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 class ProtocolAndCheckerTest {
+    @Test void busBindingRequiresExplicitHistoryButAllowsRouteAndCredentialRotation() {
+        var expected=Json.read("""
+            {"environment_id":"env-one","tenant":"demo","issuer":"https://id.example/realms/demo","audience":"demo","caller_subject":"worker"}
+            """);
+        var actual=Json.read("""
+            {"environment_id":"env-one","tenant":"demo","issuer":"https://id.example/realms/demo","audience":"demo","subject":"worker",
+             "token_url":"https://id.example/realms/demo/protocol/openid-connect/token","gateway_url":"http://new-proxy","rdc_url":"http://new-rdc",
+             "client_secret":"rotated-fixture","registry_token":"rotated-fixture"}
+            """);
+        assertDoesNotThrow(()->RemoteExpertExecutor.requireBusBinding(expected,actual));
+        assertEquals("BUS_BINDING_CHANGED",assertThrows(ControlClient.ControlFailure.class,
+            ()->RemoteExpertExecutor.requireBusBinding(Json.read("{}"),actual)).code);
+        assertEquals("BLOCKED",BoundNodeExecutor.waitingStatus("BUS_BINDING_CHANGED"));
+    }
     @Test void humanResolutionMustMatchBothImmutableCheckAndReport() {
         var check=Json.read("{\"artifact_id\":\"check-1\",\"output\":{\"outcome\":\"HUMAN\",\"object_digest\":\"report-1\"}}");
         var review=Json.read("{\"check_artifact\":\"check-1\",\"object_digest\":\"report-1\",\"receipt\":\"user-review-1\",\"decision\":\"ACCEPT\"}");

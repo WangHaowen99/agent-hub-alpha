@@ -163,6 +163,10 @@ $env:DEMO_MODEL_NAME = Read-Host '可用模型名称'
 
 首次绑定 profile，或更换模型/提示词/源码后，重启 control、compiler 和所有专家，再采纳新图。旧图不得悄悄切换执行配置。停止后重新启动模型服务，需要重新提供环境变量；不能从历史日志恢复密钥。
 
+`configure_identity.py` 同时生成并保持私有 `config.bus.environment_id`，发布 `bus_binding={environment_id,tenant,issuer,audience,caller_subject}`；`bind_profile.py` 检查并发布同一逻辑身份。已有工作区升级时先重新运行第5节的身份装配，再绑定当前 profile、重启相关服务。身份装配复用原有客户端；不要手工把当前环境补进旧任务记录。
+
+任务在候选阶段冻结 Bus 绑定，用户采纳前和节点执行/发送意图前由 Go 检查；Java 在发现、首次发送和恢复查询前再次核对配置。缺绑定的历史任务仍可只读查看，执行返回 `BUS_BINDING_CHANGED`，需要生成新候选并确认。更换租户、逻辑环境、issuer、audience 或调用主体需要新候选；同环境调整 Gateway/RDC 地址、加计数代理或轮换凭据不改变绑定。token_url 必须属于明确的 issuer。环境标识用于一致性检查，不能替代 Gateway/IdP 的真实鉴权。
+
 装配规划助手：
 
 ```powershell
@@ -178,6 +182,8 @@ $env:PYTHONPATH = $env:WORKSWARM_SOURCE
 原生四 Runtime 会被注册到 RDC，并通过 RDC 管理 API 给真实 worker 主体授权。`registry-heartbeat` 每 8 秒续注册；停止它后，发现结果会在可见窗口后消失，这是 liveness 行为，不是 W04 结果丢失。
 
 ## 7. 先验证连通，再验证业务
+
+遇到 `HUMAN` 时，编排台显示“前往人工处理”，打开当前任务的 Go 可信页。该页需要独立登录；核对报告、检查摘要和依据后选择接受、修订或拒绝。处理后回到编排台刷新。人工接受保留原始 HUMAN 记录，后续批准、交付仍走现有服务端检查；不要直接改成程序 PASS。
 
 ```powershell
 & $py demos/report-demo/deploy/services.py status

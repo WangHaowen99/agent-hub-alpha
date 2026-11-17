@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 // W02's view model is a projection of W04. It owns no plans, ready queue or results.
@@ -184,6 +186,9 @@ func (s *Server) workbenchRoutes(m *http.ServeMux) {
 			}
 		}
 		out["reports"] = reports
+		if review := s.workbenchHumanReview(t); review != nil {
+			out["human_review"] = review
+		}
 		if r.URL.Query().Get("verify") == "1" {
 			v, err := s.VerifyRun(r.Context(), t.ID)
 			if err != nil {
@@ -203,6 +208,29 @@ func (s *Server) workbenchRoutes(m *http.ServeMux) {
 		}
 		return out, nil
 	}))
+}
+
+// Only current, unresolved HUMAN checks offer a link. The trusted page still
+// requires its own user session/CSRF and validates the exact checker/report.
+func (s *Server) workbenchHumanReview(t *Task) map[string]any {
+	checks := []any{}
+	for _, node := range t.Graph.Nodes {
+		ns := t.Nodes[node.ID]
+		if ns == nil || ns.Result == nil || !ns.Result.Valid || effectiveCheck(ns) != "HUMAN" {
+			continue
+		}
+		var check struct {
+			ObjectDigest string `json:"object_digest"`
+		}
+		if json.Unmarshal(ns.Result.Output, &check) != nil || check.ObjectDigest == "" {
+			continue
+		}
+		checks = append(checks, map[string]string{"node": node.ID, "check_artifact": ns.Result.ArtifactID, "object_digest": check.ObjectDigest})
+	}
+	if len(checks) == 0 {
+		return nil
+	}
+	return map[string]any{"url": strings.TrimRight(s.Config.PublicURL, "/") + "/ui/tasks/" + url.PathEscape(t.ID), "checks": checks}
 }
 
 func (s *Server) workbenchCalls(r *http.Request, t *Task, nodes map[string]map[string]any, out map[string]any) error {

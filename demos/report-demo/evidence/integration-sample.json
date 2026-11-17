@@ -2156,5 +2156,217 @@
       "GLM reasoning endpoint and joint M1-M4 not tested",
       "W01 verifier independence ruling and W06/W07 business signoff remain external"
     ]
+  },
+  "bus_environment_and_human_validation": {
+    "scope": "incremental Windows full PG/Java + real model chain; Linux targeted native regression only",
+    "base_sha": "012840a05435dbbcfb9dad944c56368fa52e4189",
+    "bus_binding_fields": [
+      "environment_id",
+      "tenant",
+      "issuer",
+      "audience",
+      "caller_subject"
+    ],
+    "task_bus_binding_matches_published": true,
+    "historical_binding_backfill": false,
+    "real_model_run": {
+      "task_id": "T-753df58e598a9aa5244ea5e374cedb9a",
+      "graph_digest": "sha256:e6899bfac7a05ec0f0bdcfc2ebf3c712b4425edddf2f174a3f28e7ab3d0fcc20",
+      "execution_profile": "sha256:4a5e9fd43c812f8f3339dbd3be15c7063f2d1d8d9f9c2f43cf948af717ab54bb",
+      "model_binding_digest": "sha256:8a14877f61e13bac18cf395ebb5c08e1a455ef0c7a04efeb3e9ff24984dcfed7",
+      "report_digest": "sha256:92a3164634b20bf385a07dc061150d6e5e8f2150bcf5e816d79747f9e4def79c",
+      "remote_calls": 5,
+      "status": "DELIVERED",
+      "checks": {
+        "zero_calls_before_confirmation": true,
+        "four_real_experts": true,
+        "all_calls_have_unique_completed_remote_tasks": true,
+        "formally_delivered": true,
+        "download_exact_formal_bytes": true,
+        "evidence_intact": true
+      },
+      "all_passed": true
+    },
+    "node_states": {
+      "COMMITTED": 8
+    },
+    "planning": {
+      "session_id": "web_1a1e9dd132b_f7b1fe40b283",
+      "request_id": "req_mwkryt6j_29",
+      "task_id": "T-753df58e598a9aa5244ea5e374cedb9a",
+      "graph_digest": "sha256:e6899bfac7a05ec0f0bdcfc2ebf3c712b4425edddf2f174a3f28e7ab3d0fcc20",
+      "selection_ref": {
+        "id": "selection-0f649e7cf2c7346a4114414952f08cea",
+        "digest": "sha256:ad45c5552c01e54829377b753fe30550defec90f0bc9b32a1db28a22543521cb"
+      },
+      "proposal_attempts": 1,
+      "tool_names": [
+        "mcp_report-orchestration_list_capabilities",
+        "skill_tool",
+        "mcp_report-orchestration_select_capabilities",
+        "mcp_report-orchestration_propose_plan"
+      ],
+      "usage": [
+        {
+          "input_tokens": 57123,
+          "output_tokens": 3293,
+          "total_tokens": 60416,
+          "cache_tokens": 45568,
+          "cache_hit_rate": "79.8%"
+        }
+      ],
+      "checks": {
+        "catalog_selection_proposal_order": true,
+        "model_abilities_stayed_scoped": true,
+        "real_model_token_usage": true,
+        "request_completed": true,
+        "no_request_error": true,
+        "model_authored_graph_matches_authority": true
+      },
+      "all_passed": true,
+      "limits": [
+        "One explicit real dialogue and task-bound successful proposal; rejected graph attempts are retained, not counted as successful plans",
+        "Not semantic-search recall or independent business acceptance"
+      ]
+    },
+    "main_verification": {
+      "task_id": "T-753df58e598a9aa5244ea5e374cedb9a",
+      "execution_profile": "sha256:4a5e9fd43c812f8f3339dbd3be15c7063f2d1d8d9f9c2f43cf948af717ab54bb",
+      "graph_digest": "sha256:e6899bfac7a05ec0f0bdcfc2ebf3c712b4425edddf2f174a3f28e7ab3d0fcc20",
+      "checks": {
+        "delivered_with_intact_evidence": true,
+        "real_remote_tasks_for_four_experts_and_optional_revision": true,
+        "four_independent_expert_roles": true,
+        "every_remote_formal_output_matches_bound_completion": true,
+        "two_completed_loop_branches_with_bound_inputs": true,
+        "download_matches_formal_report": true,
+        "download_bytes_match_artifact_digest": true,
+        "same_object_program_check": true,
+        "same_object_test_account_approval": true,
+        "selection_preserves_program_only_qualification": true
+      },
+      "all_passed": true,
+      "limits": [
+        "Recorded real model/transport evidence; not independent business acceptance",
+        "Approval and delivery performed by the isolated operator test account"
+      ]
+    },
+    "shared_contract": {
+      "task_id": "T-753df58e598a9aa5244ea5e374cedb9a",
+      "planning_provenance": "explicit existing task; see separate real-dialogue verifier",
+      "status": "DELIVERED",
+      "checks": {
+        "shared_contract_bound": true,
+        "formal_results_present": true,
+        "every_formal_result_has_structured_identity": true,
+        "reconcile_same_input:business": true,
+        "receipt_not_input:business": true,
+        "reconcile_same_input:check0": true,
+        "receipt_not_input:check0": true,
+        "reconcile_same_input:check1": true,
+        "receipt_not_input:check1": true,
+        "reconcile_same_input:draft0": true,
+        "receipt_not_input:draft0": true,
+        "reconcile_same_input:extract": true,
+        "receipt_not_input:extract": true,
+        "reconcile_same_input:quality": true,
+        "receipt_not_input:quality": true,
+        "reconcile_same_input:revise1": true,
+        "receipt_not_input:revise1": true,
+        "reconcile_same_input:select_report": true,
+        "receipt_not_input:select_report": true,
+        "reconciliation_read_only": true
+      },
+      "all_passed": true,
+      "limits": [
+        "Actual Java/Bus/model consumers; planning provenance is recorded by fresh_model_planning and the separate conversation verifier",
+        "Operator test approval, not independent business acceptance"
+      ]
+    },
+    "fault_checks": {
+      "bus-change-false": {
+        "old_binding_preserved": true,
+        "recovery": false,
+        "result": "BUS_BINDING_CHANGED",
+        "same_call_identity": true,
+        "new_outbound_requests": 0
+      },
+      "bus-change-true": {
+        "old_binding_preserved": true,
+        "recovery": true,
+        "result": "BUS_BINDING_CHANGED",
+        "same_call_identity": true,
+        "new_outbound_requests": 0
+      },
+      "bus-proxy-recovery": {
+        "same_call_identity": true,
+        "proxy_queries": 1,
+        "total_sends": 1
+      }
+    },
+    "tests": {
+      "windows_go": {
+        "top_level": 49,
+        "including_subtests": 101,
+        "failures": 0,
+        "skipped_tests": 0,
+        "log_sha256": "sha256:1390a9a70d5cc93c40e58fdc25ee2e3223eeab5e2f8c4d86905db608b4231568"
+      },
+      "windows_orchestrator": {
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reports_sha256": {
+          "TEST-com.openjiuwen.demo.report.AdmittedGraphCompilerTest.xml": "sha256:04faab027b5e6f8f1b17341d17eb7c940956a378498a57d523ccc57c68644143",
+          "TEST-com.openjiuwen.demo.report.CanonicalInteropTest.xml": "sha256:7f1d87ef0ec067af2cfc1e08b713244a98b8fc480daea17bfe0c4e007cff5b0e",
+          "TEST-com.openjiuwen.demo.report.GovernanceErrorTest.xml": "sha256:f065f46ee0b7b33d11f1b162393f60d1eec411cb95c924823c01bb54e08e99f9",
+          "TEST-com.openjiuwen.demo.report.ProtocolAndCheckerTest.xml": "sha256:8000f03d6958cfb32c63a26b5861b96aec2db2cdd2885270a256b94b5dfa68fa",
+          "TEST-com.openjiuwen.demo.report.RemoteWindowIntegrationTest.xml": "sha256:323372344b34b05e9ba933ddcb9f7f4ea4308f740ce362c963b7ecbcf49798f2",
+          "TEST-com.openjiuwen.demo.report.ReportSchemaTest.xml": "sha256:ccf24f00149d96b54600e5f5900831304a0ad7b1cc8209eaa83e091a4ae10658"
+        }
+      },
+      "windows_human_http_projection": "pending link -> immutable review -> refreshed pending link absent; real PG and actual HTTP handler",
+      "windows_plugin": {
+        "node_tests": 5,
+        "browser_tests": 4,
+        "typecheck": true,
+        "build": true,
+        "browser_transport": "simulated RPC; built application page"
+      },
+      "linux_go_targeted": {
+        "top_level": 3,
+        "including_subtests": 13,
+        "failures": 0,
+        "skipped_tests": 0,
+        "log_sha256": "sha256:4e1bf2af3debc8ecc906202fec697e8dce1271f1c4e6843187eeb6d0db3f56ba"
+      },
+      "linux_java_targeted": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reports_sha256": {
+          "TEST-com.openjiuwen.demo.report.CanonicalInteropTest.xml": "sha256:bdb63cdccce70d51107f7abe012b8286085b12128ce1cd4b4a6022fb2635032d",
+          "TEST-com.openjiuwen.demo.report.ProtocolAndCheckerTest.xml": "sha256:19bab0158fb2f8caed207c99a4e74e1bdff3ce25e40e215a61524b52cc08dfff"
+        }
+      },
+      "linux_plugin": {
+        "node_tests": 5,
+        "typecheck": true,
+        "build": true
+      }
+    },
+    "artifacts": {
+      ".local\\report-demo\\bin\\report-control.exe": "sha256:35c881b61a9630d17241b25f1d6abf247d05a0fbe255252e070c909c093f2b87",
+      "demos\\report-demo\\orchestrator-java\\target\\report-orchestrator.jar": "sha256:bf2dfc4c68affedfc86ba7bad6e2ca3b6ccb65d569262bbbc96c5ff0b5e1fa5d",
+      "demos\\report-demo\\experts-java\\target\\report-experts.jar": "sha256:518826d14050f32b37fcbb1d92ef9b6b180a0c58617595e27f30335321d4480d"
+    },
+    "limits": [
+      "Not independent business acceptance or peer replay",
+      "HUMAN built-page browser uses simulated RPC; Go/PG authority checked separately; no real WorkSwarm HUMAN business signoff",
+      "Bus environment fault/provider proxy tests use isolated HTTP with actual Go, PG and Java adapter; not peer W05 Gateway proxy signoff",
+      "Linux full PG/model chain not rerun for this increment; previous fixed baseline retained"
+    ]
   }
 }

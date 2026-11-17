@@ -175,6 +175,8 @@ mvn -s .local/maven-settings.xml -f demos/report-demo/experts-java/pom.xml test
 
 ## 6. 停止和恢复
 
+Bus 环境绑定与 HUMAN 操作规则和 Windows 相同，见 [LOCAL-RUN 第6—7节](LOCAL-RUN.md)。已有工作区升级需重新装配身份、发布当前 profile 并重启；历史任务缺 `bus_binding` 时保留只读，不以当前环境回填。插件 HUMAN 链接打开 Go 可信页，需独立登录；人工处理后返回插件刷新。
+
 ```bash
 "$py" demos/report-demo/deploy/services.py status --private-root "$private"
 "$py" demos/report-demo/deploy/services.py stop --private-root "$private"

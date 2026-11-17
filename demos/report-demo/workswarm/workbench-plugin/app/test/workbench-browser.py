@@ -14,7 +14,7 @@ from playwright.sync_api import sync_playwright, expect
 
 DIST = Path(__file__).resolve().parents[2] / "frontend/dist"
 TRANSPORT = r"""
-window.fixture = {statuses: {R1:'waiting', R2:'running'}, sent:[], deferred:[], delay:false, rev:1};
+window.fixture = {statuses: {R1:'waiting', R2:'running'}, sent:[], deferred:[], delay:false, rev:1, human:false};
 window.WebSocket = class {
   static OPEN = 1;
   readyState = 1;
@@ -28,7 +28,8 @@ window.WebSocket = class {
     } else if (m.method.endsWith('.graph')) {
       const n = (m.params.plan || m.params.run) === 'T-'+ '2'.repeat(32) ? 2 : 1;
       reply({plan:'T-'+String(n).repeat(32), version:1, case:'C006', goal:'fixture '+n, hash:'fixture', ok:true, rev:String(++f.rev), nodes:[], layers:[],
-        run:{id:'T-'+String(n).repeat(32), status:f.statuses['R'+n], leases:1, url:''}});
+        run:{id:'T-'+String(n).repeat(32), status:f.statuses['R'+n], leases:1, url:''},
+        ...(f.human ? {human_review:{url:'http://127.0.0.1:8190/ui/tasks/T-'+String(n).repeat(32),checks:[{node:'check',check_artifact:'fixture',object_digest:'sha256:fixture'}]}} : {})});
     } else if (m.method.endsWith('.resume')) {
       const finish = () => { f.statuses['R'+m.params.run.slice(-1)] = 'running'; reply({run:m.params.run, status:'queued'}); };
       if (f.delay) f.deferred.push(finish); else finish();
@@ -72,6 +73,15 @@ class WorkbenchBrowserTests(unittest.TestCase):
     def resume(self):
         self.page.locator(".wb-resume input").fill("fixture-only")
         self.page.locator(".wb-resume button").click()
+
+    def test_human_fallback_is_visible_and_disappears_after_resolved_projection(self):
+        self.page.evaluate("window.fixture.human=true")
+        link=self.page.get_by_role("link",name="前往人工处理")
+        expect(link).to_be_visible()
+        expect(link).to_have_attribute("href","http://127.0.0.1:8190/ui/tasks/T-"+"1"*32)
+        expect(link).to_have_attribute("target","_blank")
+        self.page.evaluate("window.fixture.human=false")
+        expect(link).to_have_count(0)
 
     def test_receipt_survives_control_unmount_and_is_scoped_to_run(self):
         self.resume()

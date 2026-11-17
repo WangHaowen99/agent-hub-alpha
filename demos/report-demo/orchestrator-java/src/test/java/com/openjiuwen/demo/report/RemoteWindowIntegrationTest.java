@@ -42,6 +42,63 @@ import org.junit.jupiter.api.io.TempDir;
 class RemoteWindowIntegrationTest {
     @TempDir Path temp;
 
+    @Test void changedBusEnvironmentBlocksBothNewSendAndRecoveryQuery() throws Exception {
+        for (boolean recovery : List.of(false, true)) {
+            try (var h = new Harness(temp.resolve("bus-change-" + recovery))) {
+                if (recovery) {
+                    assertEquals("REMOTE_FAILED", assertThrows(ControlClient.ControlFailure.class, h::execute).code);
+                    assertEquals(1, h.sends.get());
+                }
+                JsonNode frozen = h.task().path("bus_binding").deepCopy();
+                var originalCalls = h.calls();
+                int sends = h.sends.get(), gets = h.gets.get(), requests = h.providerRequests.get();
+                JsonNode permit = h.control.post(h.path + "/nodes/" + h.node + "/resolve", Map.of("owner", h.owner, "epoch", h.epoch));
+                for (String field : List.of("tenant", "environment_id", "issuer", "audience", "subject", "token_url")) {
+                    ObjectNode changed = (ObjectNode) h.config.path("bus").deepCopy();
+                    changed.put(field, "changed-fixture-domain");
+                    var remote = new RemoteExpertExecutor(h.control, changed);
+                    assertEquals("BUS_BINDING_CHANGED", assertThrows(ControlClient.ControlFailure.class,
+                        () -> remote.execute(h.task().path("task_id").asText(), h.node, h.owner, h.epoch, permit)).code);
+                }
+                assertEquals(requests, h.providerRequests.get(), "environment mismatch made a discovery/token/Gateway request");
+                assertEquals(sends, h.sends.get()); assertEquals(gets, h.gets.get());
+                assertEquals(originalCalls, h.calls()); assertEquals(frozen, h.task().path("bus_binding"));
+                h.saveEvidence("bus-change-" + recovery, Map.of("recovery", recovery, "old_binding_preserved", true,
+                    "new_outbound_requests", 0, "same_call_identity", true, "result", "BUS_BINDING_CHANGED"));
+            }
+        }
+    }
+
+    @Test void sameBusEnvironmentCanQueryThroughNewProxyWithoutResend() throws Exception {
+        try (var h = new Harness(temp.resolve("bus-proxy"))) {
+            assertEquals("REMOTE_FAILED", assertThrows(ControlClient.ControlFailure.class, h::execute).code);
+            var original = h.calls().getFirst();
+            String originalGateway = h.config.path("bus").path("gateway_url").asText();
+            AtomicInteger proxyQueries = new AtomicInteger();
+            var proxy = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            proxy.createContext("/a2a", exchange -> {
+                try {
+                    JsonNode request = Json.read(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+                    if (!request.path("method").asText().equals("GetTask")) { exchange.sendResponseHeaders(400, -1); return; }
+                    proxyQueries.incrementAndGet();
+                    var target = HttpRequest.newBuilder(URI.create(originalGateway + "/a2a")).timeout(Duration.ofSeconds(5))
+                        .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(Json.write(request))).build();
+                    var reply = HttpClient.newHttpClient().send(target, HttpResponse.BodyHandlers.ofByteArray());
+                    exchange.sendResponseHeaders(reply.statusCode(), reply.body().length); exchange.getResponseBody().write(reply.body());
+                } catch (InterruptedException failure) { Thread.currentThread().interrupt(); }
+                finally { exchange.close(); }
+            });
+            proxy.start();
+            try {
+                ((ObjectNode) h.config.path("bus")).put("gateway_url", "http://127.0.0.1:" + proxy.getAddress().getPort());
+                assertEquals("REMOTE_FAILED", assertThrows(ControlClient.ControlFailure.class, h::execute).code);
+                assertEquals(1, proxyQueries.get()); assertEquals(1, h.sends.get()); assertEquals(1, h.gets.get());
+                assertEquals(original, h.calls().getFirst());
+                h.saveEvidence("bus-proxy-recovery", Map.of("proxy_queries", 1, "total_sends", 1, "same_call_identity", true));
+            } finally { proxy.stop(0); }
+        }
+    }
+
     @Test void intentBeforeSendSurvivesControlProcessKillWithoutResend() throws Exception {
         try (var h = new Harness(temp.resolve("intent-before-send-restart"))) {
             var permit=h.control.post(h.path+"/nodes/"+h.node+"/resolve",Map.of("owner",h.owner,"epoch",h.epoch));
@@ -292,6 +349,7 @@ class RemoteWindowIntegrationTest {
         final Path directory;
         final HttpClient http=HttpClient.newBuilder().cookieHandler(new CookieManager()).connectTimeout(Duration.ofSeconds(3)).build();
         final AtomicInteger sends=new AtomicInteger(),gets=new AtomicInteger();
+        final AtomicInteger providerRequests=new AtomicInteger();
         final AtomicReference<String> state=new AtomicReference<>("FAILED");
         final CountDownLatch discoveryEntered=new CountDownLatch(1),discoveryReleased=new CountDownLatch(1);
         final HttpServer provider;
@@ -327,6 +385,16 @@ class RemoteWindowIntegrationTest {
             base="http://127.0.0.1:"+port;
             config.put("listen","127.0.0.1:"+port);config.put("public_url",base);
             config.put("scope","fault-"+UUID.randomUUID());config.put("artifact_root",directory.resolve("content").toAbsolutePath().toString());
+            provider=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
+            String providerURL="http://127.0.0.1:"+provider.getAddress().getPort();
+            String fixtureIssuer=providerURL+"/realms/fixture";
+            config.set("bus",Json.MAPPER.valueToTree(Map.of("gateway_url",providerURL,"rdc_url",providerURL,"registry_token","isolated-registry-fixture",
+                "token_url",fixtureIssuer+"/protocol/openid-connect/token","client_id","fixture","client_secret","fixture","subject","fixture-subject",
+                "environment_id","isolated-"+UUID.randomUUID(),"tenant","fixture","issuer",fixtureIssuer)));
+            ((ObjectNode)config.path("bus")).put("audience","fixture");
+            ObjectNode busBinding=(ObjectNode)config.path("bus").deepCopy();
+            busBinding.remove(List.of("gateway_url","rdc_url","registry_token","token_url","client_id","client_secret","subject"));
+            busBinding.put("caller_subject","fixture-subject");config.set("bus_binding",busBinding);
             configFile=directory.resolve("config.json");Files.writeString(configFile,Json.write(config));
             go=startControl();
             control=new ControlClient(base,config.path("tokens").path("worker").asText());
@@ -335,12 +403,12 @@ class RemoteWindowIntegrationTest {
                 try {control.get("/healthz");ready=true;break;}catch(ControlClient.ControlFailure ignored){Thread.sleep(100);}
             }
             if(!ready) {stopControl(false);throw new IllegalStateException("Isolated Go/PG fixture did not become ready");}
-            provider=HttpServer.create(new InetSocketAddress("127.0.0.1",0),0);
             provider.createContext("/",exchange->{
                 try {
+                    providerRequests.incrementAndGet();
                     Object body;
                     String requestPath=exchange.getRequestURI().getPath();
-                    if(requestPath.equals("/token")) {body=Map.of("access_token","isolated-fixture-token","expires_in",3600);}
+                    if(requestPath.equals("/realms/fixture/protocol/openid-connect/token")) {body=Map.of("access_token","isolated-fixture-token","expires_in",3600);}
                     else if(requestPath.endsWith("/card")) {
                         String agent=requestPath.split("/")[3];
                         if(agent.equals(blockDiscoveryAgent)) {
@@ -375,8 +443,6 @@ class RemoteWindowIntegrationTest {
             });
             try {
             provider.start();
-            String providerURL="http://127.0.0.1:"+provider.getAddress().getPort();
-            config.set("bus",Json.MAPPER.valueToTree(Map.of("gateway_url",providerURL,"rdc_url",providerURL,"registry_token","isolated-registry-fixture","token_url",providerURL+"/token","client_id","fixture","client_secret","fixture","subject","fixture-subject")));
             JsonNode login=request("/auth/login",Map.of("user",config.path("user").asText(),"password",config.path("user_password").asText()),null);
             csrf=login.path("csrf").asText();
             // The source graph supplies topology only; admit this fixture under

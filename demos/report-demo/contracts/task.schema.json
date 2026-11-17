@@ -20,6 +20,37 @@
     "approved_by": {
       "type": "string"
     },
+    "bus_binding": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "required": [
+        "environment_id",
+        "tenant",
+        "issuer",
+        "audience",
+        "caller_subject"
+      ],
+      "properties": {
+        "audience": {
+          "type": "string"
+        },
+        "caller_subject": {
+          "type": "string"
+        },
+        "environment_id": {
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "tenant": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
     "created_at": {
       "type": "string"
     },

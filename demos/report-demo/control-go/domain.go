@@ -415,6 +415,7 @@ type NodeState struct {
 	Result      *Result      `json:"result,omitempty"`
 }
 type Task struct {
+	BusBinding         *BusBinding           `json:"bus_binding,omitempty"`
 	IdentityContract   string                `json:"identity_contract,omitempty"`
 	DeliveryReceipts   []json.RawMessage     `json:"delivery_receipts,omitempty"`
 	ReportApprovals    []json.RawMessage     `json:"report_approvals,omitempty"`
@@ -434,6 +435,7 @@ type Task struct {
 	CreatedAt          time.Time             `json:"created_at"`
 }
 type Binding struct {
+	BusBinding               *BusBinding              `json:"bus_binding,omitempty"`
 	IdentityContract         string                   `json:"identity_contract,omitempty"`
 	LogicalExecution         *ledger.LogicalExecution `json:"logical_execution,omitempty"`
 	Reviews                  []CheckReview            `json:"reviews,omitempty"`
