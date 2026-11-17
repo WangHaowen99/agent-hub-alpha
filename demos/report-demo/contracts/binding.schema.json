@@ -108,6 +108,144 @@
         "scope": {
           "type": "string"
         },
+        "selection": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "applicability": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "basis": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "entities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "materials": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "periods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "templates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "units": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "focus": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "input": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "required": [
+                "schema"
+              ],
+              "properties": {
+                "provides": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "requires": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "requires_sections_any": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "schema": {
+                  "type": "string"
+                },
+                "section": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "output": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "required": [
+                "schema"
+              ],
+              "properties": {
+                "provides": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ref": {
+                  "type": "string"
+                },
+                "requires": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "requires_sections_any": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "schema": {
+                  "type": "string"
+                },
+                "section": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
         "version": {
           "type": "string"
         }
@@ -171,6 +309,9 @@
       "type": "string"
     },
     "material_projection_digest": {
+      "type": "string"
+    },
+    "model_binding_digest": {
       "type": "string"
     },
     "node_id": {

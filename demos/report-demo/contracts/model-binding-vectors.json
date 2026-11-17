@@ -1,0 +1,15 @@
+{
+  "encoding": "report-model/1 length-prefixed UTF-8",
+  "vectors": [
+    {
+      "base_url": "http://127.0.0.1:7777/v1",
+      "model": "model-a",
+      "digest": "sha256:3beecbe3c85a4c69a51c82b1019bf771d70bbc5056166e6ed4195a9f8b2ced10"
+    },
+    {
+      "base_url": "https://example.invalid/api",
+      "model": "模型-α",
+      "digest": "sha256:f5c40343a2c25a1120faec1f8a1f61bdbc2c2ece9cbb02dcbe7465aab4ab3780"
+    }
+  ]
+}

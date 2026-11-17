@@ -22,7 +22,7 @@ async def verify(config: dict) -> dict:
             await client.initialize()
             tools = await client.list_tools()
             names = {t.name for t in tools.tools}
-            assert names == {"list_capabilities", "propose_plan", "get_plan", "run_status", "verify_run"}
+            assert names == {"list_capabilities", "select_capabilities", "propose_plan", "get_plan", "run_status", "verify_run"}
             checks["planner_has_no_control_write_tools"] = True
             resource = await client.read_resource("ui://report-demo/graph")
             assert "text/html" in resource.contents[0].mimeType
@@ -48,6 +48,14 @@ async def verify(config: dict) -> dict:
                 assert http_rejected.status_code == 422 and http_rejected.json()['error']['code'] == 'POLICY_REJECTED'
             checks['http_and_mcp_reject_incomplete_report'] = True
             import uuid
+            selection_config=catalog['catalog']['selection']
+            query={k:selection_config[k] for k in ('package','entity','basis','period','compare_period','deliverable')}
+            query.update(focus=['经营'],materials=[catalog['material_id']])
+            selected=await client.call_tool('select_capabilities',query)
+            assert not selected.isError,selected.content
+            record=selected.structuredContent
+            graph['selection']={'id':record['id'],'digest':record['digest']}
+            checks['stored_selection_bound']=record['outcome']=='graph'
             command = "technical-probe-" + uuid.uuid4().hex
             result = await client.call_tool("propose_plan", {"command_id": command, "graph": graph})
             assert not result.isError, result.content

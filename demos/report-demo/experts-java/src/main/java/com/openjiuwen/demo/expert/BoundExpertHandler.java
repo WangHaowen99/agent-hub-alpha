@@ -32,6 +32,7 @@ final class BoundExpertHandler implements AgentHandler {
     private final JsonNode config;
     private final ReActAgent agent;
     private final AgentHandler delegate;
+    private final ModelBinding.Settings modelSettings;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
     private final ConcurrentHashMap<String, Context> contexts = new ConcurrentHashMap<>();
     private final Semaphore capacity = new Semaphore(1);
@@ -42,8 +43,8 @@ final class BoundExpertHandler implements AgentHandler {
     private record Context(JsonNode original, JsonNode approved, ServeRequest request) { }
     private record Token(BoundExpertHandler owner, String conversation, Optional<Object> delegateToken) { }
 
-    BoundExpertHandler(JsonNode config, ReActAgent agent, AgentHandler delegate) {
-        this.config = config; this.agent = agent; this.delegate = delegate;
+    BoundExpertHandler(JsonNode config, ReActAgent agent, AgentHandler delegate, ModelBinding.Settings modelSettings) {
+        this.config = config; this.agent = agent; this.delegate = delegate; this.modelSettings = modelSettings;
     }
 
     @Override public void start() {
@@ -90,6 +91,7 @@ final class BoundExpertHandler implements AgentHandler {
             var response = http.send(post, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) { throw new IllegalStateException("Control rejected expert input HTTP " + response.statusCode()); }
             JsonNode approved = JSON.readTree(response.body());
+            modelSettings.require(approved.path("binding").path("model_binding_digest").asText());
             if (!config.path("execution_profile").asText().isBlank()
                     && !config.path("execution_profile").asText().equals(approved.path("binding").path("execution_profile").asText())) {
                 throw new IllegalArgumentException("Source/model execution profile mismatch");
@@ -133,7 +135,7 @@ final class BoundExpertHandler implements AgentHandler {
             if (!output.isObject()) { throw new IllegalArgumentException("Expert output must be a JSON object"); }
             String body = JSON.writeValueAsString(Map.of("call_id", ctx.original().path("call_id").asText(),
                     "input_digest", ctx.approved().path("input_digest").asText(), "attempt", ctx.original().path("attempt").asInt(), "output", output,
-                    "runtime_evidence", Map.of("agent_id",config.path("agent_id").asText(),"role",config.path("role").asText(),"loop_branches",branchCount.get(),
+                    "runtime_evidence", Map.of("agent_id",config.path("agent_id").asText(),"role",config.path("role").asText(),"model_binding_digest",modelSettings.digest(),"loop_branches",branchCount.get(),
                             "completed_loop_branches",branchRecords.size(),"branch_records",List.copyOf(branchRecords))));
             return new QueryResponse(Map.of("role", "assistant", "content", body), request.getConversationId());
         } catch (Exception e) { throw new IllegalStateException("Expert did not produce declared JSON output", e); }

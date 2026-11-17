@@ -14,7 +14,7 @@ func TestExportedContractsMatchOwningTypes(t *testing.T) {
 		t.Fatal(err)
 	}
 	files, err := filepath.Glob(filepath.Join(temp, "*.schema.json"))
-	if err != nil || len(files) != 13 {
+	if err != nil || len(files) != 15 {
 		t.Fatal("contract set incomplete", err)
 	}
 	for _, generated := range files {

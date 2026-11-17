@@ -87,3 +87,18 @@ HTTP 409 只是状态码，Java 根据 code 分类，不能把全部 409 映射�
 旧目录缺 remote_binding 时，Java仅保留原1.0.0兼容路径，不向历史记录补字段/重算摘要。当前发布目录已经显式绑定版本；目录或执行profile变化后，旧待确认计划拒绝采纳，已采纳任务拒绝漂移执行，需要新候选/确认。当前不提供旧二进制和模型的多版本自动恢复；历史结果仍可按原权限读取。
 
 部署能力逐项声明：支持原 remote_task_id 查询、正式结果复用；不声明取消和远端 messageId 幂等；Gateway/Runtime丢失task状态保持UNKNOWN。`tests/export_handoff.py`从实际任务只读生成身份、绑定、观察与结果关联投影；不导出凭据或模型正文，不替代跨组验收。
+
+## 当前受控集成边界
+
+| 接口 | 生产 / 校验生效 | 消费 |
+| --- | --- | --- |
+| `list_capabilities` → `select_capabilities` / `POST /v1/selections` | PR33纯规则窄适配；W04校验固定主体、期间、材料、真实Bus绑定，在PG保存选择记录及摘要 | WorkSwarm规划模型生成自己的图；不是Go预置完整图 |
+| `graph.selection` 与采纳 | W04核对记录摘要、目录、材料、重点、选定成员；图结构校验数据边；选择引用进入图摘要，采纳事务再核对 | W03原生编译/推进 |
+| W02 `plugin.credit_workbench.*` | 复用Application Plugin/local RPC；读面用后端scoped operator；写命令由Go认证密码签发用户Cookie/CSRF并核对对象 | Go/PG唯一年报状态；不启动PR30授信Go第二写者 |
+| `GET /v1/workbench/{plans,tasks/<T>}` | Go只读投影，decimal string `rev=Task.generation`；状态/调用/选择/报告；读期间变化返回SNAPSHOT_CHANGED再轮询 | W02 iframe；有效乱序用BigInt比较，超时回执在RPC层丢弃 |
+| `model_binding_digest` | Python发布无密钥摘要；专家进程自己校验实际ENV并用同一不可变设置建模型客户端，Go要求正式远端结果携带匹配的实际绑定证据 | Task/Binding/input_digest/Runtime证据；旧任务缺绑定不从当前默认补齐 |
+| `BLOCKED` | 版本/实际模型绑定失配；Go释放图租约，普通resume拒绝 | 插件显示原因，保留观察和原任务身份 |
+
+实际模型摘要按UTF-8字节长度前缀编码 provider/base/model/temperature/token及迭代预算，规范化base末尾斜杠，不含密钥。跨语言向量：[model-binding-vectors.json](model-binding-vectors.json)；实际DTO：[selection-query](selection-query.schema.json)、[selection-record](selection-record.schema.json)。
+
+同任务恢复保留原o/a/c和远端task；PR34跨任务远端快路径后置。已有提取复用仍只代表本Demo原覆盖范围。完整人工审阅继续使用同一Go权威的备用可信页，不把插件缺表单冒充业务签收完成。

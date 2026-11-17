@@ -205,7 +205,7 @@ func (s *Store) Commit(ctx context.Context, id, node string, r CommitRequest, ra
 }
 
 func (s *Store) MarkWaiting(ctx context.Context, id, node, owner, epoch, status, reason string) (any, error) {
-	allowed := map[string]bool{"WAITING_REMOTE": true, "WAITING_INPUT": true, "WAITING_AUTH": true, "UNKNOWN": true, "FAILED": true}
+	allowed := map[string]bool{"WAITING_REMOTE": true, "WAITING_INPUT": true, "WAITING_AUTH": true, "UNKNOWN": true, "FAILED": true, "BLOCKED": true}
 	if !allowed[status] {
 		return nil, fault("INVALID_STATE", "typed waiting/failure state required", 400)
 	}
@@ -222,9 +222,11 @@ func (s *Store) MarkWaiting(ctx context.Context, id, node, owner, epoch, status,
 		}
 		ns.Status = status
 		ns.Reason = reason
-		if t.Status == "NEEDS_REVIEW" {
+		if t.Status == "NEEDS_REVIEW" || t.Status == "BLOCKED" {
 			// A later technical status must not erase a trusted rejection or
 			// artifact invalidation. The actual node observation is still kept.
+		} else if status == "BLOCKED" {
+			t.Status = "BLOCKED"
 		} else if status == "FAILED" {
 			t.Status = "FAILED"
 		} else if t.Status == "FAILED" {
@@ -233,6 +235,11 @@ func (s *Store) MarkWaiting(ctx context.Context, id, node, owner, epoch, status,
 			t.Status = status
 		} else if status == "UNKNOWN" || status == "WAITING_REMOTE" {
 			t.Status = "WAITING_REMOTE"
+		}
+		if t.Status == "BLOCKED" {
+			if _, err := tx.Exec(ctx, "UPDATE run_leases SET status='RELEASED' WHERE scope=$1 AND task_id=$2 AND domain='graph'", s.Scope, id); err != nil {
+				return nil, err
+			}
 		}
 		return map[string]string{"node_id": node, "status": status, "reason": reason}, nil
 	})

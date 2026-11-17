@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"github.com/openjiuwen/agent-festival/go/cmd/report-demo/selection"
 	"io"
 	"net/http"
 	"strconv"
@@ -117,6 +118,21 @@ func (s *Server) checkCandidate(ctx context.Context, g Graph) (string, error) {
 	return s.compile(ctx, g)
 }
 
+func (s *Server) checkPublicCandidate(ctx context.Context, g Graph) (string, error) {
+	if err := ValidateReportGraph(g, s.Catalog); err != nil {
+		return "", err
+	}
+	if s.Catalog.Selection != nil {
+		if s.Config.ExecutionProfile == "" || s.Config.ModelBindingDigest == "" {
+			return "", fault("BINDING_CHANGED", "publish a reviewed source and actual-model binding before proposing executable work", 409)
+		}
+		if err := s.Store.validateSelection(ctx, s.Store.Pool, g); err != nil {
+			return "", err
+		}
+	}
+	return s.checkCandidate(ctx, g)
+}
+
 func (s *Server) compile(ctx context.Context, g Graph) (string, error) {
 	b, err := json.Marshal(g)
 	if err != nil {
@@ -156,6 +172,14 @@ func (s *Server) Routes() http.Handler {
 	s.expertRoutes(m)
 	s.verifyRoutes(m)
 	s.humanRoutes(m)
+	s.workbenchRoutes(m)
+	m.HandleFunc("POST /v1/selections", s.wrap([]string{"planner"}, func(w http.ResponseWriter, r *http.Request) (any, error) {
+		var q selection.SelectionQuery
+		if err := readBody(r, &q); err != nil {
+			return nil, err
+		}
+		return s.selectCapabilities(r.Context(), q)
+	}))
 	m.HandleFunc("GET /healthz", s.wrap(nil, func(w http.ResponseWriter, r *http.Request) (any, error) {
 		if err := s.Store.Pool.Ping(r.Context()); err != nil {
 			return nil, err
@@ -183,7 +207,7 @@ func (s *Server) Routes() http.Handler {
 		if err := readBody(r, &v); err != nil {
 			return nil, err
 		}
-		digest, err := s.checkCandidate(r.Context(), v.Graph)
+		digest, err := s.checkPublicCandidate(r.Context(), v.Graph)
 		if err != nil {
 			return nil, err
 		}
@@ -387,6 +411,7 @@ func (s *Server) Routes() http.Handler {
 func NewServer(s *Store, c Config, cat Catalog, material Material) *Server {
 	s.MaterialProjectionDigest = material.ProjectionDigest
 	s.ExecutionProfile = c.ExecutionProfile
+	s.ModelBindingDigest = c.ModelBindingDigest
 	s.CurrentCatalogDigest, _ = Digest(cat)
 	s.DeliveryPolicyVersion = cat.PolicyVersion
 	s.ReuseFiles = &Files{Root: c.ArtifactRoot}

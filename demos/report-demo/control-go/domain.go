@@ -14,6 +14,7 @@ import (
 	"unicode/utf8"
 
 	jsoncanonicalizer "github.com/cyberphone/json-canonicalization/go/src/webpki.org/jsoncanonicalizer"
+	"github.com/openjiuwen/agent-festival/go/cmd/report-demo/selection"
 	"github.com/openjiuwen/agent-festival/go/internal/ledger"
 	"github.com/openjiuwen/agent-festival/go/internal/rfc8785"
 )
@@ -148,29 +149,32 @@ type Node struct {
 	Condition *Condition `json:"condition,omitempty"`
 }
 type Graph struct {
-	Goal          string `json:"goal"`
-	MaterialID    string `json:"material_id"`
-	Focus         string `json:"focus" jsonschema:"Supported focus is exactly business or business+quality."`
-	Nodes         []Node `json:"nodes"`
-	CatalogDigest string `json:"catalog_digest"`
-	PolicyVersion string `json:"policy_version"`
+	Selection     *selection.SelectionRef `json:"selection,omitempty"`
+	Goal          string                  `json:"goal"`
+	MaterialID    string                  `json:"material_id"`
+	Focus         string                  `json:"focus" jsonschema:"Supported focus is exactly business or business+quality."`
+	Nodes         []Node                  `json:"nodes"`
+	CatalogDigest string                  `json:"catalog_digest"`
+	PolicyVersion string                  `json:"policy_version"`
 }
 type Capability struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Version       string         `json:"version"`
-	Kind          string         `json:"kind"`
-	AgentID       string         `json:"agent_id,omitempty"`
-	InputSchema   string         `json:"input_schema"`
-	OutputSchema  string         `json:"output_schema"`
-	Scope         string         `json:"scope"`
-	Enabled       bool           `json:"enabled"`
-	RemoteBinding *RemoteBinding `json:"remote_binding,omitempty"`
+	Selection     *SelectionDeclaration `json:"selection,omitempty"`
+	ID            string                `json:"id"`
+	Name          string                `json:"name"`
+	Version       string                `json:"version"`
+	Kind          string                `json:"kind"`
+	AgentID       string                `json:"agent_id,omitempty"`
+	InputSchema   string                `json:"input_schema"`
+	OutputSchema  string                `json:"output_schema"`
+	Scope         string                `json:"scope"`
+	Enabled       bool                  `json:"enabled"`
+	RemoteBinding *RemoteBinding        `json:"remote_binding,omitempty"`
 }
 type Catalog struct {
-	SchemaVersion string       `json:"schema_version"`
-	PolicyVersion string       `json:"policy_version"`
-	Capabilities  []Capability `json:"capabilities"`
+	Selection     *SelectionConfig `json:"selection,omitempty"`
+	SchemaVersion string           `json:"schema_version"`
+	PolicyVersion string           `json:"policy_version"`
+	Capabilities  []Capability     `json:"capabilities"`
 }
 
 func (c Catalog) Get(id string) (Capability, bool) {
@@ -208,14 +212,6 @@ func ValidateGraph(g Graph, c Catalog) error {
 		cap, ok := c.Get(n.Expert)
 		if !ok || !cap.Enabled || cap.Scope != "group-annual-report" {
 			return fault("POLICY_REJECTED", "unapproved or incompatible capability", 422)
-		}
-		if cap.RemoteBinding != nil {
-			if cap.AgentID == "" {
-				return fault("POLICY_REJECTED", "local capability cannot bind RDC", 422)
-			}
-			if err := cap.RemoteBinding.validate(); err != nil {
-				return err
-			}
 		}
 		if cap.RemoteBinding != nil {
 			if cap.AgentID == "" {
@@ -419,28 +415,30 @@ type NodeState struct {
 	Result      *Result      `json:"result,omitempty"`
 }
 type Task struct {
-	IdentityContract string                `json:"identity_contract,omitempty"`
-	DeliveryReceipts []json.RawMessage     `json:"delivery_receipts,omitempty"`
-	ReportApprovals  []json.RawMessage     `json:"report_approvals,omitempty"`
-	ExecutionProfile string                `json:"execution_profile"`
-	SchemaVersion    string                `json:"schema_version"`
-	ID               string                `json:"task_id"`
-	Revision         string                `json:"graph_revision"`
-	Status           string                `json:"status"`
-	Generation       string                `json:"generation"`
-	Graph            Graph                 `json:"graph"`
-	GraphDigest      string                `json:"graph_digest"`
-	RuntimeDigest    string                `json:"runtime_spec_digest"`
-	Pause            bool                  `json:"pause_requested"`
-	ApprovedBy       string                `json:"approved_by,omitempty"`
-	Nodes            map[string]*NodeState `json:"nodes"`
-	CreatedAt        time.Time             `json:"created_at"`
+	IdentityContract   string                `json:"identity_contract,omitempty"`
+	DeliveryReceipts   []json.RawMessage     `json:"delivery_receipts,omitempty"`
+	ReportApprovals    []json.RawMessage     `json:"report_approvals,omitempty"`
+	ExecutionProfile   string                `json:"execution_profile"`
+	ModelBindingDigest string                `json:"model_binding_digest,omitempty"`
+	SchemaVersion      string                `json:"schema_version"`
+	ID                 string                `json:"task_id"`
+	Revision           string                `json:"graph_revision"`
+	Status             string                `json:"status"`
+	Generation         string                `json:"generation"`
+	Graph              Graph                 `json:"graph"`
+	GraphDigest        string                `json:"graph_digest"`
+	RuntimeDigest      string                `json:"runtime_spec_digest"`
+	Pause              bool                  `json:"pause_requested"`
+	ApprovedBy         string                `json:"approved_by,omitempty"`
+	Nodes              map[string]*NodeState `json:"nodes"`
+	CreatedAt          time.Time             `json:"created_at"`
 }
 type Binding struct {
 	IdentityContract         string                   `json:"identity_contract,omitempty"`
 	LogicalExecution         *ledger.LogicalExecution `json:"logical_execution,omitempty"`
 	Reviews                  []CheckReview            `json:"reviews,omitempty"`
 	ExecutionProfile         string                   `json:"execution_profile"`
+	ModelBindingDigest       string                   `json:"model_binding_digest,omitempty"`
 	SchemaVersion            string                   `json:"schema_version"`
 	TaskID                   string                   `json:"task_id"`
 	Revision                 string                   `json:"graph_revision"`

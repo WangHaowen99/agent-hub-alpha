@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/openjiuwen/agent-festival/go/cmd/report-demo/selection"
 )
 
 //go:embed web/*.html web/*.js
@@ -81,7 +82,7 @@ func (s *Server) graphToolResult(t *Task, err error) *mcp.CallToolResult {
 	if err != nil {
 		return toolResult(nil, err)
 	}
-	res := toolResult(map[string]any{"task": t, "confirm_url": s.Config.PublicURL + "/ui/tasks/" + t.ID, "projection_url": s.Config.PublicURL + "/v1/projections/" + t.ID}, nil)
+	res := toolResult(map[string]any{"task": t, "user_entry": "WorkSwarm 编排台：选择原 task_id 核对并确认；confirm_url 仅为备用联调页", "confirm_url": s.Config.PublicURL + "/ui/tasks/" + t.ID, "projection_url": s.Config.PublicURL + "/v1/projections/" + t.ID}, nil)
 	// A one-task, read-only, expiring UI capability is placed in UI metadata, not
 	// ordinary model-visible fields. It cannot approve or execute anything.
 	res.Meta = mcp.Meta{"report_view_authorization": s.viewGrant(t.ID)}
@@ -97,15 +98,19 @@ func (s *Server) MCP() http.Handler {
 	meta := mcp.Meta{"ui": map[string]any{"resourceUri": graphURI}}
 	mcp.AddTool(srv, &mcp.Tool{Name: "list_capabilities", Description: "Read approved annual-report capabilities, fixed material and policy. Exclude incompatible scope; choose at least three real business roles. No arbitrary URLs or code.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true}}, func(ctx context.Context, _ *mcp.CallToolRequest, _ Empty) (*mcp.CallToolResult, any, error) {
 		cd, err := Digest(s.Catalog)
-		return toolResult(map[string]any{"catalog": s.Catalog, "catalog_digest": cd, "material_id": s.Material.ID, "material_digest": s.Material.Digest, "rules": []string{"Extract consumes fixed material; analysis consumes extraction; report joins business and quality when both selected.", "Every draft/revision requires a check on the same branch; one unconditional selector consumes all checks. Report candidates missing this delivery path are rejected before compilation.", "Only program checker may supply branch PASS/REVISE. At most one report revision; no unbounded topology.", "User approves on trusted Go page; planner has no approval or execution tool."}}, err), nil, nil
+		return toolResult(map[string]any{"catalog": s.Catalog, "catalog_digest": cd, "material_id": s.Material.ID, "material_digest": s.Material.Digest, "rules": []string{"Extract consumes fixed material; analysis consumes extraction; report joins business and quality when both selected.", "Every draft/revision requires a check on the same branch; one unconditional selector consumes all checks. Report candidates missing this delivery path are rejected before compilation.", "Only program checker may supply branch PASS/REVISE. At most one report revision; no unbounded topology.", "User approves in the WorkSwarm workbench plugin; Go page is a fallback debugger. Planner has no approval or execution tool."}}, err), nil, nil
 	})
 	mcp.AddTool(srv, &mcp.Tool{Name: "propose_plan", Description: "Submit a real candidate graph from the catalog, compile and precheck. User must confirm its digest before execution. Reuse command_id only for identical retry.", Meta: meta}, func(ctx context.Context, _ *mcp.CallToolRequest, in ProposeInput) (*mcp.CallToolResult, any, error) {
-		d, err := s.checkCandidate(ctx, in.Graph)
+		d, err := s.checkPublicCandidate(ctx, in.Graph)
 		if err != nil {
 			return toolResult(nil, err), nil, nil
 		}
 		t, err := s.Store.Propose(ctx, "planner", in.CommandID, in.Graph, d)
 		return s.graphToolResult(t, err), nil, nil
+	})
+	mcp.AddTool(srv, &mcp.Tool{Name: "select_capabilities", Description: "Select approved real experts for the clarified task. Persist eligibility, exclusions, configured ranking, composition and graph mapping. Unknown is not eligible; no_graph must not be proposed."}, func(ctx context.Context, _ *mcp.CallToolRequest, q selection.SelectionQuery) (*mcp.CallToolResult, any, error) {
+		out, err := s.selectCapabilities(ctx, q)
+		return toolResult(out, err), nil, nil
 	})
 	for _, name := range []string{"get_plan", "run_status", "verify_run"} {
 		name := name

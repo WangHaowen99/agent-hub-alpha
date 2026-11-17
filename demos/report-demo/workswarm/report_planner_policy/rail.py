@@ -8,12 +8,12 @@ from jiuwenswarm.runtime.tool_allowlist import install_tool_allowlist
 
 TOOLS = frozenset({
     mcp_model_tool_name('report-orchestration',name)
-    for name in ('list_capabilities','propose_plan','get_plan','run_status','verify_run')
+    for name in ('list_capabilities','select_capabilities','propose_plan','get_plan','run_status','verify_run')
 } | {'skill_tool','ask_user'})
 
 
 class ReportPlannerPolicyRail(AgentRail):
-    """Keep planner model abilities to five scoped MCP tools, skills and clarification."""
+    """Keep planner model abilities to six scoped MCP tools, skills and clarification."""
     priority: int = 1000
 
     def init(self,agent):

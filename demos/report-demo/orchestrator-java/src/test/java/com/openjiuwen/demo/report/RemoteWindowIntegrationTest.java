@@ -351,6 +351,14 @@ class RemoteWindowIntegrationTest {
             // The source graph supplies topology only; admit this fixture under
             // the actual catalog served by its isolated Go process.
             graph.put("catalog_digest", control.get("/v1/catalog").path("catalog_digest").asText());
+            JsonNode catalog=control.get("/v1/catalog");
+            JsonNode selectionConfig=catalog.path("catalog").path("selection");
+            ObjectNode query=Json.MAPPER.createObjectNode();
+            for(String key:List.of("package","entity","basis","period","compare_period","deliverable"))query.set(key,selectionConfig.path(key));
+            query.set("materials",Json.MAPPER.valueToTree(List.of(graph.path("material_id").asText())));
+            query.set("focus",Json.MAPPER.valueToTree(graph.path("focus").asText().equals("business+quality")?List.of("经营","资产质量"):List.of("经营")));
+            JsonNode selection=request("/v1/selections",query,config.path("tokens").path("planner").asText());
+            graph.set("selection",Json.MAPPER.valueToTree(Map.of("id",selection.path("id").asText(),"digest",selection.path("digest").asText())));
             JsonNode created=request("/v1/commands",Map.of("command_id","fixture-"+UUID.randomUUID(),"graph",graph),config.path("tokens").path("planner").asText());
             path="/v1/tasks/"+created.path("task_id").asText();
             userPost(path+"/admit",Map.of("graph_digest",created.path("graph_digest").asText()));

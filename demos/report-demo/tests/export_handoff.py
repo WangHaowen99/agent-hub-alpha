@@ -55,6 +55,8 @@ def main():
               'graph_revision': task['graph_revision'], 'graph_digest': task['graph_digest'],
               'catalog_digest': task['graph']['catalog_digest'], 'capability_bindings': bindings,
               'execution_profile': task.get('execution_profile'), 'status': task['status'],
+              'model_binding_digest':task.get('model_binding_digest'),
+              'selection_ref':task['graph'].get('selection'),
               'nodes': {n: {'status': s['status'], 'attempt': s['attempt'],
                             'identity': (s.get('result') or {}).get('identity'),
                             'input_digest': s.get('input_digest'),
@@ -66,6 +68,9 @@ def main():
                          'Lost remote task remains UNKNOWN; no automatic resend',
                          'Same-host observation is not joint or independent acceptance']}
     after = get(path)
+    if task['graph'].get('selection'):
+        projection=get('/v1/workbench/tasks/'+task['task_id'])
+        result['selection']=projection['selection']
     if after['generation'] != task['generation']:
         raise SystemExit('Projection changed during export; retry after task settles')
     destination = a.private_root / 'evidence' / (a.task_id + '-handoff.json')

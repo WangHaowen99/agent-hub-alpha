@@ -1,12 +1,12 @@
 # Windows 本地启动与逐步验证
 
-这份文档对应 `demos/report-demo`，从 PowerShell 执行。应用全部在本机，云端只运行已有 PostgreSQL；无需在云端安装 Java、WorkSwarm、Redis 或 Docker 应用。**“进程已启动”“真实模型已返回”“完整业务已验收”是三个不同结果。** 当前实际通过与未通过的项目以 [验证报告](VERIFICATION.md) 和验证报告为准，下面的预期结果用于逐项核对。
+这份文档对应 `demos/report-demo`，从 PowerShell 执行。应用全部在本机，云端只运行已有 PostgreSQL；无需在云端安装 Java、WorkSwarm、Redis 或 Docker 应用。**“进程已启动”“真实模型已返回”“完整业务已验收”是三个不同结果。** 当前实际通过与未通过的项目以 [验证报告](VERIFICATION.md) 为准，下面的预期结果用于逐项核对。
 
 ## 1. 先看清进程与端口
 
 | 组件 | 本地端口 | 职责 / 存储 |
 | --- | --- | --- |
-| WorkSwarm Web | 5173 | 唯一聊天入口、规划助手、MCP 图卡 |
+| WorkSwarm Web | 5173 | 唯一聊天入口、规划助手、W02 编排台插件；MCP 图卡保留作调试 |
 | WorkSwarm Python Gateway | 19000；内部另有 19001 | 浏览器 HTTP/WS 通道；与下表 Java Gateway 是不同组件 |
 | WorkSwarm AgentServer / worker | 18092 | Python Core 驱动规划助手；隔离工作区下的会话、SQLite 等本地文件 |
 | Go control | 8091 | 可信确认、采纳图、租约、正式结果、审计、报告交付；W04 独立 PG 库 |
@@ -95,9 +95,16 @@ mvn -s .local/maven-settings.xml -f demos/report-demo/orchestrator-java/pom.xml 
 mvn -s .local/maven-settings.xml -f demos/report-demo/experts-java/pom.xml package -DskipTests -q
 npm.cmd --prefix "$env:WORKSWARM_SOURCE/jiuwenswarm/channels/web/frontend" ci
 npm.cmd --prefix "$env:WORKSWARM_SOURCE/jiuwenswarm/channels/web/frontend" run build
+Push-Location demos/report-demo/workswarm/workbench-plugin/app
+npm.cmd ci --no-audit --no-fund
+npm.cmd run check
+npm.cmd run build
+Pop-Location
 ```
 
 每条命令都应退出码 0，再继续下一条。`-DskipTests` 只用于构建依赖，不是测试通过证据；Demo 测试在第 8 节单独执行。修改 Go 后先停止自己的 control 再覆盖 EXE。Java JAR 修改后也需重启对应 JVM。
+
+WorkSwarm 插件的编译产物只留本地 `frontend/dist`，不会提交。`configure.py` 将该资源与 W02 插件装到隔离工作区的 `domain/application_plugins/credit-workbench`，无需修改 WorkSwarm 源码。更新已有运行实例时，先停止本工作区的 compiler/四专家再打包，避免 Windows JAR 占用；用 Go 临时 EXE 构建后停 control 再替换。重新提供模型环境变量，不从配置或日志找密钥。
 
 ## 5. 启动身份、编译与控制服务
 
@@ -184,9 +191,9 @@ $env:PYTHONPATH = $env:WORKSWARM_SOURCE
 
 > 请使用年报协作技能，基于固定的招商银行2025年报快照，生成本集团2025对比2024的经营与资产质量简报计划。覆盖八项指标，由独立经营、资产质量专家分析后汇总，带来源与程序检查，最多一次定向修订。请先读取能力目录，排除不适用口径的能力，提交候选图给我确认。
 
-检查真实工具轨迹：先有 `list_capabilities`，后有 `propose_plan`；返回真实 `T-...`、图摘要和 Java 编译摘要。不能只看模型文字画了一张图。候选必须停在 `AWAITING_APPROVAL`，模型不能批准。
+检查真实工具轨迹：先有 `list_capabilities`，再有 `select_capabilities`（eligibility/ranking/composition/记录摘要），最后 `propose_plan`；返回真实 `T-...`、图摘要和 Java 编译摘要。不能只看模型文字画了一张图。候选必须停在 `AWAITING_APPROVAL`，模型不能批准。
 
-点击图卡中的可信确认页。在本机打开私有 `config.json` 读取 `user` 和 `user_password`，仅输入这个 Go 页面，不发给模型。核对任务、目标、图摘要后再采纳。
+点击 WorkSwarm 左侧“编排台”，选本次 `T-...`，展开选择记录、查看图与摘要，然后点击批准。在本机查看私有 `config.json` 的演示密码，只输入插件密码框，不发给模型。插件将密码交 Go 换取用户会话和 CSRF，再提交当前图摘要；WebSocket 自报用户名不会被当成批准身份。备用 Go 页面仅用于联调。
 
 启用 Java worker：修改私有 `config.json` 的 `worker_enabled` 为 `true`，保存后执行：
 
@@ -197,11 +204,11 @@ $env:PYTHONPATH = $env:WORKSWARM_SOURCE
 
 预期真实顺序：资料提取 → 经营/资产质量并行 → 草稿 → checker → 必要时一次修订和复检 → 选择已检查报告。看节点下的正式 `result`、调用记录中的 RDC 快照/远端 task/真实产物，而非只看 `COMPLETED` 文案。
 
-`AWAITING_ACCEPTANCE` 表示计算结束。用户在可信页查看报告、检查对象摘要和范围后，点击“验收此版本”，再“确认交付此版本”，最后下载 JSON。交付由独立 delivery 租约域处理，不能依赖早已结束的图执行租约。`HUMAN`、`UNKNOWN`、检查失败和失效产物必须如实展示，不视为 PASS。
+`AWAITING_ACCEPTANCE` 表示计算结束。用户在编排台展开报告，核对对象摘要与检查结果（初稿和修订稿分别展示），仅 PASS 版本可点击“批准此报告”，再“交付此报告”，最后“下载正式 JSON”。下载保持正式产物原始字节，并在浏览器复核 SHA-256。交付由独立 delivery 租约域处理，不能依赖早已结束的图执行租约。`HUMAN`、`UNKNOWN`、检查失败和失效产物必须如实展示，不视为 PASS。
 
 ### 7.1 遇到 HUMAN 如何处理
 
-新版本在程序检查返回 HUMAN 时进入 `WAITING_INPUT`。可信页的“待人工核验的检查”显示原程序结果、待审阅项、检查产物 ID 和报告摘要。审阅者逐项查看原文与报告后填写实际依据，再选“人工核验接受”“要求定向修订”或“拒绝该报告”。随后点“继续”，由 Java 原图继续推进。
+程序检查返回 HUMAN 时进入 `WAITING_INPUT`。本轮插件展示报告与状态，但尚未搬入完整人工审阅表单；这时打开备用 Go 可信页 `/ui/tasks/<原task_id>`，使用同一测试账号。可信页的“待人工核验的检查”显示原程序结果、待审阅项、检查产物 ID 和报告摘要。审阅者逐项查看原文与报告后填写实际依据，再选“人工核验接受”“要求定向修订”或“拒绝该报告”。随后点“继续”，由 Java 原图继续推进。
 
 人工判断是独立的不可覆盖事实：记录操作人、理由、检查 ID、同一报告摘要和回执。程序产物中的 HUMAN 原样保留；UI、选择记录和审计仍能看见判断来自人工。相同请求重试复用回执，改判断或改对象会冲突；数字/结构程序失败不能通过这个入口豁免。人工接受不等于最终交付批准，仍需完成后的报告验收与交付操作。
 
@@ -485,3 +492,30 @@ calls创建响应新增action，与Java须成套升级；缺失或未知action�
 ```
 
 此参数只显式更新新候选的目录摘要，不修改源任务、不自动替换策略版本；策略变化时仍拒绝，要求审阅新图。它不是新一轮对话规划，验证报告须注明 fixed candidate / fresh_model_planning=false。
+
+## 13. 本轮受控集成的复跑核对
+
+1. 按第4—6节构建并启动当前源码；更换源码/模型后重新执行 `bind_profile.py`，重启 control/compiler/四专家，重新装配助手及插件，并重启 WorkSwarm AgentServer/Gateway。四专家本身会读 ENV 校验实际模型绑定，不能只保留旧 profile 换模型启动。
+2. 按第7节从“专家 → 我的专家 → 年报协作规划助手 → 详情 → 使用”新开对话。当前 WorkSwarm 构建的卡片悬浮“使用”按钮可能被头像挡住，详情页的“使用”入口已实测。不复用历史任务冒充新规划。
+3. 新候选应带 `graph.selection={id,digest}`；选择记录在同一 PG 的 `selection_records`，母公司高分仍排除，未知不通过。当前只开放“经营”和“经营+资产质量”，不是通用知识平台或语义召回。未经用户确认调用数必须为0。
+4. 从编排台批准，观察四专家和实际 Bus task。可在前驱已提交、后继实际运行时停止本工作区 compiler，等待租约到期后重启；原任务应查询原 remote task，已完成节点新增调用为0，不重新规划。需要显式暂停时，输入演示密码点“暂停新节点”；等待状态可从原任务恢复。BLOCKED 必须核对绑定原因，不能普通恢复。
+5. 完成后按第7节从插件批准/交付/下载。写作至多修订一次，可能有4或5次远端调用，但始终是4位独立专家。程序 PASS、测试账号交付和独立业务验收分别记录。
+
+对某个真实新对话做只读核对（替换为自己的会话/任务ID）：
+
+```powershell
+$env:PYTHONPATH = $env:WORKSWARM_SOURCE
+& $py demos/report-demo/tests/verify_planning.py --private-root $private --session '<WorkSwarm会话ID>' --task-id '<T-ID>'
+& $py demos/report-demo/tests/export_trace.py --private-root $private --task-id '<T-ID>'
+& $py demos/report-demo/tests/export_handoff.py --private-root $private --task-id '<T-ID>'
+& $py demos/report-demo/tests/model_process_probe.py --private-root $private --java "$env:JAVA_HOME/bin/java.exe"
+Push-Location demos/report-demo/workswarm/workbench-plugin/app
+npm.cmd test
+$env:BROWSER_EXECUTABLE = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+& $py test/workbench-browser.py
+Pop-Location
+```
+
+`model_process_probe` 用真实专家JAR和本地模型出口替身，验证直接启动时“旧profile+ENV模型B”“缺绑定”均在出口前拒绝，不能拿它代替真实业务模型测试。前三条只读命令不做批准/交付；`verify_main_flow.py` 还需要 `task_probe.py --action download` 和已记录的测试账号交付证据。公开接收样例不含凭据、完整模型返回和思考链；异机复跑和业务签收仍由实际接收人完成。
+
+新增备份使用 `report-demo-backup/2`，包含选择记录；旧 `/1` 快照仍可读取/恢复，不为旧任务补写模型或选择绑定。旧任务可以读历史，新执行不能偷偷采用当前默认模型。

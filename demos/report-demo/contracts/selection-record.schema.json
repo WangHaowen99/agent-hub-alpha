@@ -1,0 +1,321 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:selection-record",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "id",
+    "package",
+    "query",
+    "score_source",
+    "recall",
+    "eligibility",
+    "ranking",
+    "selection",
+    "composition",
+    "outcome",
+    "created_at",
+    "digest"
+  ],
+  "properties": {
+    "composition": {
+      "type": "object",
+      "required": [
+        "result"
+      ],
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "check"
+            ],
+            "properties": {
+              "check": {
+                "type": "string"
+              },
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "digest": {
+      "type": "string"
+    },
+    "eligibility": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "version",
+          "result",
+          "score"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string"
+          },
+          "checks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "graph_mapping": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "node",
+          "capability"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "node": {
+            "type": "string"
+          },
+          "report": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "not_selected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "reason"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "package": {
+      "type": "object",
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "query": {
+      "type": "object",
+      "required": [
+        "package",
+        "entity",
+        "basis",
+        "period",
+        "focus",
+        "deliverable",
+        "materials"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string",
+          "description": "reporting basis, e.g. 本集团 or 母公司"
+        },
+        "compare_period": {
+          "type": "string",
+          "description": "comparison period, e.g. 2024"
+        },
+        "deliverable": {
+          "type": "string",
+          "description": "deliverable template ref"
+        },
+        "entity": {
+          "type": "string",
+          "description": "reporting entity"
+        },
+        "focus": {
+          "type": "array",
+          "description": "what the task focuses on, e.g. 经营 or 资产质量",
+          "items": {
+            "type": "string"
+          }
+        },
+        "materials": {
+          "type": "array",
+          "description": "material ids from the scenario package",
+          "items": {
+            "type": "string"
+          }
+        },
+        "package": {
+          "type": "string",
+          "description": "scenario package id from list_capabilities, e.g. annual-report-cmb-2025"
+        },
+        "period": {
+          "type": "string",
+          "description": "reporting period, e.g. 2025"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "capability",
+          "score",
+          "basis"
+        ],
+        "properties": {
+          "basis": {
+            "type": "string"
+          },
+          "capability": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "reason": {
+      "type": "string"
+    },
+    "recall": {
+      "type": "object",
+      "required": [
+        "method",
+        "candidates"
+      ],
+      "properties": {
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "method": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "score_source": {
+      "type": "string"
+    },
+    "selection": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "team": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "expert",
+          "role",
+          "task"
+        ],
+        "properties": {
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expert": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

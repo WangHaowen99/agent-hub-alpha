@@ -100,6 +100,45 @@
         "agent-festival/go/internal/e2e"
       ],
       "reason": "PR25 original structured identity/schema and companion fixtures in their original module locations. Demo imports ledger types; Demo-specific identity mapping, generated resource and result/PG policies are owned by control-go and deploy. Reference file test host is not a Demo result authority."
+    },
+    {
+      "repository": "https://github.com/chaosxingxc-orion/agent-hub-alpha",
+      "pull_request": "https://github.com/chaosxingxc-orion/agent-hub-alpha/pull/30",
+      "sha": "41a36755563ebeb442f2d93050c1d3430d510e80",
+      "author": "W02/W05 contributors; recovery UI fixes by chaosxingxc-orion",
+      "use": "COPY_ADAPT",
+      "ported_files": [
+        {
+          "source": "agent-festival/go/cmd/credit-demo/app/src/{workbench,flow,order.ts,types.ts,css.d.ts}",
+          "destination": "workswarm/workbench-plugin/app/src",
+          "changes": "Reuse actual React Flow workbench, RPC lifecycle and styles; W04 task identities, decimal generations, selection/report controls; no separate chat shell."
+        },
+        {
+          "source": "agent-festival/go/cmd/credit-demo/workbench-plugin/{extension.py,extension.yaml}",
+          "destination": "workswarm/workbench-plugin",
+          "changes": "Retain Application Plugin/iframe/local RPC boundary; W04 projections and Go-issued user session/CSRF; do not trust declared WS user, do not start credit Go."
+        },
+        {
+          "source": "agent-festival/go/cmd/credit-demo/app/test/{gateway-order.test.mjs,workbench-browser.py}",
+          "destination": "workswarm/workbench-plugin/app/test",
+          "changes": "Keep two-live-RPC vs expired-response tests and actual built UI tests; adapt W04 IDs and decimal generations."
+        }
+      ]
+    },
+    {
+      "repository": "https://github.com/chaosxingxc-orion/agent-hub-alpha",
+      "pull_request": "https://github.com/chaosxingxc-orion/agent-hub-alpha/pull/33",
+      "sha": "ee1bac5ff2b61a58003afba885c913720b99d517",
+      "author": "xierongqiag2015",
+      "use": "COPY_ADAPT",
+      "ported_files": [
+        {
+          "source": "agent-festival/go/cmd/credit-demo/selection.go (pure rules before Service.Select), scenario.go (selection DTO subset)",
+          "destination": "control-go/selection",
+          "changes": "Keep finite recall, eligibility, configured ranking, one-per-output choice, composition and mapping. Export pure Select and record sealing; capability IDs are already versioned. Exclude Service.Select/fromSelection/state.json and scenario loading/credit host."
+        }
+      ],
+      "adapter": "control-go/selection_adapter.go maps the approved catalog to rule DTOs and stores immutable records in the same W04 PG; supports business and business+quality. Scores are configured ranking, not semantic recall/probabilities."
     }
   ],
   "integration_qualified": false,
@@ -140,15 +179,28 @@
     }
   ],
   "latest_verified_run": {
-    "task_id": "T-202e02a56e2275a0aa62837e51d79969",
-    "execution_profile": "sha256:d7576071143ad82280f84dbb36f797ae782288723137d386d35d1dd72f309fd0",
+    "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+    "execution_profile": "sha256:bf7683afefb283aa20d027749acb0d36ec3d83f6c582a3808bc5f31c3c7564b9",
+    "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
     "status": "DELIVERED",
+    "fresh_model_planning": true,
+    "session_id": "web_1a1e77dba72_64d4468a982f",
+    "request_id": "req_mwk49oxs_34",
+    "selection_ref": {
+      "id": "selection-4739de9d93c1e3324963ce2ba837b784",
+      "digest": "sha256:cf67eb149947682f02b52c5a705172d8567c7435eaef774e344b981c5b25fe0e"
+    },
+    "graph_digest": "sha256:530e1a7a04468b044ee9047770dd3926d38a6b3dd67545ee3709d8f99984f0cb",
+    "report_digest": "sha256:ef2cb021cc1440e246203b846d47ad5ea456a19f7d7dc06e3c515bffd23b44bd",
     "four_real_experts": true,
+    "real_remote_calls": 5,
+    "bounded_revision_executed": true,
+    "w02_plugin_approval_delivery_download": true,
+    "same_task_worker_restart": true,
+    "completed_predecessor_extra_calls": 0,
     "program_check": "PASS",
     "operator_test_delivery": true,
-    "independent_business_acceptance": false,
-    "read_only_evidence_checks_passed": 10,
-    "exact_download_bytes": true
+    "independent_business_acceptance": false
   },
   "latest_history_recovery": {
     "session_id": "web_1a1dfc3f3c8_b8631dd80f56",
@@ -164,16 +216,24 @@
     "agent-festival/schema/event-ledger.schema.json": "5696fcb19c1876d95d23f4606ca6cb87aba9b138128e9a7eb1c9e42408f04a3c"
   },
   "latest_shared_contract_run": {
-    "task_id": "T-7853c55c66499997c4597c83e3868949",
-    "source_candidate_task": "T-202e02a56e2275a0aa62837e51d79969",
-    "fresh_model_planning": false,
-    "actor": "isolated operator test",
+    "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+    "fresh_model_planning": true,
+    "actor": "isolated operator test via W02 plugin",
     "identity_contract": "pr25/0.2.0@539d17a",
     "status": "DELIVERED",
-    "report_digest": "sha256:dd34513a337f953fc78d07051986175793fc44d2a9a49fe48db6b5ee26edb617",
+    "report_digest": "sha256:ef2cb021cc1440e246203b846d47ad5ea456a19f7d7dc06e3c515bffd23b44bd",
     "real_experts": 4,
     "read_only_evidence_checks_passed": 10,
-    "structured_contract_checks_passed": 16,
+    "structured_contract_checks_passed": 20,
     "independent_business_acceptance": false
+  },
+  "integration_review": {
+    "decision": "issue16 comment 6936105235; controlled W02 + native W03 + W04 PG + W05 Bus annual-report path",
+    "reference_only": [
+      "PR30 credit Go host/regression",
+      "PR34 remote cross-task fast path (deferred)"
+    ],
+    "shared_upstream_files_changed_this_round": false,
+    "joint_acceptance": false
   }
 }

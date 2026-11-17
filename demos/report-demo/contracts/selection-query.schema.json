@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "$id": "urn:agent-hub:report-demo:1:selection-query",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "required": [
+    "package",
+    "entity",
+    "basis",
+    "period",
+    "focus",
+    "deliverable",
+    "materials"
+  ],
+  "properties": {
+    "basis": {
+      "type": "string",
+      "description": "reporting basis, e.g. 本集团 or 母公司"
+    },
+    "compare_period": {
+      "type": "string",
+      "description": "comparison period, e.g. 2024"
+    },
+    "deliverable": {
+      "type": "string",
+      "description": "deliverable template ref"
+    },
+    "entity": {
+      "type": "string",
+      "description": "reporting entity"
+    },
+    "focus": {
+      "type": "array",
+      "description": "what the task focuses on, e.g. 经营 or 资产质量",
+      "items": {
+        "type": "string"
+      }
+    },
+    "materials": {
+      "type": "array",
+      "description": "material ids from the scenario package",
+      "items": {
+        "type": "string"
+      }
+    },
+    "package": {
+      "type": "string",
+      "description": "scenario package id from list_capabilities, e.g. annual-report-cmb-2025"
+    },
+    "period": {
+      "type": "string",
+      "description": "reporting period, e.g. 2025"
+    }
+  },
+  "additionalProperties": false
+}

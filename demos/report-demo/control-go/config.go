@@ -9,21 +9,22 @@ import (
 )
 
 type Config struct {
-	Listen           string            `json:"listen"`
-	PublicURL        string            `json:"public_url"`
-	DSN              string            `json:"dsn"`
-	MigratorDSN      string            `json:"migrator_dsn"`
-	Scope            string            `json:"scope"`
-	ArtifactRoot     string            `json:"artifact_root"`
-	CatalogPath      string            `json:"catalog_path"`
-	MaterialPath     string            `json:"material_path"`
-	CompilerURL      string            `json:"compiler_url"`
-	LeaseSeconds     int               `json:"lease_seconds"`
-	ExecutionProfile string            `json:"execution_profile"`
-	Tokens           map[string]string `json:"tokens"`
-	User             string            `json:"user"`
-	UserPassword     string            `json:"user_password"`
-	TestEffect       *TestEffectConfig `json:"test_effect,omitempty"`
+	Listen             string            `json:"listen"`
+	PublicURL          string            `json:"public_url"`
+	DSN                string            `json:"dsn"`
+	MigratorDSN        string            `json:"migrator_dsn"`
+	Scope              string            `json:"scope"`
+	ArtifactRoot       string            `json:"artifact_root"`
+	CatalogPath        string            `json:"catalog_path"`
+	MaterialPath       string            `json:"material_path"`
+	CompilerURL        string            `json:"compiler_url"`
+	LeaseSeconds       int               `json:"lease_seconds"`
+	ExecutionProfile   string            `json:"execution_profile"`
+	ModelBindingDigest string            `json:"model_binding_digest,omitempty"`
+	Tokens             map[string]string `json:"tokens"`
+	User               string            `json:"user"`
+	UserPassword       string            `json:"user_password"`
+	TestEffect         *TestEffectConfig `json:"test_effect,omitempty"`
 }
 type Material struct {
 	ID               string         `json:"id"`
@@ -53,6 +54,9 @@ func LoadConfig(path string) (Config, Catalog, Material, error) {
 	}
 	if cfg.DSN == "" || cfg.Scope == "" || cfg.Listen == "" || cfg.PublicURL == "" || cfg.CompilerURL == "" || cfg.User == "" || len(cfg.UserPassword) < 12 || cfg.LeaseSeconds < 3 {
 		return cfg, cat, m, errors.New("required private configuration missing or invalid")
+	}
+	if cfg.ExecutionProfile != "" && cfg.ModelBindingDigest == "" {
+		return cfg, cat, m, errors.New("published execution profile requires its reviewed actual-model binding")
 	}
 	if cfg.TestEffect != nil {
 		if err = cfg.TestEffect.validate(); err != nil {

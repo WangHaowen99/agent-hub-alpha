@@ -44,6 +44,10 @@ func (s *Store) qualifyRemoteResult(ctx context.Context, tx pgx.Tx, id, node str
 }
 
 func (s *Store) completedOutputDigests(ctx context.Context, tx pgx.Tx, call Call) (map[string]bool, error) {
+	var model string
+	if err := tx.QueryRow(ctx, "SELECT COALESCE(document->>'model_binding_digest','') FROM tasks WHERE scope=$1 AND id=$2", s.Scope, call.TaskID).Scan(&model); err != nil {
+		return nil, err
+	}
 	var raw []byte
 	rows, err := tx.Query(ctx, "SELECT document FROM observations WHERE scope=$1 AND call_id=$2 AND document->>'state'='COMPLETED'", s.Scope, call.ID)
 	if err != nil {
@@ -84,6 +88,12 @@ func (s *Store) completedOutputDigests(ctx context.Context, tx pgx.Tx, call Call
 				var envelope map[string]any
 				if DecodeStrict(body, &envelope) != nil || envelope["call_id"] != call.ID || envelope["input_digest"] != call.InputDigest {
 					continue
+				}
+				if model != "" {
+					evidence, ok := envelope["runtime_evidence"].(map[string]any)
+					if !ok || evidence["agent_id"] != call.AgentID || evidence["model_binding_digest"] != model {
+						continue
+					}
 				}
 				a, ok := envelope["attempt"].(json.Number)
 				if !ok {

@@ -13,9 +13,12 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/openjiuwen/agent-festival/go/cmd/report-demo/selection"
 )
 
-var snapshotTables = []string{"tasks", "commands", "run_leases", "artifacts", "committed_results", "artifact_dependencies", "node_attempts", "remote_calls", "observations", "checks", "approvals", "delivery_intents", "cases_and_validity", "extraction_reuse", "audit_outbox"}
+var legacySnapshotTables = []string{"tasks", "commands", "run_leases", "artifacts", "committed_results", "artifact_dependencies", "node_attempts", "remote_calls", "observations", "checks", "approvals", "delivery_intents", "cases_and_validity", "extraction_reuse", "audit_outbox"}
+
+var snapshotTables = append(append([]string{}, legacySnapshotTables...), "selection_records")
 
 type SnapshotPayload struct {
 	Version          string                       `json:"schema_version"`
@@ -35,7 +38,7 @@ type Snapshot struct {
 // Backup freezes a PG snapshot first, releases the transaction, then reads
 // immutable content. No filesystem/network/model work runs in that transaction.
 func (s *Store) Backup(ctx context.Context, files Files, cat Catalog, material Material) (Snapshot, error) {
-	p := SnapshotPayload{Version: "report-demo-backup/1", Scope: s.Scope, CreatedAt: time.Now().UTC(), ExecutionProfile: s.ExecutionProfile, Catalog: cat, Material: material, Tables: map[string][]json.RawMessage{}, Contents: map[string][]byte{}}
+	p := SnapshotPayload{Version: "report-demo-backup/2", Scope: s.Scope, CreatedAt: time.Now().UTC(), ExecutionProfile: s.ExecutionProfile, Catalog: cat, Material: material, Tables: map[string][]json.RawMessage{}, Contents: map[string][]byte{}}
 	tx, err := s.Pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if err != nil {
 		return Snapshot{}, err
@@ -88,7 +91,7 @@ func (s *Store) Backup(ctx context.Context, files Files, cat Catalog, material M
 
 func (snapshot Snapshot) Validate() error {
 	p := snapshot.Payload
-	if p.Version != "report-demo-backup/1" || p.Scope == "" {
+	if (p.Version != "report-demo-backup/1" && p.Version != "report-demo-backup/2") || p.Scope == "" {
 		return errors.New("unsupported snapshot")
 	}
 	digest, err := Digest(p)
@@ -98,10 +101,14 @@ func (snapshot Snapshot) Validate() error {
 	if digest != snapshot.Digest {
 		return errors.New("snapshot manifest digest differs")
 	}
-	if len(p.Tables) != len(snapshotTables) {
+	tables := snapshotTables
+	if p.Version == "report-demo-backup/1" {
+		tables = legacySnapshotTables
+	}
+	if len(p.Tables) != len(tables) {
 		return errors.New("snapshot table manifest incomplete")
 	}
-	for _, table := range snapshotTables {
+	for _, table := range tables {
 		rows, ok := p.Tables[table]
 		if !ok {
 			return errors.New("snapshot table missing")
@@ -143,6 +150,21 @@ func (snapshot Snapshot) Validate() error {
 	if len(artifacts) != len(p.Contents) {
 		return errors.New("snapshot contains unmanifested content")
 	}
+	selections := map[string]selection.SelectionRecord{}
+	for _, raw := range p.Tables["selection_records"] {
+		var row struct {
+			ID       string                    `json:"id"`
+			Digest   string                    `json:"digest"`
+			Document selection.SelectionRecord `json:"document"`
+		}
+		if err = json.Unmarshal(raw, &row); err != nil {
+			return err
+		}
+		if row.ID != row.Document.ID || row.Digest != row.Document.Digest || !row.Document.ValidDigest() {
+			return errors.New("selection record digest differs")
+		}
+		selections[row.ID] = row.Document
+	}
 	for _, raw := range p.Tables["tasks"] {
 		var row struct {
 			Document json.RawMessage `json:"document"`
@@ -157,6 +179,14 @@ func (snapshot Snapshot) Validate() error {
 		graph, ok := task["graph"]
 		if !ok {
 			return errors.New("task graph missing")
+		}
+		if object, ok := graph.(map[string]any); ok {
+			if ref, ok := object["selection"].(map[string]any); ok {
+				record, exists := selections[fmt.Sprint(ref["id"])]
+				if !exists || record.Digest != ref["digest"] {
+					return errors.New("task selection missing or changed")
+				}
+			}
 		}
 		graphDigest, err := Digest(graph)
 		if err != nil {

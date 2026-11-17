@@ -61,3 +61,50 @@ func TestPGRemoteCommitRequiresUniqueObservedBoundOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestPGRemoteOutputRequiresActualModelBindingEvidence(t *testing.T) {
+	for _, mode := range []string{"missing", "wrong-model", "matching"} {
+		t.Run(mode, func(t *testing.T) {
+			ctx, s, _, cat, _, task, request, raw := commitFixture(t)
+			v, err := s.BeginCall(ctx, task.ID, "extract", request.Owner, request.Epoch, routeFixture(t, cat, "extractor@1"), cat)
+			if err != nil {
+				t.Fatal(err)
+			}
+			call := v.(CallDecision).Call
+			_, err = s.Pool.Exec(ctx, `UPDATE tasks SET document=jsonb_set(document,'{model_binding_digest}','"sha256:model-a"') WHERE scope=$1 AND id=$2`, s.Scope, task.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var output any
+			if err = DecodeStrict(raw, &output); err != nil {
+				t.Fatal(err)
+			}
+			envelope := map[string]any{"call_id": call.ID, "input_digest": call.InputDigest, "attempt": call.Attempt, "output": output}
+			if mode != "missing" {
+				model := "sha256:model-a"
+				if mode == "wrong-model" {
+					model = "sha256:model-b"
+				}
+				envelope["runtime_evidence"] = map[string]any{"agent_id": call.AgentID, "model_binding_digest": model}
+			}
+			payload, _ := json.Marshal(map[string]any{"id": "model-evidence-task", "contextId": call.ContextID, "artifacts": []any{map[string]any{"parts": []any{map[string]any{"data": envelope}}}}})
+			_, err = s.Observe(ctx, call.ID, "fixture-worker", Observation{EventID: "evidence", State: "COMPLETED", RemoteTaskID: "model-evidence-task", ContextID: call.ContextID, Payload: payload})
+			if err != nil {
+				t.Fatal(err)
+			}
+			call.RemoteTaskID = "model-evidence-task"
+			tx, err := s.Pool.Begin(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer tx.Rollback(ctx)
+			digests, err := s.completedOutputDigests(ctx, tx, call)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if (mode == "matching") != (len(digests) == 1) {
+				t.Fatal("model evidence qualification differs", mode, digests)
+			}
+		})
+	}
+}

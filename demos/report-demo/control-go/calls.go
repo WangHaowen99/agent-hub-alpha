@@ -47,7 +47,7 @@ func (s *Store) BeginCall(ctx context.Context, id, node, owner, epoch string, ro
 		if err != nil {
 			return nil, err
 		}
-		if cd != t.Graph.CatalogDigest || t.ExecutionProfile != s.ExecutionProfile {
+		if cd != t.Graph.CatalogDigest || t.ExecutionProfile != s.ExecutionProfile || t.ModelBindingDigest != s.ModelBindingDigest {
 			return nil, fault("BINDING_CHANGED", "admitted catalog/execution profile changed before dispatch", 409)
 		}
 		if t.Pause {

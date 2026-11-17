@@ -36,10 +36,10 @@ final class BoundNodeExecutor implements SubAgentExecutor {
                 return "AUTHORIZED_SKIP";
             }
         }
-        JsonNode permit = control.post(path + "/resolve", Map.of("owner", owner, "epoch", epoch));
-        if (permit.path("status").asText().equals("REUSE")) { return Json.write(permit.path("result").path("output")); }
-        String kind = permit.path("binding").path("capability").path("kind").asText();
         try {
+            JsonNode permit = control.post(path + "/resolve", Map.of("owner", owner, "epoch", epoch));
+            if (permit.path("status").asText().equals("REUSE")) { return Json.write(permit.path("result").path("output")); }
+            String kind = permit.path("binding").path("capability").path("kind").asText();
             JsonNode output;
             if (kind.equals("check")) {
                 if (!permit.path("status").asText().equals("GRANTED")) { throw new ControlClient.ControlFailure("WAIT", 409); }
@@ -59,6 +59,7 @@ final class BoundNodeExecutor implements SubAgentExecutor {
             String status = switch (e.code) {
                 case "INPUT_REQUIRED" -> "WAITING_INPUT";
                 case "AUTH_REQUIRED" -> "WAITING_AUTH";
+                case "BINDING_CHANGED", "DISCOVERY_BINDING_CHANGED", "MODEL_BINDING_CHANGED" -> "BLOCKED";
                 case "REMOTE_UNKNOWN", "REMOTE_UNRESOLVED", "REMOTE_ASSOCIATION_CONFLICT", "WAIT", "DISCOVERY_UNAVAILABLE", "CONTROL_UNAVAILABLE" -> "UNKNOWN";
                 default -> "FAILED";
             };

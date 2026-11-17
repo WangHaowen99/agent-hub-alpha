@@ -32,6 +32,6 @@ def main():
     verify=session.get(base+'/v1/tasks/'+a.task_id+'/verify',timeout=15);verify.raise_for_status()
     result={'task':task,'calls':calls,'observations':observations,'runtime_evidence':runtime,'verification':verify.json()}
     (root/'evidence'/(a.task_id+'-trace.json')).write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
-    print(json.dumps({'task_id':a.task_id,'runtime_evidence':runtime,'verification':verify.json()}))
+    print(json.dumps({'task_id':a.task_id,'runtime_evidence_records':len(runtime),'verification':verify.json()}))
 
 if __name__=='__main__':main()

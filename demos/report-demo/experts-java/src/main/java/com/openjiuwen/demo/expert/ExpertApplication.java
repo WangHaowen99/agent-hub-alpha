@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(scanBasePackages = "com.openjiuwen.service.app")
 public class ExpertApplication {
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static volatile ModelBinding.Settings modelSettings;
 
     public static void main(String[] args) { SpringApplication.run(ExpertApplication.class, args); }
 
@@ -33,8 +34,11 @@ public class ExpertApplication {
         if (agentID.isBlank() || !List.of("extract", "business", "quality", "write").contains(role)) {
             throw new IllegalStateException("Unknown configured expert role");
         }
+        // Fail before any model client or listener is usable, including when
+        // launched directly with java instead of the managed Python launcher.
+        modelSettings = ModelBinding.read(System.getenv(), expertConfiguration);
         ReActAgent agent = createAgent(agentID, role);
-        return new BoundExpertHandler(expertConfiguration, agent, new JiuwenCoreAgentHandler(agent));
+        return new BoundExpertHandler(expertConfiguration, agent, new JiuwenCoreAgentHandler(agent), modelSettings);
     }
 
     @Bean IngressIdentityFilter ingressIdentityFilter(JsonNode expertConfiguration) {
@@ -42,12 +46,12 @@ public class ExpertApplication {
     }
 
     static ReActAgent createAgent(String id, String role) throws Exception {
-        String key = System.getenv("DEMO_MODEL_API_KEY");
-        String base = System.getenv("DEMO_MODEL_BASE_URL");
-        String model = System.getenv("DEMO_MODEL_NAME");
-        if (key == null || key.isBlank() || base == null || model == null) {
-            throw new IllegalStateException("Real model environment required; no fixed-output fallback");
-        }
+        ModelBinding.Settings actual = modelSettings;
+        if (actual == null) { throw new IllegalStateException("MODEL_BINDING_UNAVAILABLE"); }
+        return configuredAgent(actual, id, role);
+    }
+
+    static ReActAgent configuredAgent(ModelBinding.Settings actual, String id, String role) throws Exception {
         String prompt;
         try (var input = ExpertApplication.class.getResourceAsStream("/prompts/" + role + ".md")) {
             if (input == null) { throw new IllegalStateException("Role prompt missing"); }
@@ -55,11 +59,11 @@ public class ExpertApplication {
         }
         ReActAgentConfig config = ReActAgentConfig.builder()
                 .promptTemplate(List.of(Map.of("role", "system", "content", prompt)))
-                .maxIterations(role.equals("quality") ? 8 : 4).build()
-                .configureModelClient("OpenAI", key, base, model, true)
+                .maxIterations(role.equals("quality") ? ModelBinding.QUALITY_ITERATIONS : ModelBinding.NORMAL_ITERATIONS).build()
+                .configureModelClient("OpenAI", actual.key(), actual.base(), actual.model(), true)
                 .configureContextEngine(240, 60, false);
-        config.getModelConfigObj().setTemperature(0.1);
-        config.getModelConfigObj().setMaxTokens(6000);
+        config.getModelConfigObj().setTemperature(ModelBinding.TEMPERATURE);
+        config.getModelConfigObj().setMaxTokens(ModelBinding.MAX_TOKENS);
         ReActAgent agent = new ReActAgent(AgentCard.builder().id(id).name(id).description("Bound annual report " + role).build());
         agent.configure(config);
         return agent;

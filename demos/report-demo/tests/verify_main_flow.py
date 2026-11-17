@@ -22,7 +22,9 @@ def envelopes(task):
 def verify(trace,delivery,report,download_digest):
     task=trace['task'];checks={};calls=trace['calls']
     checks['delivered_with_intact_evidence']=task['status']=='DELIVERED' and trace['verification']['evidence_intact'] and not trace['verification']['issues']
-    checks['four_distinct_real_remote_tasks']=len(calls)==4 and len({c['remote_task_id'] for c in calls})==4 and all(c['state']=='COMPLETED' and not c['conflicted'] for c in calls)
+    # Four distinct experts; a bounded revision is a fifth call to the writer,
+    # not a fifth expert and not a duplicate send of the original remote task.
+    checks['real_remote_tasks_for_four_experts_and_optional_revision']=len(calls) in (4,5) and len({c['agent_id'] for c in calls})==4 and len({c['remote_task_id'] for c in calls})==len(calls) and all(c['state']=='COMPLETED' and not c['conflicted'] for c in calls)
     checks['four_independent_expert_roles']={r['runtime_evidence']['role'] for r in trace['runtime_evidence']}=={'extract','business','quality','write'} and len({r['runtime_evidence']['agent_id'] for r in trace['runtime_evidence']})==4
     outputs_match=True
     for call in calls:

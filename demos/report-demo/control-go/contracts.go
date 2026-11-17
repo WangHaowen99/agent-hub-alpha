@@ -9,6 +9,7 @@ import (
 	"reflect"
 
 	"github.com/google/jsonschema-go/jsonschema"
+	"github.com/openjiuwen/agent-festival/go/cmd/report-demo/selection"
 	"github.com/openjiuwen/agent-festival/go/internal/ledger"
 	"github.com/openjiuwen/agent-festival/go/internal/rfc8785"
 )
@@ -33,6 +34,7 @@ func ContractSchemas() (map[string]*jsonschema.Schema, error) {
 		reflect.TypeFor[json.RawMessage](): {}, reflect.TypeFor[ledger.Identity](): &identity, reflect.TypeFor[ledger.LogicalExecution](): &logical,
 	}}
 	types := map[string]reflect.Type{
+		"selection-query": reflect.TypeFor[selection.SelectionQuery](), "selection-record": reflect.TypeFor[selection.SelectionRecord](),
 		"propose-input": reflect.TypeFor[ProposeInput](), "graph": reflect.TypeFor[Graph](),
 		"binding": reflect.TypeFor[Binding](), "commit-request": reflect.TypeFor[CommitRequest](),
 		"result": reflect.TypeFor[Result](), "remote-call": reflect.TypeFor[Call](),

@@ -112,6 +112,25 @@
         },
         "policy_version": {
           "type": "string"
+        },
+        "selection": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "required": [
+            "id",
+            "digest"
+          ],
+          "properties": {
+            "digest": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -123,6 +142,9 @@
       "type": "string"
     },
     "identity_contract": {
+      "type": "string"
+    },
+    "model_binding_digest": {
       "type": "string"
     },
     "nodes": {

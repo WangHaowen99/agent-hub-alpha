@@ -8,6 +8,13 @@ import os
 from pathlib import Path
 
 
+def model_binding_digest() -> str:
+    fields = ['report-model/1', 'OpenAI', os.environ['DEMO_MODEL_BASE_URL'].rstrip('/'),
+              os.environ['DEMO_MODEL_NAME'], '0.1', '6000', '4', '8']
+    body = b''.join(str(len(raw)).encode('ascii') + b':' + raw for raw in (f.encode('utf-8') for f in fields))
+    return 'sha256:' + hashlib.sha256(body).hexdigest()
+
+
 def fingerprint(repo: Path) -> str:
     for key in ("DEMO_MODEL_BASE_URL", "DEMO_MODEL_NAME"):
         if not os.environ.get(key):
@@ -35,6 +42,7 @@ def main() -> None:
     for path in [args.private_root / "config.json", *(args.private_root / "experts").glob("*.json")]:
         data = json.loads(path.read_text(encoding="utf-8"))
         data["execution_profile"] = digest
+        data["model_binding_digest"] = model_binding_digest()
         path.write_text(json.dumps(data, indent=2), encoding="utf-8")
     print(json.dumps({"execution_profile": digest, "model_settings_persisted": False,
                       "next": "Restart control/compiler/experts before admitting a new graph"}))

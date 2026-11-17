@@ -22,6 +22,7 @@ type Store struct {
 	LeaseSeconds             int
 	MaterialProjectionDigest string
 	ExecutionProfile         string
+	ModelBindingDigest       string
 	CurrentCatalogDigest     string
 	DeliveryPolicyVersion    string
 	ReuseFiles               *Files
@@ -191,8 +192,14 @@ func (s *Store) Propose(ctx context.Context, principal, key string, g Graph, run
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
+	if g.Selection != nil {
+		if err = s.validateSelection(ctx, tx, g); err != nil {
+			return nil, err
+		}
+	}
 	t := Task{IdentityContract: pr25Contract, SchemaVersion: Protocol, ID: newID("T-"), Revision: "g1", Status: "AWAITING_APPROVAL", Generation: "1", Graph: g, GraphDigest: h, RuntimeDigest: runtimeDigest, Nodes: map[string]*NodeState{}, CreatedAt: time.Now().UTC()}
 	t.ExecutionProfile = s.ExecutionProfile
+	t.ModelBindingDigest = s.ModelBindingDigest
 	for _, n := range g.Nodes {
 		t.Nodes[n.ID] = &NodeState{Status: "READY"}
 	}
@@ -302,10 +309,18 @@ func (s *Store) Admit(ctx context.Context, id, digest, principal string) (any, e
 		if t.Status != "AWAITING_APPROVAL" {
 			return map[string]string{"task_id": id, "graph_digest": digest, "status": t.Status}, nil
 		}
-		if t.ExecutionProfile != s.ExecutionProfile || (s.CurrentCatalogDigest != "" && t.Graph.CatalogDigest != s.CurrentCatalogDigest) {
+		if t.ExecutionProfile != s.ExecutionProfile || t.ModelBindingDigest != s.ModelBindingDigest || (s.CurrentCatalogDigest != "" && t.Graph.CatalogDigest != s.CurrentCatalogDigest) {
 			return nil, fault("BINDING_CHANGED", "release changed after proposal; review a new candidate", 409)
 		}
+		if t.Graph.Selection != nil && (t.ExecutionProfile == "" || t.ModelBindingDigest == "") {
+			return nil, fault("BINDING_CHANGED", "selected task has no reviewed actual-model binding", 409)
+		}
 		t.Status = "QUEUED"
+		if t.Graph.Selection != nil {
+			if err := s.validateSelection(ctx, tx, t.Graph); err != nil {
+				return nil, err
+			}
+		}
 		t.ApprovedBy = principal
 		_, err := tx.Exec(ctx, "INSERT INTO approvals(scope,id,task_id,action,object_digest,principal,expires_at) VALUES($1,$2,$3,'admit',$4,$5,clock_timestamp()+interval '24 hours')", s.Scope, newID("approve-"), id, digest, principal)
 		return map[string]string{"task_id": id, "graph_digest": digest, "status": t.Status}, err
@@ -313,7 +328,7 @@ func (s *Store) Admit(ctx context.Context, id, digest, principal string) (any, e
 }
 
 func (s *Store) Binding(ctx context.Context, t *Task, node string, c Catalog, materialDigest string) (Binding, error) {
-	if t.ExecutionProfile != s.ExecutionProfile {
+	if t.ExecutionProfile != s.ExecutionProfile || t.ModelBindingDigest != s.ModelBindingDigest {
 		return Binding{}, fault("BINDING_CHANGED", "execution source/model profile changed; new graph confirmation required", 409)
 	}
 	var n *Node
@@ -339,6 +354,7 @@ func (s *Store) Binding(ctx context.Context, t *Task, node string, c Catalog, ma
 	}
 	b := Binding{SchemaVersion: Protocol, TaskID: t.ID, Revision: t.Revision, NodeID: node, Instruction: n.Task, Goal: t.Graph.Goal, Focus: t.Graph.Focus, MaterialDigest: materialDigest, MaterialProjectionDigest: s.MaterialProjectionDigest, Capability: cap, PolicyVersion: t.Graph.PolicyVersion, Upstream: []Result{}, AuthorizedSkips: []SkipProof{}}
 	b.ExecutionProfile = s.ExecutionProfile
+	b.ModelBindingDigest = t.ModelBindingDigest
 	if t.IdentityContract != "" {
 		if t.IdentityContract != pr25Contract {
 			return Binding{}, fault("BINDING_CHANGED", "identity contract unavailable", 409)
@@ -443,8 +459,8 @@ func (s *Store) Complete(ctx context.Context, id, owner, epoch string) (any, err
 		if err := s.leaseCheck(ctx, tx, id, "graph", owner, epoch); err != nil {
 			return nil, err
 		}
-		if t.Status == "NEEDS_REVIEW" {
-			return nil, fault("POLICY_REJECTED", "rejected or invalidated task cannot complete", 409)
+		if t.Status == "NEEDS_REVIEW" || t.Status == "BLOCKED" {
+			return nil, fault("POLICY_REJECTED", "rejected, blocked or invalidated task cannot complete", 409)
 		}
 		missing := []string{}
 		failed := false
@@ -483,6 +499,9 @@ func (s *Store) Complete(ctx context.Context, id, owner, epoch string) (any, err
 
 func (s *Store) SetPause(ctx context.Context, id string, pause bool) (any, error) {
 	return s.mutate(ctx, id, "PAUSE_CHANGED", func(tx pgx.Tx, t *Task) (any, error) {
+		if !pause && t.Status == "BLOCKED" {
+			return nil, fault("BINDING_CHANGED", "blocked release/identity requires controlled resolution or a newly reviewed task; ordinary resume is not allowed", 409)
+		}
 		t.Pause = pause
 		if !pause && t.Status == "FAILED" {
 			// An explicit trusted-user retry may reconcile a failed call or

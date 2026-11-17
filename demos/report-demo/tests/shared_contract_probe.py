@@ -17,6 +17,7 @@ def main():
     p.add_argument('--private-root', type=Path, required=True)
     p.add_argument('action', choices=['start', 'status', 'verify'])
     p.add_argument('--source-task')
+    p.add_argument('--task-id',help='Read-only status/verify of this explicit task; does not create or replan it')
     p.add_argument('--rebind-current-catalog', action='store_true', help='Explicitly propose and approve a new task using current capability bindings; never changes the source task')
     a = p.parse_args()
     root = a.private_root.resolve()
@@ -42,6 +43,13 @@ def main():
             if graph['policy_version'] != published['catalog']['policy_version']:
                 raise SystemExit('Policy changed; review a fresh graph rather than replacing its policy automatically')
             graph['catalog_digest'] = published['catalog_digest']
+            policy=published['catalog']['selection']
+            query={k:policy[k] for k in ('package','entity','basis','period','compare_period','deliverable')}
+            query.update(focus=['经营','资产质量'] if graph['focus']=='business+quality' else ['经营'],materials=[graph['material_id']])
+            selected=requests.post(base+'/v1/selections',headers={'Authorization':'Bearer '+cfg['tokens']['planner']},json=query,timeout=15)
+            selected.raise_for_status();record=selected.json()
+            if record['outcome']!='graph':raise SystemExit('Explicit rebind cannot compose the requested capabilities')
+            graph['selection']={'id':record['id'],'digest':record['digest']}
         response = requests.post(base + '/v1/commands', headers={'Authorization': 'Bearer ' + cfg['tokens']['planner']},
                                  json={'command_id': 'shared-contract-' + str(time.time_ns()), 'graph': graph}, timeout=20)
         response.raise_for_status()
@@ -55,7 +63,7 @@ def main():
         run_path.write_text(json.dumps(run, indent=2), encoding='utf-8')
         print(json.dumps(run))
         return
-    run = json.loads(run_path.read_text(encoding='utf-8'))
+    run = {'task_id':a.task_id,'planning_provenance':'explicit existing task; see separate real-dialogue verifier'} if a.task_id else json.loads(run_path.read_text(encoding='utf-8'))
     task_url = base + '/v1/tasks/' + run['task_id']
     response = session.get(task_url, timeout=10)
     response.raise_for_status()
@@ -85,7 +93,7 @@ def main():
     after.raise_for_status()
     checks['reconciliation_read_only'] = after.json()['generation'] == task['generation']
     report = {**run, 'status': task['status'], 'checks': checks, 'all_passed': all(checks.values()),
-              'limits': ['Actual Java/Bus/model consumers; fixed prior candidate graph', 'Operator test approval, not independent business acceptance']}
+              'limits': ['Actual Java/Bus/model consumers; planning provenance is recorded by fresh_model_planning and the separate conversation verifier', 'Operator test approval, not independent business acceptance']}
     (evidence / 'shared-contract-model-verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     print(json.dumps(report))
     if not report['all_passed']:

@@ -65,7 +65,7 @@ def main() -> None:
                 await session.initialize()
                 tools = await session.list_tools()
                 names = {tool.name for tool in tools.tools}
-                expected = {"list_capabilities", "propose_plan", "get_plan", "run_status", "verify_run"}
+                expected = {"list_capabilities", "select_capabilities", "propose_plan", "get_plan", "run_status", "verify_run"}
                 if names != expected:
                     raise RuntimeError("Planner connector exposes an unexpected tool surface")
 
@@ -100,6 +100,17 @@ def main() -> None:
 
     from install_policy import install
     install(workspace)
+
+    # Gateway's documented user Application Plugin directory. Only install our
+    # W02 adapter and its prebuilt assets; do not overwrite any other plugin.
+    plugin = Path(__file__).parent / "workbench-plugin"
+    if not (plugin / "frontend/dist/index.html").is_file():
+        raise SystemExit("Build workbench-plugin/app first; plugin installation incomplete")
+    installed = workspace / "domain/application_plugins/credit-workbench"
+    installed.mkdir(parents=True, exist_ok=True)
+    for name in ("extension.py", "extension.yaml"):
+        shutil.copyfile(plugin / name, installed / name)
+    shutil.copytree(plugin / "frontend", installed / "frontend", dirs_exist_ok=True)
 
     if args.model_from_env:
         required = ("API_BASE", "API_KEY", "MODEL_NAME")

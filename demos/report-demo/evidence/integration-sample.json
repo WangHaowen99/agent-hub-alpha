@@ -1,0 +1,756 @@
+{
+  "schema_version": "report-integration-sample/1",
+  "scope": "same-host candidate combination; not joint or independent acceptance",
+  "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+  "graph_revision": "g1",
+  "graph_digest": "sha256:530e1a7a04468b044ee9047770dd3926d38a6b3dd67545ee3709d8f99984f0cb",
+  "catalog_digest": "sha256:6df470d3860c155b11958b5f5ae365df38ed350c6c6c770f4427d2093cafedb5",
+  "generation": "110",
+  "execution_profile": "sha256:bf7683afefb283aa20d027749acb0d36ec3d83f6c582a3808bc5f31c3c7564b9",
+  "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+  "status": "DELIVERED",
+  "sources": {
+    "w02_plugin": "PR30@41a36755563ebeb442f2d93050c1d3430d510e80",
+    "selection_rules": "PR33@ee1bac5ff2b61a58003afba885c913720b99d517",
+    "shared_contract": "PR25@539d17a47eb01c178e789fc8fcd68c17d791baa3"
+  },
+  "planning": {
+    "session_id": "web_1a1e77dba72_64d4468a982f",
+    "request_id": "req_mwk49oxs_34",
+    "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+    "graph_digest": "sha256:530e1a7a04468b044ee9047770dd3926d38a6b3dd67545ee3709d8f99984f0cb",
+    "selection_ref": {
+      "id": "selection-4739de9d93c1e3324963ce2ba837b784",
+      "digest": "sha256:cf67eb149947682f02b52c5a705172d8567c7435eaef774e344b981c5b25fe0e"
+    },
+    "tool_names": [
+      "skill_tool",
+      "mcp_report-orchestration_list_capabilities",
+      "mcp_report-orchestration_select_capabilities",
+      "mcp_report-orchestration_propose_plan",
+      "mcp_report-orchestration_get_plan"
+    ],
+    "usage": [
+      {
+        "input_tokens": 88391,
+        "output_tokens": 3646,
+        "total_tokens": 92037,
+        "cache_tokens": 75136,
+        "cache_hit_rate": "85.0%"
+      }
+    ],
+    "checks": {
+      "catalog_selection_proposal_order": true,
+      "model_abilities_stayed_scoped": true,
+      "real_model_token_usage": true,
+      "request_completed": true,
+      "no_request_error": true,
+      "model_authored_graph_matches_authority": true
+    },
+    "all_passed": true,
+    "limits": [
+      "One explicit real dialogue; not semantic-search recall or independent business acceptance"
+    ]
+  },
+  "selection": {
+    "id": "selection-4739de9d93c1e3324963ce2ba837b784",
+    "package": {
+      "id": "annual-report-cmb-2025",
+      "version": "1",
+      "digest": "sha256:6df470d3860c155b11958b5f5ae365df38ed350c6c6c770f4427d2093cafedb5"
+    },
+    "query": {
+      "package": "annual-report-cmb-2025",
+      "entity": "招商银行股份有限公司",
+      "basis": "本集团",
+      "period": "2025",
+      "compare_period": "2024",
+      "focus": [
+        "经营",
+        "资产质量"
+      ],
+      "deliverable": "annual-report/1",
+      "materials": [
+        "cmb-2025-annual-report-a"
+      ]
+    },
+    "score_source": "场景包配置的权重：职责覆盖任务重点 2.00 + 输入有合格来源 1.00 + 获准包内当前版本 1.00；选择阈值 3.00。这是排序依据，不是成功概率。",
+    "recall": {
+      "method": "finite approved catalog; configured ranking, not semantic search",
+      "candidates": [
+        "extractor@1",
+        "business@1",
+        "quality@1",
+        "writer@1",
+        "parent-only@1",
+        "unknown@1"
+      ]
+    },
+    "eligibility": [
+      {
+        "capability": "extractor@1",
+        "version": "1",
+        "result": "pass",
+        "checks": {
+          "basis": "本集团 ⊆ [本集团]",
+          "entities": "招商银行股份有限公司 ⊆ [招商银行股份有限公司]",
+          "materials": "cmb-2025-annual-report-a ⊆ [cmb-2025-annual-report-a]",
+          "periods": "2025/2024 ⊆ [2025, 2024]",
+          "templates": "annual-report/1 ⊆ [annual-report/1]"
+        },
+        "score": 4
+      },
+      {
+        "capability": "business@1",
+        "version": "1",
+        "result": "pass",
+        "checks": {
+          "basis": "本集团 ⊆ [本集团]",
+          "entities": "招商银行股份有限公司 ⊆ [招商银行股份有限公司]",
+          "materials": "cmb-2025-annual-report-a ⊆ [cmb-2025-annual-report-a]",
+          "periods": "2025/2024 ⊆ [2025, 2024]",
+          "templates": "annual-report/1 ⊆ [annual-report/1]"
+        },
+        "score": 4
+      },
+      {
+        "capability": "quality@1",
+        "version": "1",
+        "result": "pass",
+        "checks": {
+          "basis": "本集团 ⊆ [本集团]",
+          "entities": "招商银行股份有限公司 ⊆ [招商银行股份有限公司]",
+          "materials": "cmb-2025-annual-report-a ⊆ [cmb-2025-annual-report-a]",
+          "periods": "2025/2024 ⊆ [2025, 2024]",
+          "templates": "annual-report/1 ⊆ [annual-report/1]"
+        },
+        "score": 4
+      },
+      {
+        "capability": "writer@1",
+        "version": "1",
+        "result": "pass",
+        "checks": {
+          "basis": "本集团 ⊆ [本集团]",
+          "entities": "招商银行股份有限公司 ⊆ [招商银行股份有限公司]",
+          "materials": "cmb-2025-annual-report-a ⊆ [cmb-2025-annual-report-a]",
+          "periods": "2025/2024 ⊆ [2025, 2024]",
+          "templates": "annual-report/1 ⊆ [annual-report/1]"
+        },
+        "score": 4
+      },
+      {
+        "capability": "parent-only@1",
+        "version": "1",
+        "result": "excluded",
+        "checks": {
+          "basis": "不满足",
+          "entities": "招商银行股份有限公司 ⊆ [招商银行股份有限公司]",
+          "materials": "cmb-2025-annual-report-a ⊆ [cmb-2025-annual-report-a]",
+          "periods": "2025/2024 ⊆ [2025, 2024]",
+          "templates": "annual-report/1 ⊆ [annual-report/1]"
+        },
+        "reasons": [
+          "硬约束不满足：任务口径为 本集团，能力只支持 母公司"
+        ],
+        "score": 4
+      },
+      {
+        "capability": "unknown@1",
+        "version": "1",
+        "result": "unknown",
+        "reasons": [
+          "未声明输入",
+          "未声明输出",
+          "未声明适用范围（主体、口径、期间等）"
+        ],
+        "score": 3
+      }
+    ],
+    "ranking": [
+      {
+        "capability": "extractor@1",
+        "score": 4,
+        "basis": "不限任务重点"
+      },
+      {
+        "capability": "business@1",
+        "score": 4,
+        "basis": "覆盖重点「经营」"
+      },
+      {
+        "capability": "quality@1",
+        "score": 4,
+        "basis": "覆盖重点「资产质量」"
+      },
+      {
+        "capability": "writer@1",
+        "score": 4,
+        "basis": "不限任务重点"
+      }
+    ],
+    "selection": [
+      "extractor@1",
+      "business@1",
+      "quality@1",
+      "writer@1"
+    ],
+    "composition": {
+      "result": "compatible",
+      "bindings": [
+        {
+          "from": "task.materials[cmb-2025-annual-report-a]",
+          "to": "extract.input",
+          "check": "材料在能力适用范围内"
+        },
+        {
+          "from": "extract.output",
+          "to": "business.input",
+          "check": "输入类型 indicators/1 一致"
+        },
+        {
+          "from": "extract.output",
+          "to": "quality.input",
+          "check": "输入类型 indicators/1 一致"
+        },
+        {
+          "from": "business, quality.output",
+          "to": "write.input",
+          "check": "至少有一个所需段落（经营、资产质量）"
+        }
+      ]
+    },
+    "graph_mapping": [
+      {
+        "node": "extract",
+        "capability": "extractor@1"
+      },
+      {
+        "node": "business",
+        "capability": "business@1",
+        "depends_on": [
+          "extract"
+        ]
+      },
+      {
+        "node": "quality",
+        "capability": "quality@1",
+        "depends_on": [
+          "extract"
+        ]
+      },
+      {
+        "node": "write",
+        "capability": "writer@1",
+        "depends_on": [
+          "business",
+          "quality"
+        ],
+        "report": true
+      }
+    ],
+    "team": [
+      {
+        "id": "extract",
+        "expert": "extractor@1",
+        "role": "年报资料提取",
+        "task": "年报资料提取。范围：招商银行股份有限公司，本集团口径，2025 年（对比 2024 年）；任务重点：经营、资产质量"
+      },
+      {
+        "id": "business",
+        "expert": "business@1",
+        "role": "经营分析",
+        "task": "经营分析。范围：招商银行股份有限公司，本集团口径，2025 年（对比 2024 年）；任务重点：经营、资产质量",
+        "depends_on": [
+          "extract"
+        ]
+      },
+      {
+        "id": "quality",
+        "expert": "quality@1",
+        "role": "资产质量分析",
+        "task": "资产质量分析。范围：招商银行股份有限公司，本集团口径，2025 年（对比 2024 年）；任务重点：经营、资产质量",
+        "depends_on": [
+          "extract"
+        ]
+      },
+      {
+        "id": "write",
+        "expert": "writer@1",
+        "role": "报告写作与一次修订",
+        "task": "报告写作与一次修订。范围：招商银行股份有限公司，本集团口径，2025 年（对比 2024 年）；任务重点：经营、资产质量",
+        "depends_on": [
+          "business",
+          "quality"
+        ]
+      }
+    ],
+    "outcome": "graph",
+    "created_at": "2026-11-17T03:12:25.847191Z",
+    "digest": "sha256:cf67eb149947682f02b52c5a705172d8567c7435eaef774e344b981c5b25fe0e"
+  },
+  "graph": {
+    "selection": {
+      "id": "selection-4739de9d93c1e3324963ce2ba837b784",
+      "digest": "sha256:cf67eb149947682f02b52c5a705172d8567c7435eaef774e344b981c5b25fe0e"
+    },
+    "goal": "基于招商银行2025年报固定快照（cmb-2025-annual-report-a），生成本集团2025年对比2024年的经营与资产质量简报：覆盖八项固定指标（revenue、net_profit_attributable、net_interest_margin、cost_to_income、npl_balance、npl_ratio、provision_coverage、cet1_ratio_advanced），每项结论标注来源，经程序检查核验数值/期间/口径/来源，最多一次定向修订后由选择程序输出通过检查的报告版本。",
+    "material_id": "cmb-2025-annual-report-a",
+    "focus": "business+quality",
+    "nodes": [
+      {
+        "id": "extract-cmb-2025",
+        "expert": "extractor@1",
+        "role": "年报资料提取",
+        "task": "从固定材料 cmb-2025-annual-report-a 中提取招商银行股份有限公司本集团口径 2025 年与 2024 年的八项指标：revenue、net_profit_attributable、net_interest_margin、cost_to_income、npl_balance、npl_ratio、provision_coverage、cet1_ratio_advanced。逐项记录数值、单位、期间、口径与年报出处（章节/页码），缺失或口径不一致须显式标注，不得推算未披露数值。"
+      },
+      {
+        "id": "biz-2025",
+        "expert": "business@1",
+        "role": "经营分析",
+        "task": "基于 extract-cmb-2025 的指标提取结果，撰写本集团 2025 年对比 2024 年的经营分析段落，覆盖 revenue、net_profit_attributable、net_interest_margin、cost_to_income 四项指标的同比变化与成因解读。每处数值引用须标注来源，仅使用提取结果中的数值，不引入外部数据，不做超出材料范围的判断。",
+        "depends_on": [
+          "extract-cmb-2025"
+        ]
+      },
+      {
+        "id": "aq-2025",
+        "expert": "quality@1",
+        "role": "资产质量分析",
+        "task": "基于 extract-cmb-2025 的指标提取结果，撰写本集团 2025 年对比 2024 年的资产质量分析段落，覆盖 npl_balance、npl_ratio、provision_coverage、cet1_ratio_advanced 四项指标的同比变化与风险含义。每处数值引用须标注来源，仅使用提取结果中的数值，不引入外部数据，不做超出材料范围的判断。",
+        "depends_on": [
+          "extract-cmb-2025"
+        ]
+      },
+      {
+        "id": "draft-0",
+        "expert": "writer@1",
+        "role": "报告写作（初稿）",
+        "task": "汇总 biz-2025 与 aq-2025 两段分析，按 annual-report/1 要求撰写本集团 2025 年对比 2024 年经营与资产质量简报初稿：八项指标全部呈现、主体/口径/期间声明清楚、逐项标注来源、附指标对比表。仅使用两份分析及提取结果中的内容，不新增数值。",
+        "depends_on": [
+          "biz-2025",
+          "aq-2025"
+        ]
+      },
+      {
+        "id": "check-0",
+        "expert": "checker@1",
+        "role": "数值/期间/口径/来源检查（初稿）",
+        "task": "对 draft-0 执行同分支程序检查：核对八项指标数值、单位与 2025/2024 期间、本集团口径一致性、来源标注完整性与报告结构，返回类型化结果 PASS 或 REVISE 及问题清单与来源引用。",
+        "depends_on": [
+          "draft-0"
+        ]
+      },
+      {
+        "id": "revise-1",
+        "expert": "writer@1",
+        "role": "报告定向修订（最多一次）",
+        "task": "仅在 check-0 返回 REVISE 时执行：按 check-0 问题清单对 draft-0 做一次定向修订，输出 revise-1；只修正被报出的数值/期间/口径/来源问题，不扩大改写范围，不引入新材料，修订处保留来源标注。",
+        "depends_on": [
+          "draft-0",
+          "check-0"
+        ],
+        "condition": {
+          "step": "check-0",
+          "outcome": "REVISE"
+        }
+      },
+      {
+        "id": "check-1",
+        "expert": "checker@1",
+        "role": "数值/期间/口径/来源检查（修订稿）",
+        "task": "仅在 check-0 返回 REVISE 时对 revise-1 执行同分支程序检查：复核被报问题的修正情况并全量复核八项指标数值、期间、口径与来源，返回类型化结果 PASS 或 REVISE 及遗留问题清单。",
+        "depends_on": [
+          "revise-1",
+          "check-0"
+        ],
+        "condition": {
+          "step": "check-0",
+          "outcome": "REVISE"
+        }
+      },
+      {
+        "id": "select-report",
+        "expert": "select@1",
+        "role": "报告选择",
+        "task": "消费 check-0 与 check-1 的全部检查结果，无条件选出通过检查的报告版本作为交付候选（无修订时取 draft-0，修订通过时取 revise-1），并输出所选版本对应的检查依据；存在未通过遗留项时如实标注，不得自行改写内容。",
+        "depends_on": [
+          "check-0",
+          "check-1"
+        ]
+      }
+    ],
+    "catalog_digest": "sha256:6df470d3860c155b11958b5f5ae365df38ed350c6c6c770f4427d2093cafedb5",
+    "policy_version": "annual-report-policy/1"
+  },
+  "calls": [
+    {
+      "identity": {
+        "call_id": "c-54b047d97f4646910863e3b73bffdede",
+        "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+        "node_id": "aq-2025",
+        "attempt": 1,
+        "input_digest": "sha256:38b026cc08c7586d260e7dcf95e39ee2d20335aa28dcf7f4ec7d8738fb0e2552",
+        "agent_id": "asset-quality-analyst",
+        "message_id": "message-8815d7c1152a2a55124603bd867a1b5b",
+        "context_id": "context-08b135ef69eb6fdec7f7ed720f0faa83",
+        "remote_task_id": "6d42d63d-2d3f-4c2f-a3c4-a996a1ce0e2c"
+      },
+      "state": "COMPLETED",
+      "conflicted": false,
+      "discovery": {
+        "agent_id": "asset-quality-analyst",
+        "observed_at": "2026-11-17T03:13:00.012158700Z",
+        "card_name": "asset-quality-analyst",
+        "card_version": "1.0.0",
+        "observed_card_digest": "sha256:a1ed838d25a6f47398769b09fa21e14c53489cf0bab44364d8fe75adf0380b72",
+        "instance_versions": [
+          {
+            "health": "ONLINE",
+            "contractVersion": "1.0.0",
+            "capabilityVersion": "1.0.0"
+          }
+        ],
+        "gateway_mode": "DIRECT",
+        "actual_execution_instance": "not_collected"
+      }
+    },
+    {
+      "identity": {
+        "call_id": "c-29d9cbdb672e5cf18a44b67e87f9456f",
+        "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+        "node_id": "biz-2025",
+        "attempt": 1,
+        "input_digest": "sha256:053d8904ec36b509e1a4dbcfa452e8ca3ad0b5bc59a0b239c8a8b60f716ccc94",
+        "agent_id": "business-analyst",
+        "message_id": "message-7bd523b37283aa2e8399b512bfb4d015",
+        "context_id": "context-11d5e556b592c52c9554ed2795afa607",
+        "remote_task_id": "40635542-d5b5-41a0-a94c-c17c7083fc5e"
+      },
+      "state": "COMPLETED",
+      "conflicted": false,
+      "discovery": {
+        "agent_id": "business-analyst",
+        "observed_at": "2026-11-17T03:12:59.738918700Z",
+        "card_name": "business-analyst",
+        "card_version": "1.0.0",
+        "observed_card_digest": "sha256:a8150b5b51c1d2eec90b6d81ea5dbe49aec2942e72a93a550ad8487c45ad2a90",
+        "instance_versions": [
+          {
+            "health": "ONLINE",
+            "contractVersion": "1.0.0",
+            "capabilityVersion": "1.0.0"
+          }
+        ],
+        "gateway_mode": "DIRECT",
+        "actual_execution_instance": "not_collected"
+      }
+    },
+    {
+      "identity": {
+        "call_id": "c-4b9c7093f11e5c01a793fbaba8b4ea00",
+        "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+        "node_id": "draft-0",
+        "attempt": 1,
+        "input_digest": "sha256:67d0dd835995a9a399af4e787738a4837ebd01c922afbf56fe83a6edd83333a4",
+        "agent_id": "report-writer",
+        "message_id": "message-c4c7d1bdb1e35ffb1c8869145d4d5f22",
+        "context_id": "context-ad868727eb45ec34ab213fd489efc309",
+        "remote_task_id": "7338652f-b70b-45ae-91e4-99033c9c6fe4"
+      },
+      "state": "COMPLETED",
+      "conflicted": false,
+      "discovery": {
+        "agent_id": "report-writer",
+        "observed_at": "2026-11-17T03:13:43.903411900Z",
+        "card_name": "report-writer",
+        "card_version": "1.0.0",
+        "observed_card_digest": "sha256:eef6d7a1e2b7b7f958083ea87548e83c2ce7739dac9c36982267bdeecc20c81a",
+        "instance_versions": [
+          {
+            "health": "ONLINE",
+            "contractVersion": "1.0.0",
+            "capabilityVersion": "1.0.0"
+          }
+        ],
+        "gateway_mode": "DIRECT",
+        "actual_execution_instance": "not_collected"
+      }
+    },
+    {
+      "identity": {
+        "call_id": "c-aabf39040c4999d0df2e6eb4cb9ad3af",
+        "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+        "node_id": "extract-cmb-2025",
+        "attempt": 1,
+        "input_digest": "sha256:93067604302e8ed46370b4f1114472c0047c32078f09097b6561b851dccac02c",
+        "agent_id": "report-extractor",
+        "message_id": "message-afff18d4e9d556b9f20cab4397eaaa47",
+        "context_id": "context-8cbf30a705cf8dbae8443be5e2464569",
+        "remote_task_id": "ca711e0f-dd99-452b-bca8-48735dacc2a1"
+      },
+      "state": "COMPLETED",
+      "conflicted": false,
+      "discovery": {
+        "agent_id": "report-extractor",
+        "observed_at": "2026-11-17T03:12:41.331572200Z",
+        "card_name": "report-extractor",
+        "card_version": "1.0.0",
+        "observed_card_digest": "sha256:96eed5bbe65e66b8ef7c801aa8b6117f98916cb51904fa15e4d6d7d84a3ac507",
+        "instance_versions": [
+          {
+            "health": "ONLINE",
+            "contractVersion": "1.0.0",
+            "capabilityVersion": "1.0.0"
+          }
+        ],
+        "gateway_mode": "DIRECT",
+        "actual_execution_instance": "not_collected"
+      }
+    },
+    {
+      "identity": {
+        "call_id": "c-8fd7b488902c9060f80e09e76ac8b231",
+        "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+        "node_id": "revise-1",
+        "attempt": 1,
+        "input_digest": "sha256:82738b53faadecb9f714de973f240425d9a92fe9885b7bfc7e29d5438f14a440",
+        "agent_id": "report-writer",
+        "message_id": "message-f30359e784400590da80942c329ebc41",
+        "context_id": "context-c08f5dbd69156026139163f47f4f67aa",
+        "remote_task_id": "bf483a21-5f82-4625-a388-d08f3f574372"
+      },
+      "state": "COMPLETED",
+      "conflicted": false,
+      "discovery": {
+        "agent_id": "report-writer",
+        "observed_at": "2026-11-17T03:14:05.007085800Z",
+        "card_name": "report-writer",
+        "card_version": "1.0.0",
+        "observed_card_digest": "sha256:eef6d7a1e2b7b7f958083ea87548e83c2ce7739dac9c36982267bdeecc20c81a",
+        "instance_versions": [
+          {
+            "health": "ONLINE",
+            "contractVersion": "1.0.0",
+            "capabilityVersion": "1.0.0"
+          }
+        ],
+        "gateway_mode": "DIRECT",
+        "actual_execution_instance": "not_collected"
+      }
+    }
+  ],
+  "runtime_evidence": [
+    {
+      "call_id": "c-54b047d97f4646910863e3b73bffdede",
+      "agent_id": "asset-quality-analyst",
+      "role": "quality",
+      "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+      "completed_loop_branches": 2
+    },
+    {
+      "call_id": "c-29d9cbdb672e5cf18a44b67e87f9456f",
+      "agent_id": "business-analyst",
+      "role": "business",
+      "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+      "completed_loop_branches": 0
+    },
+    {
+      "call_id": "c-4b9c7093f11e5c01a793fbaba8b4ea00",
+      "agent_id": "report-writer",
+      "role": "write",
+      "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+      "completed_loop_branches": 0
+    },
+    {
+      "call_id": "c-aabf39040c4999d0df2e6eb4cb9ad3af",
+      "agent_id": "report-extractor",
+      "role": "extract",
+      "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+      "completed_loop_branches": 0
+    },
+    {
+      "call_id": "c-8fd7b488902c9060f80e09e76ac8b231",
+      "agent_id": "report-writer",
+      "role": "write",
+      "model_binding_digest": "sha256:1c5dec112018345f3c0fc273210d729882a548896b043c799e420cea7498658e",
+      "completed_loop_branches": 0
+    }
+  ],
+  "restart_recovery": {
+    "before": {
+      "completed_nodes": [
+        "extract-cmb-2025"
+      ],
+      "calls": [
+        {
+          "node_id": "aq-2025",
+          "call_id": "c-54b047d97f4646910863e3b73bffdede",
+          "remote_task_id": "6d42d63d-2d3f-4c2f-a3c4-a996a1ce0e2c",
+          "attempt": 1,
+          "state": "WORKING"
+        },
+        {
+          "node_id": "biz-2025",
+          "call_id": "c-29d9cbdb672e5cf18a44b67e87f9456f",
+          "remote_task_id": "40635542-d5b5-41a0-a94c-c17c7083fc5e",
+          "attempt": 1,
+          "state": "WORKING"
+        },
+        {
+          "node_id": "extract-cmb-2025",
+          "call_id": "c-aabf39040c4999d0df2e6eb4cb9ad3af",
+          "remote_task_id": "ca711e0f-dd99-452b-bca8-48735dacc2a1",
+          "attempt": 1,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    "checks": {
+      "same_task_after_worker_restart": true,
+      "completed_predecessors_zero_new_calls": true,
+      "prior_remote_task_identity_preserved": true
+    }
+  },
+  "material_lineage": {
+    "material_digest": "sha256:52c49dcdc00d4f5436adabc6561044d7a539e9bb0a8ebbdb692a1da6237459da",
+    "indicator": {
+      "id": "revenue",
+      "unit": "人民币百万元",
+      "change": {
+        "kind": "pct",
+        "value": 0.01
+      },
+      "values": {
+        "2024": 337488,
+        "2025": 337532
+      },
+      "citation": {
+        "quote": "营业收入 337,532 337,488 0.01 339,123",
+        "pdf_page": 14,
+        "printed_page": 13
+      }
+    },
+    "extract_node": "extract-cmb-2025",
+    "consumer_node": "biz-2025",
+    "report_node": "revise-1",
+    "same_values_and_citation": true
+  },
+  "checks": {
+    "plugin_live": {
+      "awaiting_human_before_dispatch": true,
+      "same_task_after_worker_restart": true,
+      "completed_predecessors_zero_new_calls": true,
+      "prior_remote_task_identity_preserved": true,
+      "plugin_wrong_password_rejected": true,
+      "plugin_delivery_idempotent": true,
+      "plugin_delivered_formal_report": true,
+      "four_distinct_real_experts": true,
+      "no_ineligible_dispatch": true,
+      "plugin_download_exact_formal_bytes": true
+    },
+    "main_flow": {
+      "delivered_with_intact_evidence": true,
+      "real_remote_tasks_for_four_experts_and_optional_revision": true,
+      "four_independent_expert_roles": true,
+      "every_remote_formal_output_matches_bound_completion": true,
+      "two_completed_loop_branches_with_bound_inputs": true,
+      "download_matches_formal_report": true,
+      "download_bytes_match_artifact_digest": true,
+      "same_object_program_check": true,
+      "same_object_test_account_approval": true,
+      "selection_preserves_program_only_qualification": true
+    },
+    "shared_identity_reconciliation": {
+      "shared_contract_bound": true,
+      "formal_results_present": true,
+      "every_formal_result_has_structured_identity": true,
+      "reconcile_same_input:aq-2025": true,
+      "receipt_not_input:aq-2025": true,
+      "reconcile_same_input:biz-2025": true,
+      "receipt_not_input:biz-2025": true,
+      "reconcile_same_input:check-0": true,
+      "receipt_not_input:check-0": true,
+      "reconcile_same_input:check-1": true,
+      "receipt_not_input:check-1": true,
+      "reconcile_same_input:draft-0": true,
+      "receipt_not_input:draft-0": true,
+      "reconcile_same_input:extract-cmb-2025": true,
+      "receipt_not_input:extract-cmb-2025": true,
+      "reconcile_same_input:revise-1": true,
+      "receipt_not_input:revise-1": true,
+      "reconcile_same_input:select-report": true,
+      "receipt_not_input:select-report": true,
+      "reconciliation_read_only": true
+    }
+  },
+  "program_check": {
+    "initial": "REVISE",
+    "revision": "PASS"
+  },
+  "delivery": {
+    "artifact_digest": "sha256:ef2cb021cc1440e246203b846d47ad5ea456a19f7d7dc06e3c515bffd23b44bd",
+    "receipt_id": "delivery-receipt-f59b8fa524e0244932d8c26b625be004",
+    "plugin_approval_and_delivery": true
+  },
+  "tests": {
+    "go": {
+      "top_level": 47,
+      "including_subtests": 93,
+      "failures": 0,
+      "skipped_tests": 0
+    },
+    "orchestrator_java": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "experts_java": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "workbench_rpc": {
+      "tests": 3,
+      "passed": 3
+    },
+    "workbench_built_browser": {
+      "tests": 3,
+      "passed": 3
+    },
+    "model_direct_executable": {
+      "all_passed": true,
+      "cases": [
+        {
+          "mode": "env-model-b-with-old-profile",
+          "direct_jar_start": true,
+          "execution_profile_unchanged": true,
+          "exit_nonzero": true,
+          "expected_rejection_seen": true,
+          "model_outlet_requests": 0
+        },
+        {
+          "mode": "missing-binding",
+          "direct_jar_start": true,
+          "execution_profile_unchanged": true,
+          "exit_nonzero": true,
+          "expected_rejection_seen": true,
+          "model_outlet_requests": 0
+        }
+      ],
+      "limits": [
+        "Direct executable startup rejection; positive real Core outlet and real remote experts are verified separately"
+      ]
+    }
+  },
+  "limits": [
+    "Same-host operator test account, not independent W01/W06 signoff",
+    "External W02/W05 recipient confirmation and B-deployment cross-check pending",
+    "WorkSwarm source 1f168664 differs from PR30 lock; not claimed same full image",
+    "Finite catalog/ranking; business or business+quality only",
+    "Full HUMAN review form remains on the same Go authority fallback page",
+    "PR34 remote cross-task fast path deferred"
+  ]
+}

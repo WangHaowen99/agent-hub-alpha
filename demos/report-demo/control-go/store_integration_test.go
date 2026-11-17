@@ -21,6 +21,9 @@ func integration(t *testing.T) (context.Context, *Store, Config, Catalog) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// These control/transaction fixtures do not invoke an expert model. Tests
+	// that qualify model evidence set an explicit test binding themselves.
+	cfg.ModelBindingDigest = ""
 	ctx := context.Background()
 	scope := newID("test-")
 	migrator, err := OpenStore(ctx, cfg.MigratorDSN, scope, 30)

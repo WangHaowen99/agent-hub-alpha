@@ -8,3 +8,5 @@ __pycache__/
 *.pyc
 *.exe
 *.jar
+workswarm/workbench-plugin/app/node_modules/
+workswarm/workbench-plugin/frontend/dist/
