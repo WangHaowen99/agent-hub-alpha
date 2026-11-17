@@ -746,11 +746,1415 @@
     }
   },
   "limits": [
-    "Same-host operator test account, not independent W01/W06 signoff",
-    "External W02/W05 recipient confirmation and B-deployment cross-check pending",
     "WorkSwarm source 1f168664 differs from PR30 lock; not claimed same full image",
     "Finite catalog/ranking; business or business+quality only",
     "Full HUMAN review form remains on the same Go authority fallback page",
-    "PR34 remote cross-task fast path deferred"
-  ]
+    "PR34 remote cross-task fast path deferred",
+    "W02/W05 recipients confirmed; independent deployment and joint acceptance pending",
+    "W01 human reference check recorded; independence ruling and W06/W07 full report acceptance pending"
+  ],
+  "historical_primary_sample": true,
+  "primary_sample_note": "Original 5-call revision/restart example retained; current native platform validation is below.",
+  "current_platform_validation": {
+    "code_sha": "f657d9fa31eedb39b5c9fadcd09a928a0c5ab790",
+    "scope": "same-machine native Windows and WSL2 Linux; not peer independent or joint acceptance",
+    "platforms": {
+      "windows": {
+        "environment": {
+          "os": "Windows x64",
+          "jdk": "Oracle21.0.12",
+          "python": "3.14.6",
+          "go": "1.25.0",
+          "maven": "3.9.16",
+          "node": "24.22.1",
+          "postgresql": "16.16"
+        },
+        "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+        "graph_digest": "sha256:5fef49e6838d19e4172f9dd10e3f9e1099137726f8fc88ebe8565aa886d18520",
+        "generation": "150",
+        "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+        "model_binding_digest": "sha256:8a14877f61e13bac18cf395ebb5c08e1a455ef0c7a04efeb3e9ff24984dcfed7",
+        "report_digest": "sha256:88bbe30afcd47c87d28523c816ff0ca663e5b49d1692e1186e90c9c1257c33bc",
+        "status": "DELIVERED",
+        "remote_calls": 4,
+        "formal_nodes": 6,
+        "authorized_skips": 2,
+        "smoke_checks": {
+          "zero_calls_before_confirmation": true,
+          "four_real_experts": true,
+          "all_calls_have_unique_completed_remote_tasks": true,
+          "formally_delivered": true,
+          "download_exact_formal_bytes": true,
+          "evidence_intact": true
+        },
+        "planning": {
+          "session_id": "web_1a1e984e803_96636623157b",
+          "request_id": "req_mwkoiyog_34",
+          "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+          "graph_digest": "sha256:5fef49e6838d19e4172f9dd10e3f9e1099137726f8fc88ebe8565aa886d18520",
+          "selection_ref": {
+            "id": "selection-e575fb9b949b43d6797c826facbab42b",
+            "digest": "sha256:d084a706600434dca1c584321512a8d3b6f34b2e7fcc34c624ead54cc3a6da7c"
+          },
+          "proposal_attempts": 1,
+          "tool_names": [
+            "skill_tool",
+            "mcp_report-orchestration_list_capabilities",
+            "mcp_report-orchestration_select_capabilities",
+            "mcp_report-orchestration_propose_plan"
+          ],
+          "usage": [
+            {
+              "input_tokens": 68255,
+              "output_tokens": 3414,
+              "total_tokens": 71669,
+              "cache_tokens": 56960,
+              "cache_hit_rate": "83.5%"
+            }
+          ],
+          "checks": {
+            "catalog_selection_proposal_order": true,
+            "model_abilities_stayed_scoped": true,
+            "real_model_token_usage": true,
+            "request_completed": true,
+            "no_request_error": true,
+            "model_authored_graph_matches_authority": true
+          },
+          "all_passed": true,
+          "limits": [
+            "One explicit real dialogue and task-bound successful proposal; rejected graph attempts are retained, not counted as successful plans",
+            "Not semantic-search recall or independent business acceptance"
+          ]
+        },
+        "main_verification": {
+          "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+          "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+          "graph_digest": "sha256:5fef49e6838d19e4172f9dd10e3f9e1099137726f8fc88ebe8565aa886d18520",
+          "checks": {
+            "delivered_with_intact_evidence": true,
+            "real_remote_tasks_for_four_experts_and_optional_revision": true,
+            "four_independent_expert_roles": true,
+            "every_remote_formal_output_matches_bound_completion": true,
+            "two_completed_loop_branches_with_bound_inputs": true,
+            "download_matches_formal_report": true,
+            "download_bytes_match_artifact_digest": true,
+            "same_object_program_check": true,
+            "same_object_test_account_approval": true,
+            "selection_preserves_program_only_qualification": true
+          },
+          "all_passed": true,
+          "limits": [
+            "Recorded real model/transport evidence; not independent business acceptance",
+            "Approval and delivery performed by the isolated operator test account"
+          ]
+        },
+        "shared_contract": {
+          "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+          "planning_provenance": "explicit existing task; see separate real-dialogue verifier",
+          "status": "DELIVERED",
+          "checks": {
+            "shared_contract_bound": true,
+            "formal_results_present": true,
+            "every_formal_result_has_structured_identity": true,
+            "reconcile_same_input:analyze_asset_quality": true,
+            "receipt_not_input:analyze_asset_quality": true,
+            "reconcile_same_input:analyze_operations": true,
+            "receipt_not_input:analyze_operations": true,
+            "reconcile_same_input:check_brief_v0": true,
+            "receipt_not_input:check_brief_v0": true,
+            "reconcile_same_input:draft_brief_v0": true,
+            "receipt_not_input:draft_brief_v0": true,
+            "reconcile_same_input:extract_cmb25": true,
+            "receipt_not_input:extract_cmb25": true,
+            "reconcile_same_input:select_brief_final": true,
+            "receipt_not_input:select_brief_final": true,
+            "reconciliation_read_only": true
+          },
+          "all_passed": true,
+          "limits": [
+            "Actual Java/Bus/model consumers; planning provenance is recorded by fresh_model_planning and the separate conversation verifier",
+            "Operator test approval, not independent business acceptance"
+          ]
+        },
+        "handoff": {
+          "schema_version": "report-handoff/1",
+          "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+          "generation": "150",
+          "graph_revision": "g1",
+          "graph_digest": "sha256:5fef49e6838d19e4172f9dd10e3f9e1099137726f8fc88ebe8565aa886d18520",
+          "catalog_digest": "sha256:6df470d3860c155b11958b5f5ae365df38ed350c6c6c770f4427d2093cafedb5",
+          "capability_bindings": {
+            "extract_cmb25": {
+              "capability_id": "extractor@1",
+              "agent_id": "report-extractor",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "analyze_operations": {
+              "capability_id": "business@1",
+              "agent_id": "business-analyst",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "analyze_asset_quality": {
+              "capability_id": "quality@1",
+              "agent_id": "asset-quality-analyst",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "draft_brief_v0": {
+              "capability_id": "writer@1",
+              "agent_id": "report-writer",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "check_brief_v0": {
+              "capability_id": "checker@1",
+              "agent_id": null,
+              "remote_binding": null
+            },
+            "revise_brief_v1": {
+              "capability_id": "writer@1",
+              "agent_id": "report-writer",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "check_brief_v1": {
+              "capability_id": "checker@1",
+              "agent_id": null,
+              "remote_binding": null
+            },
+            "select_brief_final": {
+              "capability_id": "select@1",
+              "agent_id": null,
+              "remote_binding": null
+            }
+          },
+          "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+          "status": "DELIVERED",
+          "model_binding_digest": "sha256:8a14877f61e13bac18cf395ebb5c08e1a455ef0c7a04efeb3e9ff24984dcfed7",
+          "selection_ref": {
+            "id": "selection-e575fb9b949b43d6797c826facbab42b",
+            "digest": "sha256:d084a706600434dca1c584321512a8d3b6f34b2e7fcc34c624ead54cc3a6da7c"
+          },
+          "nodes": {
+            "analyze_asset_quality": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:043cb86f949558822cac7269227ce069fea0bc7d25d445d37916560367a4bcba",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "analyze_asset_quality",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:b542968d56ab7f6bbb4e5788dbdd5965cf3ffc9d0402ffd38a6c0b64d1681e44",
+              "artifact_digest": "sha256:9d053d10e289ac9ac473d7c13eea62de0be099d7bb4bdb2e80284a5d017289a2"
+            },
+            "analyze_operations": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:6b12f9b6b80a4391eb62f0714eecd3f811bef6d071b0075fcfca54012e3ec0ec",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "analyze_operations",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:c4dcb29bb3d490dd700a83705a9f88b5f845201a429214b1cf1f5c14557852c1",
+              "artifact_digest": "sha256:177c4eed2ccb56b00a22259e015db7e93257fbd3538c9d4e9e4df1f19f5ad730"
+            },
+            "check_brief_v0": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:3dd00429f6d55e1eca391158ce30a8ffd239d83a36664a666f21c7429e43d470",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "check_brief_v0",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:58b80a5be55e381133a6114f182c204a47cdf0b926979cdfb629a409fc24bf90",
+              "artifact_digest": "sha256:a4982030ac365a7dc6d1f677dcf3f9d6aff2ed95797e0b908a0ae7afbf5b7642"
+            },
+            "check_brief_v1": {
+              "status": "AUTHORIZED_SKIP",
+              "attempt": 0,
+              "identity": null,
+              "input_digest": null,
+              "artifact_digest": null
+            },
+            "draft_brief_v0": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:dafe4d706d1b4f42f520b24f5e7c8bf3a2e81b6fffd9b14560835d59d235ce2f",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "draft_brief_v0",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:784137240a434d9019dc4d3ddf9687394c4d9a99e95b69733cf0d1b9e0ecf4c6",
+              "artifact_digest": "sha256:88bbe30afcd47c87d28523c816ff0ca663e5b49d1692e1186e90c9c1257c33bc"
+            },
+            "extract_cmb25": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:8666edfd76300b7c7510caa8a60988ffcddf3e452592dca5411f594228131e98",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "extract_cmb25",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:6a89fcd1f41e3ac13c50fd8cc03b6abe15018255c4d7f84654bfd316dfcac2a2",
+              "artifact_digest": "sha256:dce7933706eca5056ac303c294d4e2d01af9a37cc2d30df61dd240e8e728e9cf"
+            },
+            "revise_brief_v1": {
+              "status": "AUTHORIZED_SKIP",
+              "attempt": 0,
+              "identity": null,
+              "input_digest": null,
+              "artifact_digest": null
+            },
+            "select_brief_final": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:f23dccbf3bbeb94b240421853ecd104dceef10c4138ad35b176f11801b8c9e7c",
+                "logical_execution": {
+                  "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+                  "graph_version": "g1",
+                  "node_path": "select_brief_final",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:3dd69f8755cd54983a69e1cdbb0f52e0897f258a3803376891f825304718d4c0",
+              "artifact_digest": "sha256:3c5e288773c495d7016beee2cf0d5afa56f27c5434ceb7f080905b0d20536a1f"
+            }
+          },
+          "read_only": true,
+          "limits": [
+            "SEND permission exists only in the first command response, not in persisted calls",
+            "Remote messageId idempotence and cancellation are not declared",
+            "Lost remote task remains UNKNOWN; no automatic resend",
+            "Same-host observation is not joint or independent acceptance"
+          ]
+        },
+        "call_bindings": [
+          {
+            "identity": {
+              "call_id": "c-3e8e6d1466124b1599caf46f19c8b96b",
+              "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+              "node_id": "analyze_asset_quality",
+              "attempt": 1,
+              "input_digest": "sha256:b542968d56ab7f6bbb4e5788dbdd5965cf3ffc9d0402ffd38a6c0b64d1681e44",
+              "agent_id": "asset-quality-analyst",
+              "message_id": "message-348f23e2d4bbab35e884c928c4d9a893",
+              "context_id": "context-5771f0b99ee8b380b726c17d8944dafe",
+              "remote_task_id": "a1f9d1b6-4f00-41c7-9af2-e90bba575f93"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "asset-quality-analyst",
+              "observed_at": "2026-11-17T12:39:57.836413500Z",
+              "card_name": "asset-quality-analyst",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:a1ed838d25a6f47398769b09fa21e14c53489cf0bab44364d8fe75adf0380b72",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 22,
+              "WORKING": 21,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-109ae02c5662ce230d5ac06bae81d5ad",
+              "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+              "node_id": "analyze_operations",
+              "attempt": 1,
+              "input_digest": "sha256:c4dcb29bb3d490dd700a83705a9f88b5f845201a429214b1cf1f5c14557852c1",
+              "agent_id": "business-analyst",
+              "message_id": "message-75476867f45e4a48ac46d4aef7258d10",
+              "context_id": "context-cae2e9a93cee52b341a6f278d818e20f",
+              "remote_task_id": "93b41b03-f163-4f3c-a24a-62204ef42cab"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "business-analyst",
+              "observed_at": "2026-11-17T12:39:58.061983300Z",
+              "card_name": "business-analyst",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:a8150b5b51c1d2eec90b6d81ea5dbe49aec2942e72a93a550ad8487c45ad2a90",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 10,
+              "WORKING": 9,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-9fcd1bbf0e09cb4abb40561371e067f8",
+              "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+              "node_id": "draft_brief_v0",
+              "attempt": 1,
+              "input_digest": "sha256:784137240a434d9019dc4d3ddf9687394c4d9a99e95b69733cf0d1b9e0ecf4c6",
+              "agent_id": "report-writer",
+              "message_id": "message-99aaf3b9464dddfe7d43e43ca6e0185f",
+              "context_id": "context-80e63a6a149163eac3d60769060f3e08",
+              "remote_task_id": "761f5ef6-0bce-4efd-b8bb-10cef4518d05"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "report-writer",
+              "observed_at": "2026-11-17T12:40:48.010117400Z",
+              "card_name": "report-writer",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:eef6d7a1e2b7b7f958083ea87548e83c2ce7739dac9c36982267bdeecc20c81a",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 9,
+              "WORKING": 8,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-4ccbc41f38af45f3692b6d1bbe734e09",
+              "task_id": "T-30fcc5df8694b705c1b80a1d14eaa740",
+              "node_id": "extract_cmb25",
+              "attempt": 1,
+              "input_digest": "sha256:6a89fcd1f41e3ac13c50fd8cc03b6abe15018255c4d7f84654bfd316dfcac2a2",
+              "agent_id": "report-extractor",
+              "message_id": "message-941d482b37b221e9d5f55af7996e08e7",
+              "context_id": "context-6e0a1ade18fa12f75e0fa6f20b67f11e",
+              "remote_task_id": "d41c1f5b-77c9-4a7b-b2bd-4bcae9322462"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "report-extractor",
+              "observed_at": "2026-11-17T12:39:44.752211500Z",
+              "card_name": "report-extractor",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:96eed5bbe65e66b8ef7c801aa8b6117f98916cb51904fa15e4d6d7d84a3ac507",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 5,
+              "WORKING": 4,
+              "COMPLETED": 1
+            }
+          }
+        ],
+        "tests": {
+          "go": {
+            "top_level": 47,
+            "including_subtests": 93,
+            "failures": 0,
+            "skipped_tests": 0,
+            "no_test_package_events": 1
+          },
+          "orchestrator": {
+            "tests": 26,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "experts": {
+            "tests": 6,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "artifacts": {
+          ".local/report-demo/bin/report-control.exe": {
+            "bytes": 19427840,
+            "sha256": "9ff62e43e140a83500e8b33435e2fda801798984241703fcd41d20f7623f4a55"
+          },
+          "demos/report-demo/orchestrator-java/target/report-orchestrator.jar": {
+            "bytes": 151678735,
+            "sha256": "72a9176d36a4b5aca2bdb92cc79110713f55e81d8614dc4a6664453c8672ce97"
+          },
+          "demos/report-demo/experts-java/target/report-experts.jar": {
+            "bytes": 185351064,
+            "sha256": "518826d14050f32b37fcbb1d92ef9b6b180a0c58617595e27f30335321d4480d"
+          },
+          ".local/sources/agent-solution/common/agent-bus/registry-discovery-center/target/agent-rdc-0.1.3.jar": {
+            "bytes": 68407814,
+            "sha256": "3fcf685215c841375a03c9ff6bc09a15c8fd4b64827f0c22f86d4da3ddb7fe55"
+          },
+          ".local/sources/agent-solution/common/agent-bus/agent-gateway/target/agent-gateway-0.1.3.jar": {
+            "bytes": 41249189,
+            "sha256": "aaea46db32a5093040e05a52c59d59616b5d7e27a705629e0d6c7e3414453742"
+          }
+        },
+        "model_binding_process": {
+          "all_passed": true,
+          "vectors_checked": 4,
+          "cases": [
+            {
+              "mode": "env-model-b-with-old-profile",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            },
+            {
+              "mode": "env-budget-with-old-profile",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            },
+            {
+              "mode": "missing-binding",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            }
+          ],
+          "limits": [
+            "Direct executable startup rejection; positive real Core outlet and real remote experts are verified separately"
+          ]
+        },
+        "identity": {
+          "all_passed": true,
+          "checks": [
+            {
+              "check": "real_worker_four_grants",
+              "http_status": 200,
+              "all_allowed": true,
+              "error_code": null,
+              "passed": true
+            },
+            {
+              "check": "forged_user_subject",
+              "http_status": 401,
+              "all_allowed": null,
+              "error_code": "AUTH_INVALID",
+              "passed": true
+            },
+            {
+              "check": "invalid_origin_token",
+              "http_status": 401,
+              "all_allowed": null,
+              "error_code": "AUTH_INVALID",
+              "passed": true
+            },
+            {
+              "check": "ungranted_target",
+              "http_status": 200,
+              "all_allowed": false,
+              "error_code": null,
+              "passed": true
+            },
+            {
+              "check": "runtime_valid_identity",
+              "http_status": 200,
+              "passed": true
+            },
+            {
+              "check": "runtime_forged_subject",
+              "http_status": 403,
+              "passed": true
+            }
+          ],
+          "real_identity": true,
+          "scope": "RDC authorization decisions; no expert execution or business acceptance asserted"
+        },
+        "readiness": {
+          "all_passed": true,
+          "checks": [
+            {
+              "check": "control_and_pg",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "java_compiler",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "identity_discovery",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:report-extractor",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:report-extractor",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:report-extractor",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:business-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:business-analyst",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:business-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:asset-quality-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:asset-quality-analyst",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:asset-quality-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:report-writer",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:report-writer",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:report-writer",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "workswarm_web",
+              "passed": true,
+              "http_status": 200
+            }
+          ],
+          "scope": "read-only readiness; no model planning/expert execution/business acceptance asserted"
+        },
+        "control_restart": {
+          "task_id": "T-c2d41a115215dbd8558bfab93d6a4722",
+          "checks": {
+            "new_control_session": true,
+            "same_task_projection": true,
+            "same_remote_call_identities": true,
+            "same_persistent_events": true,
+            "events_in_numeric_sequence_order": true,
+            "cursor_resumes_without_duplicates": true,
+            "artifact_integrity": true
+          },
+          "all_passed": true,
+          "cursor": "11483",
+          "before_session": "control-00860ce7bc3ce6f38f4f99171ff8e83f",
+          "after_session": "control-b6db29e85229d05045183456df04ea3e"
+        }
+      },
+      "linux": {
+        "environment": {
+          "os": "Ubuntu26.04.1 / WSL2 x86_64",
+          "jdk": "UbuntuOpenJDK21.0.13",
+          "python": "3.14.4",
+          "go": "1.25.0",
+          "maven": "3.9.16",
+          "node": "24.22.1",
+          "postgresql": "16.16"
+        },
+        "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+        "graph_digest": "sha256:5960d9af285646a4e015eed37372744400908c546de5873c3f5f717ba9cd3373",
+        "generation": "147",
+        "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+        "model_binding_digest": "sha256:8a14877f61e13bac18cf395ebb5c08e1a455ef0c7a04efeb3e9ff24984dcfed7",
+        "report_digest": "sha256:9332d816d604d632213a5826e15cab61b5cc9c5e61c75ab048b2d6efbb313735",
+        "status": "DELIVERED",
+        "remote_calls": 4,
+        "formal_nodes": 6,
+        "authorized_skips": 2,
+        "smoke_checks": {
+          "zero_calls_before_confirmation": true,
+          "four_real_experts": true,
+          "all_calls_have_unique_completed_remote_tasks": true,
+          "formally_delivered": true,
+          "download_exact_formal_bytes": true,
+          "evidence_intact": true
+        },
+        "planning": {
+          "session_id": "web_1a1e976619f_867fa611a064",
+          "request_id": "req_mwknyk6k_36",
+          "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+          "graph_digest": "sha256:5960d9af285646a4e015eed37372744400908c546de5873c3f5f717ba9cd3373",
+          "selection_ref": {
+            "id": "selection-a3c3ae1b2d8bb3cd86b55f4003b9a145",
+            "digest": "sha256:6daf36a83a4929eb4e04121c7fa95e33d5899f661d4ab932e0aec670b7d23ceb"
+          },
+          "proposal_attempts": 1,
+          "tool_names": [
+            "mcp_report-orchestration_list_capabilities",
+            "skill_tool",
+            "mcp_report-orchestration_select_capabilities",
+            "mcp_report-orchestration_propose_plan"
+          ],
+          "usage": [
+            {
+              "input_tokens": 56446,
+              "output_tokens": 3825,
+              "total_tokens": 60271,
+              "cache_tokens": 44928,
+              "cache_hit_rate": "79.6%"
+            }
+          ],
+          "checks": {
+            "catalog_selection_proposal_order": true,
+            "model_abilities_stayed_scoped": true,
+            "real_model_token_usage": true,
+            "request_completed": true,
+            "no_request_error": true,
+            "model_authored_graph_matches_authority": true
+          },
+          "all_passed": true,
+          "limits": [
+            "One explicit real dialogue and task-bound successful proposal; rejected graph attempts are retained, not counted as successful plans",
+            "Not semantic-search recall or independent business acceptance"
+          ]
+        },
+        "main_verification": {
+          "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+          "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+          "graph_digest": "sha256:5960d9af285646a4e015eed37372744400908c546de5873c3f5f717ba9cd3373",
+          "checks": {
+            "delivered_with_intact_evidence": true,
+            "real_remote_tasks_for_four_experts_and_optional_revision": true,
+            "four_independent_expert_roles": true,
+            "every_remote_formal_output_matches_bound_completion": true,
+            "two_completed_loop_branches_with_bound_inputs": true,
+            "download_matches_formal_report": true,
+            "download_bytes_match_artifact_digest": true,
+            "same_object_program_check": true,
+            "same_object_test_account_approval": true,
+            "selection_preserves_program_only_qualification": true
+          },
+          "all_passed": true,
+          "limits": [
+            "Recorded real model/transport evidence; not independent business acceptance",
+            "Approval and delivery performed by the isolated operator test account"
+          ]
+        },
+        "shared_contract": {
+          "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+          "planning_provenance": "explicit existing task; see separate real-dialogue verifier",
+          "status": "DELIVERED",
+          "checks": {
+            "shared_contract_bound": true,
+            "formal_results_present": true,
+            "every_formal_result_has_structured_identity": true,
+            "reconcile_same_input:business": true,
+            "receipt_not_input:business": true,
+            "reconcile_same_input:check0": true,
+            "receipt_not_input:check0": true,
+            "reconcile_same_input:draft0": true,
+            "receipt_not_input:draft0": true,
+            "reconcile_same_input:extract": true,
+            "receipt_not_input:extract": true,
+            "reconcile_same_input:quality": true,
+            "receipt_not_input:quality": true,
+            "reconcile_same_input:select_report": true,
+            "receipt_not_input:select_report": true,
+            "reconciliation_read_only": true
+          },
+          "all_passed": true,
+          "limits": [
+            "Actual Java/Bus/model consumers; planning provenance is recorded by fresh_model_planning and the separate conversation verifier",
+            "Operator test approval, not independent business acceptance"
+          ]
+        },
+        "handoff": {
+          "schema_version": "report-handoff/1",
+          "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+          "generation": "147",
+          "graph_revision": "g1",
+          "graph_digest": "sha256:5960d9af285646a4e015eed37372744400908c546de5873c3f5f717ba9cd3373",
+          "catalog_digest": "sha256:6df470d3860c155b11958b5f5ae365df38ed350c6c6c770f4427d2093cafedb5",
+          "capability_bindings": {
+            "extract": {
+              "capability_id": "extractor@1",
+              "agent_id": "report-extractor",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "business": {
+              "capability_id": "business@1",
+              "agent_id": "business-analyst",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "quality": {
+              "capability_id": "quality@1",
+              "agent_id": "asset-quality-analyst",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "draft0": {
+              "capability_id": "writer@1",
+              "agent_id": "report-writer",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "check0": {
+              "capability_id": "checker@1",
+              "agent_id": null,
+              "remote_binding": null
+            },
+            "revise1": {
+              "capability_id": "writer@1",
+              "agent_id": "report-writer",
+              "remote_binding": {
+                "card_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "capability_version": "1.0.0"
+              }
+            },
+            "check1": {
+              "capability_id": "checker@1",
+              "agent_id": null,
+              "remote_binding": null
+            },
+            "select_report": {
+              "capability_id": "select@1",
+              "agent_id": null,
+              "remote_binding": null
+            }
+          },
+          "execution_profile": "sha256:a582b58b0c29c71d800f4f0413a4a567b704e03c557fd39160a0f3eea02ea120",
+          "status": "DELIVERED",
+          "model_binding_digest": "sha256:8a14877f61e13bac18cf395ebb5c08e1a455ef0c7a04efeb3e9ff24984dcfed7",
+          "selection_ref": {
+            "id": "selection-a3c3ae1b2d8bb3cd86b55f4003b9a145",
+            "digest": "sha256:6daf36a83a4929eb4e04121c7fa95e33d5899f661d4ab932e0aec670b7d23ceb"
+          },
+          "nodes": {
+            "business": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:979d015b1438fc186ab6e4a2dfe4cc72a1927f2071c7c61a364b2f0638e7c4b1",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "business",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:a8cb8d51e04b20d6bc1159b36c390f6540e45114b7eeda8b9073148a9e8a8559",
+              "artifact_digest": "sha256:90ce7f2797c2cc40373999082a183cd359ea3d0d47051705e0c6ac81f01ac4da"
+            },
+            "check0": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:ab7c73916bdef63c9b0b35c5c37bd62a0071f0dbfe79977865ce1ce0cf4de072",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "check0",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:877c2e2d51f5b63ac03dc90fb7b1b80b1c757313c6bfa1f7307f01d47cd34abe",
+              "artifact_digest": "sha256:e0aa41ac1dca6ccbb84c5a23e69ab7206fdab9e9b1ce03fd9e22797451b08435"
+            },
+            "check1": {
+              "status": "AUTHORIZED_SKIP",
+              "attempt": 0,
+              "identity": null,
+              "input_digest": null,
+              "artifact_digest": null
+            },
+            "draft0": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:eb3fb0e527973a0fcce255f25cbd133437078585f3ae950d307796aca1d6e49c",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "draft0",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:9e9de06f96d2b6ace470ea4b1b7e45442ec8d1a7dfbf27575242e9959d88fb88",
+              "artifact_digest": "sha256:9332d816d604d632213a5826e15cab61b5cc9c5e61c75ab048b2d6efbb313735"
+            },
+            "extract": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:ac1103897a8afe2b901f1dc82ef091a113d768d3eae84a7937f59e7d34a0fa5d",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "extract",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:e15c031d3b34636100daf1171ac80b288d1653cf96a98fa4099e7443e98778fb",
+              "artifact_digest": "sha256:32dc4276f4ed411c4a2fca8def7978491b6552690270b93fcabdf6947d42ecda"
+            },
+            "quality": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:2ffc8461ea51ff20d98ff3b902929bae142ebe3e2ef1dabf3b47b046c98a9813",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "quality",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:a05f177ae3bf82798c67963ddd4707a4999eaeb10dcb751810b778d4201cf39a",
+              "artifact_digest": "sha256:a29e0d52389a9e54615d39828e2bb5f1eab5f7931f19b5f0c8ad5593658df620"
+            },
+            "revise1": {
+              "status": "AUTHORIZED_SKIP",
+              "attempt": 0,
+              "identity": null,
+              "input_digest": null,
+              "artifact_digest": null
+            },
+            "select_report": {
+              "status": "COMMITTED",
+              "attempt": 1,
+              "identity": {
+                "business_request_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                "evaluation_revision": "g1",
+                "operation_id": "sha256:d36ab497b677e9ab9a6d03bd8bcc4caa8cb57cd216c8b5a7621042c0f248992b",
+                "logical_execution": {
+                  "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+                  "graph_version": "g1",
+                  "node_path": "select_report",
+                  "iteration_path": "0"
+                },
+                "execution_generation": 1
+              },
+              "input_digest": "sha256:429c3cd079b4e6f9bfeb2175e9f5a40f00b89201cc6e3b3a41ee86d90b4b9627",
+              "artifact_digest": "sha256:bdd81529121f05638a7197995fb4223f5fa8b2e4c0517986844e22a0fc205f8b"
+            }
+          },
+          "read_only": true,
+          "limits": [
+            "SEND permission exists only in the first command response, not in persisted calls",
+            "Remote messageId idempotence and cancellation are not declared",
+            "Lost remote task remains UNKNOWN; no automatic resend",
+            "Same-host observation is not joint or independent acceptance"
+          ]
+        },
+        "call_bindings": [
+          {
+            "identity": {
+              "call_id": "c-9435f6e4e40db42bd6536603f02fba3e",
+              "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+              "node_id": "draft0",
+              "attempt": 1,
+              "input_digest": "sha256:9e9de06f96d2b6ace470ea4b1b7e45442ec8d1a7dfbf27575242e9959d88fb88",
+              "agent_id": "report-writer",
+              "message_id": "message-b047f1ac686ad96cbf57927e47a1c1c2",
+              "context_id": "context-7b35241fdb7812ae2a449507493efdb9",
+              "remote_task_id": "19830b00-67b5-499e-b596-42e6dd8d1f63"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "report-writer",
+              "observed_at": "2026-11-17T12:25:00.343769883Z",
+              "card_name": "report-writer",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:eef6d7a1e2b7b7f958083ea87548e83c2ce7739dac9c36982267bdeecc20c81a",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 11,
+              "WORKING": 10,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-3e9a9fe0dd81f30e945091ee5e547523",
+              "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+              "node_id": "business",
+              "attempt": 1,
+              "input_digest": "sha256:a8cb8d51e04b20d6bc1159b36c390f6540e45114b7eeda8b9073148a9e8a8559",
+              "agent_id": "business-analyst",
+              "message_id": "message-9da1a6bbc93786ccdd41806154daa506",
+              "context_id": "context-64ee8c4a341eae73a11754d9b35feed5",
+              "remote_task_id": "0c6f5cb6-8ef9-492a-bee5-3c10fa2282d1"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "business-analyst",
+              "observed_at": "2026-11-17T12:24:16.917065060Z",
+              "card_name": "business-analyst",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:a8150b5b51c1d2eec90b6d81ea5dbe49aec2942e72a93a550ad8487c45ad2a90",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 6,
+              "WORKING": 5,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-73dde0d00f6ecba32749993de185ae41",
+              "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+              "node_id": "quality",
+              "attempt": 1,
+              "input_digest": "sha256:a05f177ae3bf82798c67963ddd4707a4999eaeb10dcb751810b778d4201cf39a",
+              "agent_id": "asset-quality-analyst",
+              "message_id": "message-2253e7c73a42c3de764f735dcf4b6185",
+              "context_id": "context-e8800b50fbc82e015c5007406fe886e0",
+              "remote_task_id": "ef6c4b9b-683d-48c9-affe-ebd230d5e0da"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "asset-quality-analyst",
+              "observed_at": "2026-11-17T12:24:17.209358911Z",
+              "card_name": "asset-quality-analyst",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:a1ed838d25a6f47398769b09fa21e14c53489cf0bab44364d8fe75adf0380b72",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 17,
+              "WORKING": 16,
+              "COMPLETED": 1
+            }
+          },
+          {
+            "identity": {
+              "call_id": "c-2623a27dab343cd4f8c6093396951d9c",
+              "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+              "node_id": "extract",
+              "attempt": 1,
+              "input_digest": "sha256:e15c031d3b34636100daf1171ac80b288d1653cf96a98fa4099e7443e98778fb",
+              "agent_id": "report-extractor",
+              "message_id": "message-1ba2c9f0c2e47df1c0c708f549e9b9b7",
+              "context_id": "context-43ca84c156ed1c9a7b1ef49ffc1fdb46",
+              "remote_task_id": "9a88dd20-23dd-4f50-a366-cea7724c6600"
+            },
+            "state": "COMPLETED",
+            "conflicted": false,
+            "discovery": {
+              "agent_id": "report-extractor",
+              "observed_at": "2026-11-17T12:23:53.394623325Z",
+              "card_name": "report-extractor",
+              "card_version": "1.0.0",
+              "observed_card_digest": "sha256:96eed5bbe65e66b8ef7c801aa8b6117f98916cb51904fa15e4d6d7d84a3ac507",
+              "instance_versions": [
+                {
+                  "health": "ONLINE",
+                  "contractVersion": "1.0.0",
+                  "capabilityVersion": "1.0.0"
+                }
+              ],
+              "gateway_mode": "DIRECT",
+              "actual_execution_instance": "not_collected"
+            },
+            "observation_counts": {
+              "TRANSPORT": 9,
+              "WORKING": 8,
+              "COMPLETED": 1
+            }
+          }
+        ],
+        "tests": {
+          "go": {
+            "top_level": 47,
+            "including_subtests": 93,
+            "failures": 0,
+            "skipped_tests": 0,
+            "no_test_package_events": 1
+          },
+          "orchestrator": {
+            "tests": 26,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "experts": {
+            "tests": 6,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "artifacts": {
+          ".local/report-demo/bin/report-control": {
+            "bytes": 19190026,
+            "sha256": "211f148824a915466ef8ab0b38ff219346b68c6ce1ccf206b27fad78a51a1d0c"
+          },
+          "demos/report-demo/orchestrator-java/target/report-orchestrator.jar": {
+            "bytes": 151677778,
+            "sha256": "fe475aff19fbb3f3266a7fae9d56ac9548624f0500246e9e70f2ec51c4f2adc2"
+          },
+          "demos/report-demo/experts-java/target/report-experts.jar": {
+            "bytes": 185350056,
+            "sha256": "b2baefaef31364c933114b9ebe935eba7d0ab72171086251eefeaf7cad6704c8"
+          },
+          ".local/sources/agent-solution/common/agent-bus/registry-discovery-center/target/agent-rdc-0.1.3.jar": {
+            "bytes": 68407637,
+            "sha256": "5463d4a0322a70bc9573b974b9c69ea14cd978bdadcb031d2b09688598618c82"
+          },
+          ".local/sources/agent-solution/common/agent-bus/agent-gateway/target/agent-gateway-0.1.3.jar": {
+            "bytes": 41249148,
+            "sha256": "750c467f42d38eb04f131e76b3af5c2337687212729faa04de6c25c49cbd3de8"
+          }
+        },
+        "model_binding_process": {
+          "all_passed": true,
+          "vectors_checked": 4,
+          "cases": [
+            {
+              "mode": "env-model-b-with-old-profile",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            },
+            {
+              "mode": "env-budget-with-old-profile",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            },
+            {
+              "mode": "missing-binding",
+              "direct_jar_start": true,
+              "execution_profile_unchanged": true,
+              "exit_nonzero": true,
+              "expected_rejection_seen": true,
+              "model_outlet_requests": 0
+            }
+          ],
+          "limits": [
+            "Direct executable startup rejection; positive real Core outlet and real remote experts are verified separately"
+          ]
+        },
+        "identity": {
+          "all_passed": true,
+          "checks": [
+            {
+              "check": "real_worker_four_grants",
+              "http_status": 200,
+              "all_allowed": true,
+              "error_code": null,
+              "passed": true
+            },
+            {
+              "check": "forged_user_subject",
+              "http_status": 401,
+              "all_allowed": null,
+              "error_code": "AUTH_INVALID",
+              "passed": true
+            },
+            {
+              "check": "invalid_origin_token",
+              "http_status": 401,
+              "all_allowed": null,
+              "error_code": "AUTH_INVALID",
+              "passed": true
+            },
+            {
+              "check": "ungranted_target",
+              "http_status": 200,
+              "all_allowed": false,
+              "error_code": null,
+              "passed": true
+            },
+            {
+              "check": "runtime_valid_identity",
+              "http_status": 200,
+              "passed": true
+            },
+            {
+              "check": "runtime_forged_subject",
+              "http_status": 403,
+              "passed": true
+            }
+          ],
+          "real_identity": true,
+          "scope": "RDC authorization decisions; no expert execution or business acceptance asserted"
+        },
+        "readiness": {
+          "all_passed": true,
+          "checks": [
+            {
+              "check": "control_and_pg",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "java_compiler",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "identity_discovery",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:report-extractor",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:report-extractor",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:report-extractor",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:business-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:business-analyst",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:business-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:asset-quality-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:asset-quality-analyst",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:asset-quality-analyst",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_card:report-writer",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "runtime_rejects_no_identity:report-writer",
+              "passed": true,
+              "http_status": 401
+            },
+            {
+              "check": "rdc_candidates:report-writer",
+              "passed": true,
+              "http_status": 200
+            },
+            {
+              "check": "workswarm_web",
+              "passed": true,
+              "http_status": 200
+            }
+          ],
+          "scope": "read-only readiness; no model planning/expert execution/business acceptance asserted"
+        },
+        "control_restart": {
+          "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
+          "checks": {
+            "new_control_session": true,
+            "same_task_projection": true,
+            "same_remote_call_identities": true,
+            "same_persistent_events": true,
+            "events_in_numeric_sequence_order": true,
+            "cursor_resumes_without_duplicates": true,
+            "artifact_integrity": true
+          },
+          "all_passed": true,
+          "cursor": "147",
+          "before_session": "control-eea4712fe6af160ae5fcb142b24f2a9a",
+          "after_session": "control-c7bd383bb6d2ec736fd0e6fc2e92b45c"
+        }
+      }
+    },
+    "limits": [
+      "Browser client was Windows Edge for both server platforms",
+      "RDC snapshot is advisory; independently attested actual execution instance still not_collected",
+      "GLM reasoning endpoint and joint M1-M4 not tested",
+      "W01 verifier independence ruling and W06/W07 business signoff remain external"
+    ]
+  }
 }

@@ -216,15 +216,15 @@
     "agent-festival/schema/event-ledger.schema.json": "5696fcb19c1876d95d23f4606ca6cb87aba9b138128e9a7eb1c9e42408f04a3c"
   },
   "latest_shared_contract_run": {
-    "task_id": "T-2085fb8b43601839c4fb31f0ffea613f",
+    "task_id": "T-10a3e5de04d794c8e6e18c59a6d7b294",
     "fresh_model_planning": true,
     "actor": "isolated operator test via W02 plugin",
     "identity_contract": "pr25/0.2.0@539d17a",
     "status": "DELIVERED",
-    "report_digest": "sha256:ef2cb021cc1440e246203b846d47ad5ea456a19f7d7dc06e3c515bffd23b44bd",
+    "report_digest": "sha256:9332d816d604d632213a5826e15cab61b5cc9c5e61c75ab048b2d6efbb313735",
     "real_experts": 4,
     "read_only_evidence_checks_passed": 10,
-    "structured_contract_checks_passed": 20,
+    "structured_contract_checks_passed": 16,
     "independent_business_acceptance": false
   },
   "integration_review": {
@@ -258,6 +258,8 @@
       "normal_iterations_default": 4,
       "quality_iterations_default": 8,
       "binding": "report-model/1; all budget overrides included; legacy6000 bindings are not rewritten"
-    }
+    },
+    "implementation_sha": "f657d9fa31eedb39b5c9fadcd09a928a0c5ab790",
+    "verification": "evidence/integration-sample.json#current_platform_validation"
   }
 }
