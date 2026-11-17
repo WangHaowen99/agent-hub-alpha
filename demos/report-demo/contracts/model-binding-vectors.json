@@ -4,12 +4,34 @@
     {
       "base_url": "http://127.0.0.1:7777/v1",
       "model": "model-a",
-      "digest": "sha256:3beecbe3c85a4c69a51c82b1019bf771d70bbc5056166e6ed4195a9f8b2ced10"
+      "digest": "sha256:3beecbe3c85a4c69a51c82b1019bf771d70bbc5056166e6ed4195a9f8b2ced10",
+      "max_tokens": 6000,
+      "normal_iterations": 4,
+      "quality_iterations": 8
     },
     {
       "base_url": "https://example.invalid/api",
       "model": "模型-α",
-      "digest": "sha256:f5c40343a2c25a1120faec1f8a1f61bdbc2c2ece9cbb02dcbe7465aab4ab3780"
+      "digest": "sha256:f5c40343a2c25a1120faec1f8a1f61bdbc2c2ece9cbb02dcbe7465aab4ab3780",
+      "max_tokens": 6000,
+      "normal_iterations": 4,
+      "quality_iterations": 8
+    },
+    {
+      "base_url": "http://127.0.0.1:7777/v1",
+      "model": "model-a",
+      "max_tokens": 12000,
+      "normal_iterations": 4,
+      "quality_iterations": 8,
+      "digest": "sha256:0958126a63ac251053bafa9e13485a1ed196390aea79595c62efe349bf460f2f"
+    },
+    {
+      "base_url": "http://127.0.0.1:7777/v1",
+      "model": "model-a",
+      "max_tokens": 16000,
+      "normal_iterations": 4,
+      "quality_iterations": 8,
+      "digest": "sha256:6096c300984e14cdea4e6f2b00b9c54f42f25751e1ed4e32366454f465776136"
     }
   ]
 }

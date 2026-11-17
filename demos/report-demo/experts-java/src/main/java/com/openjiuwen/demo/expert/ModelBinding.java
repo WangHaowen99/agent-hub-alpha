@@ -11,14 +11,24 @@ import java.util.Map;
 /** Actual immutable client settings, checked inside the Runtime, not only by its launcher. */
 final class ModelBinding {
     static final double TEMPERATURE = 0.1;
-    static final int MAX_TOKENS = 6000, NORMAL_ITERATIONS = 4, QUALITY_ITERATIONS = 8;
+    static final int MAX_TOKENS = 12000, NORMAL_ITERATIONS = 4, QUALITY_ITERATIONS = 8;
 
-    record Settings(String key, String base, String model) {
+    record Settings(String key, String base, String model, int maxTokens, int normalIterations, int qualityIterations) {
+        Settings(String key, String base, String model) {
+            this(key, base, model, MAX_TOKENS, NORMAL_ITERATIONS, QUALITY_ITERATIONS);
+        }
+        Settings {
+            if (maxTokens < 1024 || maxTokens > 32768 || normalIterations < 1 || normalIterations > 32
+                    || qualityIterations < 1 || qualityIterations > 32) {
+                throw new IllegalArgumentException("Model budgets outside reviewed limits");
+            }
+        }
         @Override public String toString() { return "ModelSettings[credentials redacted]"; }
         String digest() {
             // Length-prefixed UTF-8 fields; same encoding in bind_profile.py.
             // No credentials, JSON serializer differences or source paths.
-            var fields=List.of("report-model/1","OpenAI",base,model,"0.1","6000","4","8");
+            var fields=List.of("report-model/1","OpenAI",base,model,"0.1",Integer.toString(maxTokens),
+                    Integer.toString(normalIterations),Integer.toString(qualityIterations));
             var bytes=new ByteArrayOutputStream();
             for(String field:fields) {
                 byte[] raw=field.getBytes(StandardCharsets.UTF_8);
@@ -38,8 +48,18 @@ final class ModelBinding {
         if(key==null || key.isBlank() || base==null || base.isBlank() || model==null || model.isBlank()) {
             throw new IllegalStateException("Real model environment required; no fixed-output fallback");
         }
-        var settings=new Settings(key,base.replaceAll("/+$",""),model);
+        var settings=new Settings(key,base.replaceAll("/+$",""),model,
+                budget(env,"DEMO_MODEL_MAX_TOKENS",MAX_TOKENS),
+                budget(env,"DEMO_MODEL_NORMAL_ITERATIONS",NORMAL_ITERATIONS),
+                budget(env,"DEMO_MODEL_QUALITY_ITERATIONS",QUALITY_ITERATIONS));
         settings.require(configuration.path("model_binding_digest").asText());
         return settings;
+    }
+
+    private static int budget(Map<String,String> env, String name, int fallback) {
+        String value=env.get(name);
+        if(value==null) {return fallback;}
+        if(!value.matches("[0-9]+")) {throw new IllegalArgumentException("Invalid budget: "+name);}
+        return Integer.parseInt(value);
     }
 }

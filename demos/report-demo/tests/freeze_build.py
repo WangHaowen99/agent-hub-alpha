@@ -11,8 +11,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'deploy'))
+from platform_tools import go as native_go, maven as native_maven, workswarm as workswarm_source
 
 
 def main():
@@ -25,8 +27,7 @@ def main():
     output.mkdir(parents=True,exist_ok=True)
     settings=args.maven_settings.resolve()
     if not settings.is_file():raise SystemExit('Explicit build Maven settings missing')
-    maven=shutil.which('mvn.cmd') or shutil.which('mvn')
-    if not maven:raise SystemExit('Maven not on PATH')
+    maven=str(native_maven())
     modules={
         'orchestrator':demo/'orchestrator-java/pom.xml',
         'experts':demo/'experts-java/pom.xml',
@@ -55,13 +56,12 @@ def main():
                            'sha256':hashlib.sha256(destination.read_bytes()).hexdigest()}
         manifest['modules'][name]={'pom':pom.relative_to(repo).as_posix(),'outputs':paths}
         print(json.dumps({'module':name,'resolution_captured':True}),flush=True)
-    go=repo/'.local/tools/go/bin/go.exe'
-    if not go.is_file():raise SystemExit('Expected isolated Go binary missing')
+    go=native_go()
     # Freeze packages actually imported by this binary. `list -m all` also
     # fetches unused requirements of the parent module, which neither builds
     # this demo nor proves anything about the running executable.
     run([str(go),'list','-deps','-json','./...'],output/'go-packages.jsonl',demo/'control-go')
-    workswarm=Path(os.environ.get('WORKSWARM_SOURCE','D:/Code/openJiuwen/jiuwenswarm'))
+    workswarm=workswarm_source()
     for name,path in {'go.mod':demo/'control-go/go.mod','go.sum':demo/'control-go/go.sum',
                       'parent-go.mod':repo/'agent-festival/go/go.mod',
                       'parent-go.sum':repo/'agent-festival/go/go.sum',

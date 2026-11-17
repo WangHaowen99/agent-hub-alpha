@@ -95,6 +95,9 @@ def main() -> None:
     config_path = Path(get_config_file())
     data = yaml.load(config_path.read_text(encoding="utf-8"))
     data["progressive_tool_enabled"] = False
+    # This isolated workspace is provisioned for environment-backed models;
+    # the first-login tutorial otherwise masks the installed planner UI.
+    data.setdefault("setup_guide", {})["enabled"] = False
     with config_path.open("w", encoding="utf-8") as stream:
         yaml.dump(data, stream)
 

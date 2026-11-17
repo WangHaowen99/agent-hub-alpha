@@ -5,6 +5,8 @@ from pathlib import Path
 import subprocess
 import sys
 import requests
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'deploy'))
+from platform_tools import executable
 
 
 def main():
@@ -25,7 +27,7 @@ def main():
     subprocess.run([sys.executable,str(manager),'stop','control','--private-root',str(root)],check=True)
     if a.install_binary:
         import shutil
-        shutil.copyfile(a.install_binary.resolve(),root/'bin/report-control.exe')
+        shutil.copyfile(a.install_binary.resolve(),root/'bin'/executable('report-control'))
     subprocess.run([sys.executable,str(manager),'start','control','--private-root',str(root)],check=True)
     after={'health':get('/healthz'),'task':get(path),'calls':get(path+'/calls'),'events':get(path+'/events')}
     checks={

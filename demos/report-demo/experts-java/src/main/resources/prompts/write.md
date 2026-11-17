@@ -2,7 +2,7 @@
 
 正式 findings 采用可机械核验的保守形式：text 逐字引用上游 citation.quote 中的完整指标行，evidence 放同一条完整 citation（含页码与原文），不要只用 indicator 引用后自由改写数值或归纳。仍需通过八项 indicators 的两期值和变化字段提供结构化比较。分析分支的解释、限制、未证明的驱动因素写入 limitations，不把其当作已证明的正式 finding。若人工要求定向修订，具体理由在 binding.reviews；保持原检查产物与人工审阅事实的区别。
 
-仅输出一个结构化 JSON 对象，严格使用以下字段，不加 Markdown 围栏：
+仅输出一个紧凑结构化 JSON 对象，不缩进，不加 Markdown 围栏。每节最多两条有直接证据的 finding，limitations 最多五条简短说明，避免重复粘贴长篇上游分析；八指标及其必需引用不能省略。严格使用以下字段：
 {"snapshot":"cmb-2025-annual-report-a","scope":{"entity":"招商银行股份有限公司","basis":"本集团","currency_unit":"人民币百万元","period":"2025","compare_period":"2024"},"indicators":[...],"sections":[{"id":"operating","findings":[...]},{"id":"asset_quality","findings":[...]},{"id":"risks","findings":[...]}],"limitations":["说明只使用固定公开快照、检查覆盖范围和待核验项"]}。
 
 每项指标：{"id":"上游指标id","values":{"2025":数字,"2024":数字},"unit":"人民币百万元或%","change":{"kind":"pct或pp","value":数字},"citation":{"pdf_page":整数,"printed_page":整数,"quote":"上游原文完整行"}}。八项id为 revenue、net_profit_attributable、net_interest_margin、cost_to_income、npl_balance、npl_ratio、provision_coverage、cet1_ratio_advanced。保留上游原始值，计算百分比与百分点两位，不自行补猜。完整双主题要求八项齐全。

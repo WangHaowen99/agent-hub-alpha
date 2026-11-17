@@ -56,18 +56,24 @@ final class BoundNodeExecutor implements SubAgentExecutor {
                     "artifact_id", artifact.path("artifact_id").asText()));
             return Json.write(result.path("output"));
         } catch (ControlClient.ControlFailure e) {
-            String status = switch (e.code) {
-                case "INPUT_REQUIRED" -> "WAITING_INPUT";
-                case "AUTH_REQUIRED" -> "WAITING_AUTH";
-                case "BINDING_CHANGED", "DISCOVERY_BINDING_CHANGED", "MODEL_BINDING_CHANGED" -> "BLOCKED";
-                case "REMOTE_UNKNOWN", "REMOTE_UNRESOLVED", "REMOTE_ASSOCIATION_CONFLICT", "WAIT", "DISCOVERY_UNAVAILABLE", "CONTROL_UNAVAILABLE" -> "UNKNOWN";
-                default -> "FAILED";
-            };
+            String status = waitingStatus(e.code);
             // A waiting update is best effort; a lost permit cannot be used to
             // invent a successful result. Trusted observations have their own API.
             try { control.post(path + "/waiting", Map.of("owner", owner, "epoch", epoch, "status", status, "reason", e.code)); }
             catch (ControlClient.ControlFailure ignored) { }
             throw e;
         }
+    }
+
+    static String waitingStatus(String code) {
+        return switch (code) {
+                case "INPUT_REQUIRED" -> "WAITING_INPUT";
+                case "AUTH_REQUIRED", "AUTH_MISSING", "AUTH_INVALID", "AUTH_EXPIRED" -> "WAITING_AUTH";
+                case "BINDING_CHANGED", "DISCOVERY_BINDING_CHANGED", "MODEL_BINDING_CHANGED", "AUTH_DISABLED",
+                        "CALLER_NOT_AUTHORIZED", "SCOPE_VIOLATION", "TENANT_SCOPE_VIOLATION" -> "BLOCKED";
+                case "REMOTE_UNKNOWN", "REMOTE_UNRESOLVED", "REMOTE_ASSOCIATION_CONFLICT", "WAIT", "DISCOVERY_UNAVAILABLE", "CONTROL_UNAVAILABLE",
+                        "IAM_UNAVAILABLE", "RDC_UNAVAILABLE", "AUDIT_UNAVAILABLE" -> "UNKNOWN";
+                default -> "FAILED";
+            };
     }
 }

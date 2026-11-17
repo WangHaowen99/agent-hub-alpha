@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import subprocess
 import threading
+from unittest.mock import patch
 
 
 def main():
@@ -28,16 +29,25 @@ def main():
     spec=importlib.util.spec_from_file_location('binding',repo/'demos/report-demo/deploy/bind_profile.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     previous={k:os.environ.get(k) for k in ('DEMO_MODEL_BASE_URL','DEMO_MODEL_NAME')}
     os.environ.update(DEMO_MODEL_BASE_URL=f'http://127.0.0.1:{server.server_port}/v1',DEMO_MODEL_NAME='model-a')
+    suite=json.loads((repo/'demos/report-demo/contracts/model-binding-vectors.json').read_text(encoding='utf-8'))
+    for vector in suite['vectors']:
+        with patch.dict(os.environ,{'DEMO_MODEL_BASE_URL':vector['base_url'],'DEMO_MODEL_NAME':vector['model'],
+                'DEMO_MODEL_MAX_TOKENS':str(vector.get('max_tokens',6000)),
+                'DEMO_MODEL_NORMAL_ITERATIONS':str(vector.get('normal_iterations',4)),
+                'DEMO_MODEL_QUALITY_ITERATIONS':str(vector.get('quality_iterations',8))}):
+            assert module.model_binding_digest()==vector['digest'],'Python model binding vector differs'
     expected=module.model_binding_digest()
     results=[]
     try:
-        for mode in ('env-model-b-with-old-profile','missing-binding'):
+        for mode in ('env-model-b-with-old-profile','env-budget-with-old-profile','missing-binding'):
             cfg=json.loads((root/'experts/report-extractor.json').read_text(encoding='utf-8'))
             original_profile=cfg['execution_profile']
             if mode=='missing-binding':cfg.pop('model_binding_digest',None)
             else:cfg['model_binding_digest']=expected
             path=root/'evidence'/('model-process-'+mode+'-config.json');path.write_text(json.dumps(cfg),encoding='utf-8')
             env=os.environ.copy();env.update(REPORT_EXPERT_CONFIG=str(path),REPORT_EXPERT_PORT='0',REPORT_AGENT_ID='model-outlet-fixture',REPORT_AGENT_PUBLIC_URL='http://127.0.0.1:1/a2a',DEMO_MODEL_API_KEY='test-fixture-only',DEMO_MODEL_NAME='model-b')
+            if mode=='env-budget-with-old-profile':
+                env.update(DEMO_MODEL_NAME='model-a',DEMO_MODEL_MAX_TOKENS=str(module.budgets()[0]+1))
             result=subprocess.run([str(args.java),'-Xms32m','-Xmx256m','-jar',str(repo/'demos/report-demo/experts-java/target/report-experts.jar')],env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=50)
             output=result.stdout+result.stderr
             (root/'evidence'/('model-process-'+mode+'.log')).write_text(output,encoding='utf-8')
@@ -50,7 +60,7 @@ def main():
         for key,value in previous.items():
             if value is None:os.environ.pop(key,None)
             else:os.environ[key]=value
-    report={'all_passed':True,'cases':results,'limits':['Direct executable startup rejection; positive real Core outlet and real remote experts are verified separately']}
+    report={'all_passed':True,'vectors_checked':len(suite['vectors']),'cases':results,'limits':['Direct executable startup rejection; positive real Core outlet and real remote experts are verified separately']}
     (root/'evidence/model-process-binding.json').write_text(json.dumps(report,indent=2),encoding='utf-8');print(json.dumps(report))
 
 

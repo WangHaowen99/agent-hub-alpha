@@ -9,7 +9,10 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 from urllib.parse import unquote,urlsplit
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'deploy'))
+from platform_tools import executable, workswarm
 
 
 def main():
@@ -38,11 +41,11 @@ def main():
         'core':repo/'.local/sources/agent-core-java',
         'solution':repo/'.local/sources/agent-solution',
         'runtime':repo/'.local/sources/agent-runtime-java',
-        'workswarm':Path('D:/Code/openJiuwen/jiuwenswarm'),
+        'workswarm':workswarm(),
     }
     sources={name:subprocess.check_output(['git','-C',str(path),'rev-parse','HEAD'],text=True).strip() for name,path in source_paths.items()}
     artifacts={}
-    candidates=[root/'bin/report-control.exe',demo/'orchestrator-java/target/report-orchestrator.jar',demo/'experts-java/target/report-experts.jar',
+    candidates=[root/'bin'/executable('report-control'),demo/'orchestrator-java/target/report-orchestrator.jar',demo/'experts-java/target/report-experts.jar',
         repo/'.local/sources/agent-solution/common/agent-bus/registry-discovery-center/target/agent-rdc-0.1.3.jar',
         repo/'.local/sources/agent-solution/common/agent-bus/agent-gateway/target/agent-gateway-0.1.3.jar']
     for path in candidates:

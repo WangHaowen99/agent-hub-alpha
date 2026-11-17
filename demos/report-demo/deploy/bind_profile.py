@@ -8,9 +8,20 @@ import os
 from pathlib import Path
 
 
+def budgets() -> tuple[int, int, int]:
+    result=[]
+    for key,default,low,high in [('DEMO_MODEL_MAX_TOKENS',12000,1024,32768),
+            ('DEMO_MODEL_NORMAL_ITERATIONS',4,1,32),('DEMO_MODEL_QUALITY_ITERATIONS',8,1,32)]:
+        raw=os.environ.get(key,str(default))
+        if not raw.isascii() or not raw.isdigit() or not low <= int(raw) <= high:
+            raise SystemExit('Invalid model budget: '+key)
+        result.append(int(raw))
+    return tuple(result)
+
+
 def model_binding_digest() -> str:
     fields = ['report-model/1', 'OpenAI', os.environ['DEMO_MODEL_BASE_URL'].rstrip('/'),
-              os.environ['DEMO_MODEL_NAME'], '0.1', '6000', '4', '8']
+              os.environ['DEMO_MODEL_NAME'], '0.1', *(str(v) for v in budgets())]
     body = b''.join(str(len(raw)).encode('ascii') + b':' + raw for raw in (f.encode('utf-8') for f in fields))
     return 'sha256:' + hashlib.sha256(body).hexdigest()
 
@@ -27,8 +38,9 @@ def fingerprint(repo: Path) -> str:
         for pattern in ("src/main/**/*.java", "src/main/resources/prompts/*.md", "pom.xml"):
             for path in sorted(base.glob(pattern)):
                 files[path.relative_to(repo).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    tokens,normal,quality=budgets()
     model = {"base_url": os.environ["DEMO_MODEL_BASE_URL"].rstrip("/"), "model": os.environ["DEMO_MODEL_NAME"],
-             "temperature": 0.1, "max_tokens": 6000, "normal_max_iterations": 4, "quality_max_iterations": 8}
+             "temperature": 0.1, "max_tokens": tokens, "normal_max_iterations": normal, "quality_max_iterations": quality}
     body = json.dumps({"files": files, "model": model}, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(body).hexdigest()
 

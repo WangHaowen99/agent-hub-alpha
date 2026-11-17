@@ -129,16 +129,21 @@ final class BoundExpertHandler implements AgentHandler {
         QueryResponse response = delegate.query(ctx.request());
         try {
             JsonNode result = JSON.valueToTree(response.getResult());
-            String text = result.path("content").asText();
-            if (text.startsWith("```")) { text = text.replaceFirst("^```(?:json)?\\s*", "").replaceFirst("\\s*```$", ""); }
-            JsonNode output = JSON.readTree(text);
-            if (!output.isObject()) { throw new IllegalArgumentException("Expert output must be a JSON object"); }
+            JsonNode output = parseOutput(result.path("content").asText());
             String body = JSON.writeValueAsString(Map.of("call_id", ctx.original().path("call_id").asText(),
                     "input_digest", ctx.approved().path("input_digest").asText(), "attempt", ctx.original().path("attempt").asInt(), "output", output,
                     "runtime_evidence", Map.of("agent_id",config.path("agent_id").asText(),"role",config.path("role").asText(),"model_binding_digest",modelSettings.digest(),"loop_branches",branchCount.get(),
                             "completed_loop_branches",branchRecords.size(),"branch_records",List.copyOf(branchRecords))));
             return new QueryResponse(Map.of("role", "assistant", "content", body), request.getConversationId());
         } catch (Exception e) { throw new IllegalStateException("Expert did not produce declared JSON output", e); }
+    }
+
+    static JsonNode parseOutput(String text) throws Exception {
+        text=text.strip();
+        if (text.startsWith("```")) { text = text.replaceFirst("^```(?:json)?\\s*", "").replaceFirst("\\s*```$", ""); }
+        JsonNode output=JSON.reader().with(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS).readTree(text);
+        if(output==null || !output.isObject()) {throw new IllegalArgumentException("Expert output must be one complete JSON object");}
+        return output;
     }
 
     @Override public void streamQuery(ServeRequest request, QueryStreamObserver observer) {

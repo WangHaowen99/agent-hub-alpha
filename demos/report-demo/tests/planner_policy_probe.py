@@ -8,6 +8,16 @@ from types import SimpleNamespace
 
 
 async def verify():
+    from verify_planning import accepted_proposals
+    graph={'selection':{'id':'selected','digest':'digest'},'nodes':[{'id':'extract'}]}
+    task={'task_id':'task-accepted','graph':graph}
+    calls=[{'event_type':'chat.tool_call','request_id':'r','tool_call':{'name':'mcp_report-orchestration_propose_plan',
+            'tool_call_id':key,'arguments':{'graph':graph}}} for key in ['rejected','accepted']]
+    receipts=[{'event_type':'chat.tool_result','request_id':'r','tool_call_id':'rejected','is_error':True,'result':json.dumps({'task':task})},
+            {'event_type':'chat.tool_result','request_id':'r','tool_call_id':'accepted','raw_output':{'result':json.dumps({'task':task})}}]
+    assert accepted_proposals(calls+receipts,task)==[calls[1]]
+    receipts[1]['tool_call_id']='unrelated'
+    assert accepted_proposals(calls+receipts,task)==[]
     source=Path(__file__).resolve().parents[1]/'workswarm/report_planner_policy/rail.py'
     spec=importlib.util.spec_from_file_location('report_demo_policy_under_test',source);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     from openjiuwen.core.foundation.tool import McpServerConfig
@@ -33,7 +43,7 @@ async def verify():
     assert await manager.execute(None,SimpleNamespace(name='mcp_report-orchestration_list_capabilities'),None)=='allowed'
     assert manager.executions==['mcp_report-orchestration_list_capabilities']
     return {'all_passed':True,'approved_mcp_bootstrap_preserved':True,'unapproved_mcp_bootstrap_hidden':True,'allowed_tools':sorted(module.TOOLS),'denied_execution':denied,'late_tool_hidden_from_discovery':all(getattr(c,'name',None)!='late_registered_shell' for c in manager.list()),
-            'native_boundary_used':True,'limits':'uses an ability manager fixture with the actual native boundary; live planner startup/tool execution is a separate gate'}
+            'native_boundary_used':True,'proposal_receipt_binding_checked':True,'limits':'uses an ability manager fixture with the actual native boundary; live planner startup/tool execution is a separate gate'}
 
 
 if __name__=='__main__':

@@ -59,11 +59,11 @@ public class ExpertApplication {
         }
         ReActAgentConfig config = ReActAgentConfig.builder()
                 .promptTemplate(List.of(Map.of("role", "system", "content", prompt)))
-                .maxIterations(role.equals("quality") ? ModelBinding.QUALITY_ITERATIONS : ModelBinding.NORMAL_ITERATIONS).build()
+                .maxIterations(role.equals("quality") ? actual.qualityIterations() : actual.normalIterations()).build()
                 .configureModelClient("OpenAI", actual.key(), actual.base(), actual.model(), true)
                 .configureContextEngine(240, 60, false);
         config.getModelConfigObj().setTemperature(ModelBinding.TEMPERATURE);
-        config.getModelConfigObj().setMaxTokens(ModelBinding.MAX_TOKENS);
+        config.getModelConfigObj().setMaxTokens(actual.maxTokens());
         ReActAgent agent = new ReActAgent(AgentCard.builder().id(id).name(id).description("Bound annual report " + role).build());
         agent.configure(config);
         return agent;

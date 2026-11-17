@@ -1,5 +1,7 @@
 # Windows 本地启动与逐步验证
 
+Linux 原生部署见 [LINUX-RUN.md](LINUX-RUN.md)；两端使用同一套 `deploy/*.py` 和业务代码。实际验证范围见 [VERIFICATION.md](VERIFICATION.md)，最终交付材料入口见本文第14节。
+
 这份文档对应 `demos/report-demo`，从 PowerShell 执行。应用全部在本机，云端只运行已有 PostgreSQL；无需在云端安装 Java、WorkSwarm、Redis 或 Docker 应用。**“进程已启动”“真实模型已返回”“完整业务已验收”是三个不同结果。** 当前实际通过与未通过的项目以 [验证报告](VERIFICATION.md) 为准，下面的预期结果用于逐项核对。
 
 ## 1. 先看清进程与端口
@@ -519,3 +521,46 @@ Pop-Location
 `model_process_probe` 用真实专家JAR和本地模型出口替身，验证直接启动时“旧profile+ENV模型B”“缺绑定”均在出口前拒绝，不能拿它代替真实业务模型测试。前三条只读命令不做批准/交付；`verify_main_flow.py` 还需要 `task_probe.py --action download` 和已记录的测试账号交付证据。公开接收样例不含凭据、完整模型返回和思考链；异机复跑和业务签收仍由实际接收人完成。
 
 新增备份使用 `report-demo-backup/2`，包含选择记录；旧 `/1` 快照仍可读取/恢复，不为旧任务补写模型或选择绑定。旧任务可以读历史，新执行不能偷偷采用当前默认模型。
+
+## 14. 接收配置与最终材料入口
+
+W03/W04 提供方为 yougq；W02 WangHaowen99、W05 xierongqiag2015 已确认年报接收，W06 wanshoulu、W07 tonyxu2019 负责各自工作包和集成组织。以下是部署材料索引，不代替独立接收或业务签收。
+
+| 材料 | 入口 / 内容 |
+| --- | --- |
+| 代码、依赖、来源差异 | source-manifest.json；最终采用源码 SHA 与平台制品哈希分别记录，同名0.1.3 JAR不代表同一源码 |
+| Windows / Linux 构建启停 | 本文与 LINUX-RUN.md；同一 services.py，Linux使用 java/kc.sh/report-control，Windows使用 java.exe/kc.bat/report-control.exe |
+| 配置与权限 | W04 config.json、角色 experts/*.json、identity.json 和 rdc/gateway.properties 仅在私有根；字段和权限见下表 |
+| 持久化、恢复 | 第8.1节和Linux文档第6节；W04 PG与artifacts配套，RDC、IdP、WorkSwarm分别保存，不声明整环境灾备已测 |
+| 控制/结果契约 | contracts/README.md、对应schema、错误分类与SEND/QUERY/UNKNOWN规则 |
+| 跨模块贯通样例 | evidence/integration-sample.json；原始记录留私有环境；实际结果与未覆盖项见VERIFICATION.md |
+
+| 配置字段/变量 | 来源与用途 |
+| --- | --- |
+| config.json: dsn / migrator_dsn | 管理员提供的W04应用/迁移账号；仅访问独立W04库，不能借用RDC账号 |
+| RDC_DB_URL / RDC_DB_USER / RDC_DB_PASSWORD | 管理员提供的RDC库；实际已测PG16.16，首次Flyway初始化。没有额外手工插入业务表步骤 |
+| JAVA_HOME / WORKSWARM_SOURCE | 当前平台原生JDK与固定WorkSwarm源码；可选GO_BINARY、KEYCLOAK_HOME、SOLUTION_SOURCE覆盖工具/源码路径 |
+| REPORT_DEMO_CONFIG / --private-root | 当前运行环境私有根；其artifacts/material/catalog路径必须属于当前OS，不共用Windows/WSL的PID和构建目录 |
+| config.json: tokens / user / user_password | prepare_local生成的独立planner/worker/operator/expert凭据和测试用户，用户动作另验Cookie/CSRF/Origin |
+| identity.json / config.bus | configure_identity通过真实IdP生成客户端主体/秘密，RDC登记前必须可introspect；不将x-user-id当作独立身份凭证 |
+| config.bus.gateway_url / rdc_url | Java真实调用及发现地址；允许Gateway前加独立传输计数代理，配置后重启compiler，代理须保持请求语义和关联标识 |
+| DEMO_MODEL_API_KEY / BASE_URL / NAME | 只从启动进程环境读取；实际变量全名为DEMO_MODEL_API_KEY、DEMO_MODEL_BASE_URL、DEMO_MODEL_NAME |
+| DEMO_MODEL_MAX_TOKENS / NORMAL_ITERATIONS / QUALITY_ITERATIONS | 全名分别为DEMO_MODEL_MAX_TOKENS、DEMO_MODEL_NORMAL_ITERATIONS、DEMO_MODEL_QUALITY_ITERATIONS；默认12000/4/8；进入专家实际模型绑定，改变需重新发布 |
+
+Gateway `gateway.authorization.enabled=true`，RDC `openjiuwen.authorization.enabled=true`。Bus调用主体是worker的真实服务账号：Java携带Bearer与X-User-ID，Gateway传递原身份，专家introspection检查active/client_id/issuer/audience/subject。专家之间不另经Bus互调；资产质量Loop分支是该节点内的Core调用。
+
+configure_bus将主体绑定report-demo-executor角色，并给该角色授予四个目标Agent的访问；它不是逐方法授权编辑器。四专家共用report-experts.jar，各自角色配置/AgentCard/端口和实例登记独立；构建摘要给一个公共JAR哈希加四角色对应表，不捏造四个不同JAR。RDC/Gateway和Keycloak来源校验见source-manifest；归档摘要与实际运行制品摘要分别记录。
+
+WorkSwarm主规划使用其固定版本配置/模型设置，不继承专家12000/4/8预算。当前Demo未设置主规划max_tokens覆盖；部署方核对其实际模型配置和react迭代预算。GLM等推理模型换端点/模型/预算后产生不同model_binding_digest是预期；兼容性须实测，不把DeepSeek成功当作GLM已过。
+
+WorkSwarm端点方言可通过DEMO_MODEL_ENDPOINT_PROFILE指定，默认deepseek，其他兼容服务选择其支持的openai等方言。启动器为三个WorkSwarm进程都提供环境模型引用，避免全新工作区的前端模型目录为空；隔离工作区安装时关闭首次配置教程，不修改用户全局配置或持久化模型密钥。
+
+新增真实浏览器复跑入口（实际调用模型并执行测试用户确认、批准和交付）：
+
+```powershell
+& $py demos/report-demo/tests/live_smoke.py --private-root $private --browser-executable '<本机Chromium/Edge路径>'
+```
+
+若浏览器在报告完成后断开，可显式传`--resume-task <同一次smoke的T-ID>`，只重连本私有根已有记录的原任务，不新建图或重新调用专家。验证报告保留断开和重连记录，不把它说成全程无中断。新任务规划允许模型修正被拒绝提案；verify_planning按成功工具回执的taskId、tool_call_id和最终图关联，拒绝把同selection的失败提案计成成功。
+
+完整HUMAN表单暂由同一Go可信备用页承接；PR36的独立批准/任务存储不接入正式链。W06检查结论作为业务事实接入前，须统一招行材料、完整报告摘要与检查投影摘要、错误结构和实际框架依赖，不能把外部具名字符串当可信用户批准。W07最终材料直接引用已有版本文件；外部接收和业务签收结果由本人/接收人回填。

@@ -52,7 +52,7 @@ C05 主流程发布器提供已检查本地 JSON 报告的可读取交付事实�
 
 ## 3. 身份、错误与等待语义
 
-planner 只有 5 个 MCP 工具，没有采纳/提交/交付工具。worker 与每个 expert 使用独立服务身份；用户确认使用服务端 Cookie 会话、CSRF 和 Origin。MCP App 的单任务短期只读凭证仅在 `_meta`，不能批准或派发。服务进程同 OS 用户运行仍不是进程级秘密隔离；这个边界单独审计。
+planner 只有 6 个 MCP 工具（目录、选择、提案、计划、运行状态、核对），没有采纳/提交/交付工具。worker 与每个 expert 使用独立服务身份；用户确认使用服务端 Cookie 会话、CSRF 和 Origin。MCP App 的单任务短期只读凭证仅在 `_meta`，不能批准或派发。服务进程同 OS 用户运行仍不是进程级秘密隔离；这个边界单独审计。
 
 | code / 结果 | 处理 |
 | --- | --- |
@@ -67,6 +67,16 @@ planner 只有 5 个 MCP 工具，没有采纳/提交/交付工具。worker 与�
 | STORAGE_UNAVAILABLE / UNKNOWN | 不推断是否已提交或外部已执行；保留原 command/call/delivery 身份查询对账 |
 
 HTTP 409 只是状态码，Java 根据 code 分类，不能把全部 409 映射成失租。Remote INPUT_REQUIRED/AUTH_REQUIRED 与 Go checker HUMAN 是不同事实；HUMAN 必须保留程序原产物和独立人工审阅回执。
+
+真实 Gateway 的已知机器码按白名单保留，支持 flat `code`、`error.code` 和 JSON-RPC `error.data.code`。未知正文/数值 JSON-RPC 错误保持 REMOTE_UNKNOWN（401/403 无已知码则 AUTH_REQUIRED）。不将远端自由文本作为控制指令或向投影泄露；失败的 TRANSPORT 观察仅保存方法、HTTP 状态与分类码。
+
+| Gateway 分类码 | 节点状态 / 规则 |
+| --- | --- |
+| AUTH_MISSING / AUTH_INVALID / AUTH_EXPIRED | WAITING_AUTH；修复后仍核对原 call，不重新发送已有意图 |
+| CALLER_NOT_AUTHORIZED / SCOPE_VIOLATION / TENANT_SCOPE_VIOLATION / AUTH_DISABLED | BLOCKED；普通恢复不能绕过 |
+| RDC_UNAVAILABLE / IAM_UNAVAILABLE / AUDIT_UNAVAILABLE | UNKNOWN；保持原调用关联，不把暂时不可用当业务失败或自动新派发 |
+
+专家模型预算参与 `report-model/1` 摘要：`DEMO_MODEL_MAX_TOKENS` 默认 12000（1024—32768），`DEMO_MODEL_NORMAL_ITERATIONS` 默认4、`DEMO_MODEL_QUALITY_ITERATIONS` 默认8（均1—32）。Python 发布与 Java 实际客户端读取同一设置；模型、端点、任一预算变化必须重新发布、重启并使用新候选。历史 6000-token 绑定仍可校验，不向旧任务补当前默认；仅改环境预算会在模型调用前拒绝。此预算是专家设置，WorkSwarm 主规划配置单独核对。
 
 ## 4. 摘要边界
 

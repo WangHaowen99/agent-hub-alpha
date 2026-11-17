@@ -10,9 +10,8 @@ import getpass
 import json
 from pathlib import Path
 import shlex
-import ctypes
-from ctypes import wintypes
 import paramiko
+import psutil
 
 ACTIVITY="SELECT json_build_object('max_connections',current_setting('max_connections'),'connections',(SELECT json_agg(x) FROM (SELECT datname,usename,application_name,client_addr,state,count(*) AS count,min(backend_start) AS oldest FROM pg_stat_activity GROUP BY datname,usename,application_name,client_addr,state) x))"
 
@@ -24,24 +23,16 @@ def main():
     a=p.parse_args();root=a.private_root.resolve()
     if a.action=='recover-idle':
         state=json.loads((root/'services.json').read_text(encoding='utf-8'))
-        kernel=ctypes.WinDLL('kernel32',use_last_error=True)
-        kernel.OpenProcess.argtypes=[wintypes.DWORD,wintypes.BOOL,wintypes.DWORD]
-        kernel.OpenProcess.restype=wintypes.HANDLE
-        kernel.GetExitCodeProcess.argtypes=[wintypes.HANDLE,ctypes.POINTER(wintypes.DWORD)]
-        kernel.GetExitCodeProcess.restype=wintypes.BOOL
-        kernel.CloseHandle.argtypes=[wintypes.HANDLE]
-        kernel.CloseHandle.restype=wintypes.BOOL
         for name in ('rdc','control'):
             row=state.get(name,{})
             if row.get('pid'):
-                handle=kernel.OpenProcess(0x1000,False,int(row['pid']))
-                if handle:
-                    code=wintypes.DWORD()
-                    try:
-                        if not kernel.GetExitCodeProcess(handle,ctypes.byref(code)):
-                            raise ctypes.WinError(ctypes.get_last_error())
-                    finally:kernel.CloseHandle(handle)
-                    if code.value==259:raise SystemExit('Stop this workspace '+name+' before idle-connection maintenance')
+                try:
+                    process=psutil.Process(int(row['pid']))
+                    if abs(process.create_time()-row.get('created',0)) >= .01:
+                        raise SystemExit('Recorded PID ownership changed; inspect '+name+' before maintenance')
+                    if process.is_running():raise SystemExit('Stop this workspace '+name+' before idle-connection maintenance')
+                except psutil.NoSuchProcess:
+                    pass
     password=getpass.getpass('SSH password (hidden): ')
     ssh=paramiko.SSHClient();known=root/'ssh-known-hosts'
     if known.exists():ssh.load_host_keys(str(known))

@@ -235,5 +235,29 @@
     ],
     "shared_upstream_files_changed_this_round": false,
     "joint_acceptance": false
+  },
+  "deployment": {
+    "platforms": [
+      "Windows native",
+      "Linux native (local WSL2)"
+    ],
+    "shared_launcher": "deploy/services.py",
+    "native_path_resolver": "deploy/platform_tools.py",
+    "linux_runbook": "LINUX-RUN.md",
+    "postgresql_tested_version": "16.16",
+    "keycloak": {
+      "version": "26.8.2",
+      "archive": "keycloak-26.8.2.zip",
+      "url": "https://github.com/keycloak/keycloak/releases/download/26.8.2/keycloak-26.8.2.zip",
+      "sha256": "321ffee62ec28fab18fe885d8cd62cc814edce72a35cd062dc81b504c1a406b3",
+      "verification": "local archive SHA256 matches release asset digest; runtime data not included"
+    },
+    "expert_artifact": "One report-experts.jar, four independently configured roles",
+    "model_budgets": {
+      "max_tokens_default": 12000,
+      "normal_iterations_default": 4,
+      "quality_iterations_default": 8,
+      "binding": "report-model/1; all budget overrides included; legacy6000 bindings are not rewritten"
+    }
   }
 }

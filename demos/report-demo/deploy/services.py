@@ -17,10 +17,9 @@ from urllib.parse import urlparse
 import psutil
 import requests
 from filelock import FileLock
+from platform_tools import REPO, executable, java, keycloak, workswarm
 
-REPO = Path(__file__).resolve().parents[3]
-JAVA = Path(os.environ.get("JAVA_HOME", "D:/Software/Java/jdk-21.0.12")) / "bin/java.exe"
-SOLUTION = REPO / ".local/sources/agent-solution/common/agent-bus"
+SOLUTION = Path(os.environ.get("SOLUTION_SOURCE", str(REPO / ".local/sources/agent-solution"))) / "common/agent-bus"
 ROLES = {"report-extractor": 8093, "business-analyst": 8094,
          "asset-quality-analyst": 8096, "report-writer": 8097}
 
@@ -72,13 +71,20 @@ def command(name: str, root: Path, env: dict[str, str]) -> tuple[list[str], str]
             save(admin_path, {"user": "demo-admin", "password": secrets.token_urlsafe(32)})
         admin = json.loads(admin_path.read_text(encoding="utf-8"))
         env.update(KC_BOOTSTRAP_ADMIN_USERNAME=admin["user"], KC_BOOTSTRAP_ADMIN_PASSWORD=admin["password"],
-                   JAVA_HOME=str(JAVA.parent.parent), JAVA_OPTS_KC_HEAP="-Xms64m -Xmx256m")
-        kc = REPO / ".local/tools/keycloak-26.8.2/bin/kc.bat"
-        return ["cmd.exe", "/d", "/c", str(kc), "start-dev", "--http-host=127.0.0.1", "--http-port=8180"], "http://127.0.0.1:8180/realms/master/.well-known/openid-configuration"
+                   JAVA_HOME=str(java().parent.parent), JAVA_OPTS_KC_HEAP="-Xms64m -Xmx256m")
+        kc = keycloak() / "bin" / ("kc.bat" if os.name == "nt" else "kc.sh")
+        launcher = ["cmd.exe", "/d", "/c", str(kc)] if os.name == "nt" else [str(kc)]
+        return launcher + ["start-dev", "--http-host=127.0.0.1", "--http-port=8180"], "http://127.0.0.1:8180/realms/master/.well-known/openid-configuration"
     if name.startswith("workswarm-"):
-        source = Path(env.get("WORKSWARM_SOURCE", "D:/Code/openJiuwen/jiuwenswarm"))
+        source = workswarm()
         env.update(PYTHONPATH=str(source), JIUWENSWARM_DATA_DIR=str(root / "workswarm-home"),
                    AGENT_SERVER_HOST="127.0.0.1", AGENT_SERVER_PORT="18092", WEB_HOST="127.0.0.1", WEB_PORT="19000")
+        model_keys=("DEMO_MODEL_API_KEY", "DEMO_MODEL_BASE_URL", "DEMO_MODEL_NAME")
+        if all(env.get(key) for key in model_keys):
+            # Web/Gateway also resolve the public model catalog from these
+            # placeholders. AgentServer-only aliases leave a fresh UI unconfigured.
+            env.update(API_KEY=env["DEMO_MODEL_API_KEY"], API_BASE=env["DEMO_MODEL_BASE_URL"], MODEL_NAME=env["DEMO_MODEL_NAME"],
+                       MODEL_PROVIDER="OpenAI", ENDPOINT_PROFILE=env.get("DEMO_MODEL_ENDPOINT_PROFILE","deepseek"))
         if name == "workswarm-agentserver":
             if os.name=="nt":
                 bootstrap=REPO/'demos/report-demo/workswarm/bootstrap'
@@ -86,20 +92,18 @@ def command(name: str, root: Path, env: dict[str, str]) -> tuple[list[str], str]
             for key in ("DEMO_MODEL_API_KEY", "DEMO_MODEL_BASE_URL", "DEMO_MODEL_NAME"):
                 if not env.get(key):
                     raise SystemExit(key + " must be set in the launching process")
-            env.update(API_KEY=env["DEMO_MODEL_API_KEY"], API_BASE=env["DEMO_MODEL_BASE_URL"], MODEL_NAME=env["DEMO_MODEL_NAME"],
-                       MODEL_PROVIDER="OpenAI", ENDPOINT_PROFILE="deepseek")
             return [sys.executable, "-m", "jiuwenswarm.server.app_agentserver", "--port", "18092"], "http://127.0.0.1:18092/"
         if name == "workswarm-gateway":
             return [sys.executable, "-m", "agent_gateway.app_gateway", "--host", "127.0.0.1", "--port", "19000"], "http://127.0.0.1:19000/"
         if name == "workswarm-web":
             return [sys.executable, "-m", "jiuwenswarm.channels.web.app_web", "--host", "127.0.0.1", "--port", "5173", "--dist", str(source / "jiuwenswarm/channels/web/frontend/dist")], "http://127.0.0.1:5173/"
     if name == "control":
-        return [str(root / "bin/report-control.exe")], "http://127.0.0.1:8091/healthz"
+        return [str(root / "bin" / executable("report-control"))], "http://127.0.0.1:8091/healthz"
     if name == "compiler":
-        return [str(JAVA), "-Xms64m", "-Xmx384m", "-jar", str(REPO / "demos/report-demo/orchestrator-java/target/report-orchestrator.jar")], "http://127.0.0.1:8195/healthz"
+        return [str(java()), "-Xms64m", "-Xmx384m", "-jar", str(REPO / "demos/report-demo/orchestrator-java/target/report-orchestrator.jar")], "http://127.0.0.1:8195/healthz"
     if name in ("rdc", "gateway"):
         jar = SOLUTION / ("registry-discovery-center/target/agent-rdc-0.1.3.jar" if name == "rdc" else "agent-gateway/target/agent-gateway-0.1.3.jar")
-        return [str(JAVA), "-Xms64m", "-Xmx256m", "-jar", str(jar), "--spring.config.additional-location=file:" + (root / (name + ".properties")).as_posix()], ("http://127.0.0.1:8092/v2/agents" if name == "rdc" else "http://127.0.0.1:8080/.well-known/agent-card.json")
+        return [str(java()), "-Xms64m", "-Xmx256m", "-jar", str(jar), "--spring.config.additional-location=" + (root / (name + ".properties")).as_uri()], ("http://127.0.0.1:8092/v2/agents" if name == "rdc" else "http://127.0.0.1:8080/.well-known/agent-card.json")
     if name in ROLES:
         for key in ("DEMO_MODEL_API_KEY", "DEMO_MODEL_BASE_URL", "DEMO_MODEL_NAME"):
             if not env.get(key):
@@ -111,7 +115,7 @@ def command(name: str, root: Path, env: dict[str, str]) -> tuple[list[str], str]
         port = ROLES[name]
         env.update(REPORT_EXPERT_CONFIG=str(root / "experts" / (name + ".json")),
                    REPORT_AGENT_ID=name, REPORT_EXPERT_PORT=str(port), REPORT_AGENT_PUBLIC_URL=f"http://127.0.0.1:{port}/a2a")
-        return [str(JAVA), "-Xms64m", "-Xmx384m", "-jar", str(REPO / "demos/report-demo/experts-java/target/report-experts.jar")], f"http://127.0.0.1:{port}/.well-known/agent-card.json"
+        return [str(java()), "-Xms64m", "-Xmx384m", "-jar", str(REPO / "demos/report-demo/experts-java/target/report-experts.jar")], f"http://127.0.0.1:{port}/.well-known/agent-card.json"
     if name == "registry-heartbeat":
         return [sys.executable, str(Path(__file__).with_name("configure_bus.py")), "--private-root", str(root), "--heartbeat"], "http://127.0.0.1:8092/v2/agents"
     raise SystemExit("Unknown service: " + name)
@@ -136,7 +140,7 @@ def manage(args,root: Path) -> None:
     if args.action=="adopt-keycloak":
         if not args.pid:raise SystemExit("Explicit --pid required")
         process=psutil.Process(args.pid)
-        marker=str(REPO / ".local/tools/keycloak-26.8.2").replace("\\","/").lower()
+        marker=str(keycloak()).replace("\\","/").lower()
         cmd=" ".join(process.cmdline()).replace("\\","/").lower()
         listening=any(c.status==psutil.CONN_LISTEN and c.laddr.port==8180 for c in process.net_connections(kind="tcp"))
         if marker not in cmd or not listening:raise SystemExit("PID is not this workspace's Keycloak listener")
@@ -186,6 +190,7 @@ def manage(args,root: Path) -> None:
             (root / "logs").mkdir(exist_ok=True)
             with (root / "logs" / (name + ".out.log")).open("ab") as out, (root / "logs" / (name + ".err.log")).open("ab") as err:
                 child = subprocess.Popen(cmd, cwd=REPO, env=env, stdout=out, stderr=err,
+                                         start_new_session=os.name != "nt",
                                          creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
             state[name] = {"pid": child.pid, "created": psutil.Process(child.pid).create_time(), "health": health}
             save(records, state)

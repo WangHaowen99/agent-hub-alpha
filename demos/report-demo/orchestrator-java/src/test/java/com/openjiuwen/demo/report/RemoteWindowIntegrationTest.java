@@ -265,6 +265,29 @@ class RemoteWindowIntegrationTest {
         }
     }
 
+    @Test void typedGatewayFailuresReachAuthoritativeStateWithoutBlindResend() throws Exception {
+        for (var entry : Map.of("AUTH_EXPIRED", "WAITING_AUTH", "CALLER_NOT_AUTHORIZED", "BLOCKED",
+                "RDC_UNAVAILABLE", "WAITING_REMOTE").entrySet()) {
+            try (var h = new Harness(temp.resolve("governance-" + entry.getKey()))) {
+                h.governanceCode = entry.getKey();
+                var failure = assertThrows(ControlClient.ControlFailure.class, h::execute);
+                assertEquals(entry.getKey(), failure.code);
+                assertEquals(entry.getValue(), h.task().path("status").asText());
+                assertEquals(entry.getKey(), h.task().path("nodes").path(h.node).path("reason").asText());
+                assertEquals(1, h.sends.get());
+                assertTrue(h.calls().getFirst().path("remote_task_id").asText().isBlank());
+                var observations = h.control.get("/v1/calls/" + h.calls().getFirst().path("call_id").asText() + "/observations");
+                assertTrue(observations.toString().contains(entry.getKey()));
+                assertFalse(observations.toString().contains("private fixture diagnostic"));
+                assertFalse(h.task().path("nodes").path(h.node).hasNonNull("result"));
+                assertThrows(ControlClient.ControlFailure.class, h::execute);
+                assertEquals(1, h.sends.get(), "a classified failure must not authorize a second SendMessage");
+                h.saveEvidence("governance-" + entry.getKey().toLowerCase(),
+                        Map.of("code", entry.getKey(), "task_status", entry.getValue(), "send_requests", 1, "no_blind_resend", true));
+            }
+        }
+    }
+
     static final class Harness implements AutoCloseable {
         final Path directory;
         final HttpClient http=HttpClient.newBuilder().cookieHandler(new CookieManager()).connectTimeout(Duration.ofSeconds(3)).build();
@@ -284,6 +307,7 @@ class RemoteWindowIntegrationTest {
         String epoch,csrf,context;
         volatile boolean dropSendReply,taskMissing;
         volatile String blockDiscoveryAgent;
+        volatile String governanceCode;
 
         Harness(Path directory) throws Exception {this(directory,true);}
         Harness(Path directory,boolean claimInitial) throws Exception {
@@ -335,6 +359,13 @@ class RemoteWindowIntegrationTest {
                             sends.incrementAndGet();context=rpc.path("params").path("message").path("contextId").asText();
                             if(dropSendReply) {exchange.close();return;}
                         } else {gets.incrementAndGet();}
+                        if (governanceCode != null) {
+                            byte[] rejected = Json.write(Map.of("code", governanceCode, "message", "private fixture diagnostic")).getBytes(StandardCharsets.UTF_8);
+                            exchange.getResponseHeaders().set("Content-Type", "application/json");
+                            exchange.sendResponseHeaders(governanceCode.equals("RDC_UNAVAILABLE") ? 503 : 403, rejected.length);
+                            exchange.getResponseBody().write(rejected);
+                            return;
+                        }
                         body=!send&&taskMissing?Map.of("jsonrpc","2.0","id",rpc.path("id").asText(),"error",Map.of("code",-32001,"message","fixture task lost")):
                             Map.of("jsonrpc","2.0","id",rpc.path("id").asText(),"result",Map.of("task",Map.of("id","fixture-remote-task","contextId",context,"status",Map.of("state","TASK_STATE_"+state.get()))));
                     }

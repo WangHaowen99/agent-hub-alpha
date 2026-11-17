@@ -9,10 +9,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /** Narrow W05-style A2A adapter. No local expert fallback and no ambiguous resend. */
 final class RemoteExpertExecutor {
+    private static final Set<String> GOVERNANCE_CODES = Set.of("AUTH_MISSING", "AUTH_INVALID", "AUTH_EXPIRED",
+            "AUTH_DISABLED", "CALLER_NOT_AUTHORIZED", "SCOPE_VIOLATION", "TENANT_SCOPE_VIOLATION",
+            "IAM_UNAVAILABLE", "RDC_UNAVAILABLE", "AUDIT_UNAVAILABLE");
     private final ControlClient control;
     private final JsonNode bus;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
@@ -173,16 +177,28 @@ final class RemoteExpertExecutor {
             try {JsonNode snapshot=taskResult(value);if(snapshot.path("contextId").asText().equals(call.path("context_id").asText())){remoteID=snapshot.path("id").asText();}}catch(ControlClient.ControlFailure ignored) { }
             // A receipt is not a business state transition. Save a validated
             // task association before later polling/parsing can fail; no headers.
+            boolean failed = response.statusCode() != 200 || value.has("error");
+            Object safeResponse = failed ? Map.of("code", remoteErrorCode(response.statusCode(), value)) : value;
             control.post("/v1/calls/"+call.path("call_id").asText()+"/observations",Map.of("event_id",UUID.randomUUID().toString(),"state","TRANSPORT",
                     "remote_task_id",remoteID,"context_id",call.path("context_id").asText(),
-                    "payload",Map.of("method",method,"http_status",response.statusCode(),"response",value)));
-            if (response.statusCode() != 200) {
-                throw new ControlClient.ControlFailure(response.statusCode() == 401 || response.statusCode() == 403
-                        ? "AUTH_REQUIRED" : "REMOTE_UNKNOWN", response.statusCode());
+                    "payload",Map.of("method",method,"http_status",response.statusCode(),"response",safeResponse)));
+            if (failed) {
+                throw new ControlClient.ControlFailure(remoteErrorCode(response.statusCode(), value), response.statusCode());
             }
             return taskResult(value);
         } catch (ControlClient.ControlFailure e) { throw e; }
         catch (Exception e) { throw new ControlClient.ControlFailure("REMOTE_UNKNOWN", 503); }
+    }
+
+    /** Preserve only known machine codes; never expose remote free text or turn a failure into success. */
+    static String remoteErrorCode(int status, JsonNode response) {
+        String code = response.path("code").asText();
+        if (code.isBlank()) { code = response.path("error").path("code").asText(); }
+        if (code.isBlank() || !GOVERNANCE_CODES.contains(code)) {
+            code = response.path("error").path("data").path("code").asText();
+        }
+        if (GOVERNANCE_CODES.contains(code)) { return code; }
+        return status == 401 || status == 403 ? "AUTH_REQUIRED" : "REMOTE_UNKNOWN";
     }
 
     static String normalizeState(String state) {
