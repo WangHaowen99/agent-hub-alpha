@@ -1,0 +1,471 @@
+{
+ "scenario": "rc",
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "operator": "WangHaowen99 (plugin, scripted)",
+ "started_at": 1794988748.1014924,
+ "init_ok": true,
+ "run": "R11",
+ "status_before_fault": "waiting",
+ "before": {
+  "intake": {
+   "request_id": "b2f7772854af16481e3fc0b8",
+   "remote_task_id": "6755820e-834b-4867-b400-47b3a190bed3",
+   "artifact_id": null,
+   "artifact_digest": null,
+   "model_events": {
+    "1889c315-f031-430c-af62-bfb973d3dc34": "2026-11-18T07:59:20Z"
+   },
+   "context_id": "ctx-f87ca2acb03f200713328821",
+   "status": "unknown"
+  }
+ },
+ "injected_at": 1794988769.7874088,
+ "during_fault_samples": [
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  },
+  {
+   "run_status": "waiting",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：状态保存失败，未接受恢复；请联系维护人员。请先查看原任务最新状态，勿连续重试。"
+   }
+  }
+ ],
+ "healthz_during_fault": {
+  "at": 1794988778.359363,
+  "http": 503,
+  "body": "durable state unavailable; restore storage and restart\n"
+ },
+ "restore_at": 1794988778.359468,
+ "credit_healthy_again": true,
+ "status_after_restore": "waiting",
+ "after_restore_samples": [
+  {
+   "run_status": "queued",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 排队中 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 待核对 使用 get_application 核对本案件申请材料"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 1/7 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 1/7 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 1/7 C006 · P11 v1",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 4/7 正在：关联方排查",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+     "related:黑盒 · Loop Forest 分叉 0 等待分叉",
+     "related/host:关联方排查 逐家核对本案件关联方证据 拆分子目标"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 4/7 正在：关联方排查",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+     "related:黑盒 · Loop Forest 分叉 0 等待分叉",
+     "related/host:关联方排查 逐家核对本案件关联方证据 读关联方名单 · C006"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "running",
+   "dom": {
+    "head": "Agent Bus rc-plugin 验证 1794988759，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 4/7 正在：关联方排查",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+     "related:黑盒 · Loop Forest 分叉 0 等待分叉",
+     "related/host:关联方排查 逐家核对本案件关联方证据 读关联方名单 · C006"
+    ],
+    "err": null,
+    "notice": "R11：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  }
+ ],
+ "final_status": "done",
+ "kept_request_and_task": true,
+ "send_counts": {
+  "b2f7772854af16481e3fc0b8": 1,
+  "8b7bf7efc485d75f10b2f4af": 1,
+  "c9c23012f98d9ce1e74d3729": 1,
+  "e108f6f52869fe695890c9c7": 1,
+  "a3257c82f52b3f10a10f16e0": 1
+ },
+ "transport_events": [
+  {
+   "at": 1794988759.998893,
+   "method": "SendMessage",
+   "id": "b2f7772854af16481e3fc0b8",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988761.059726,
+   "method": "GetTask",
+   "id": "ab554c85-a642-4d48-a964-ff2f94ac0430",
+   "task_id": "6755820e-834b-4867-b400-47b3a190bed3",
+   "status": 503,
+   "fault": "drop-query-once"
+  },
+  {
+   "at": 1794988801.6386228,
+   "method": "GetTask",
+   "id": "faeffd09-42c5-4e8f-9417-445beeec51d9",
+   "task_id": "6755820e-834b-4867-b400-47b3a190bed3",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988801.7102716,
+   "method": "SendMessage",
+   "id": "8b7bf7efc485d75f10b2f4af",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988801.7362618,
+   "method": "SendMessage",
+   "id": "c9c23012f98d9ce1e74d3729",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988801.759712,
+   "method": "SendMessage",
+   "id": "e108f6f52869fe695890c9c7",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988802.7665868,
+   "method": "GetTask",
+   "id": "45c5f636-8e6c-4885-90c6-1f8f0c831c10",
+   "task_id": "a35ddf57-7588-4ea1-afd5-95d55d2745e0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988802.8156624,
+   "method": "GetTask",
+   "id": "4156725a-0ccf-44d1-b5be-27fd03879eb8",
+   "task_id": "9ea8e187-9dc6-4f56-862b-3f7a317f9053",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988802.8468585,
+   "method": "GetTask",
+   "id": "12ee9f80-f73d-4932-890d-a56f018d4cbe",
+   "task_id": "f83e771d-d472-40a4-a059-8ad90ff2a30b",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988803.7328672,
+   "method": "GetTask",
+   "id": "e0f5ba42-0e0b-46a5-b221-85cbc3df6d65",
+   "task_id": "a35ddf57-7588-4ea1-afd5-95d55d2745e0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988803.774304,
+   "method": "GetTask",
+   "id": "f2d50d59-3581-4966-a202-4041f8e209ef",
+   "task_id": "9ea8e187-9dc6-4f56-862b-3f7a317f9053",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988803.796125,
+   "method": "GetTask",
+   "id": "7b5e3ec4-4d32-4990-b44b-392df12eed80",
+   "task_id": "f83e771d-d472-40a4-a059-8ad90ff2a30b",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988804.7862437,
+   "method": "GetTask",
+   "id": "bfd52ff7-d0da-4b29-86ad-d396cbcd2796",
+   "task_id": "a35ddf57-7588-4ea1-afd5-95d55d2745e0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988804.8257594,
+   "method": "GetTask",
+   "id": "506ca2a6-1613-4b79-bae8-6efb55af62ab",
+   "task_id": "9ea8e187-9dc6-4f56-862b-3f7a317f9053",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988804.836723,
+   "method": "GetTask",
+   "id": "3c4483cd-5bf8-4d88-b5f1-259d619a39ec",
+   "task_id": "f83e771d-d472-40a4-a059-8ad90ff2a30b",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988805.8701744,
+   "method": "GetTask",
+   "id": "682905c1-99b3-4bd3-9192-94909992471d",
+   "task_id": "a35ddf57-7588-4ea1-afd5-95d55d2745e0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988828.2035506,
+   "method": "SendMessage",
+   "id": "a3257c82f52b3f10a10f16e0",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988829.237571,
+   "method": "GetTask",
+   "id": "0bdca16e-90c9-4b6e-b441-18a63036251f",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988830.2664523,
+   "method": "GetTask",
+   "id": "8e483cf9-fc48-4caa-b8b7-42df3fdf0054",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988831.2950907,
+   "method": "GetTask",
+   "id": "f9f44f26-2f78-4215-8545-2ea4131d3961",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988832.3178236,
+   "method": "GetTask",
+   "id": "6bc13afe-69ce-4ea5-892f-04c7534ea1d4",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988833.263974,
+   "method": "GetTask",
+   "id": "3a8fc801-3d9a-44af-abdf-940b2f4b952d",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988834.2874088,
+   "method": "GetTask",
+   "id": "20ee4222-7a48-46fc-9178-4402b545d69b",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988835.3097193,
+   "method": "GetTask",
+   "id": "29dd7da7-e34a-4177-9992-32192150e061",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988836.3350852,
+   "method": "GetTask",
+   "id": "b5accac8-be64-43fc-be79-49a465c13e81",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988837.3602805,
+   "method": "GetTask",
+   "id": "73817f9e-2b1a-4c54-a536-553a673ee7da",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988838.386758,
+   "method": "GetTask",
+   "id": "34da15fd-5d97-4268-b5b2-e971cc56966c",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988839.4100819,
+   "method": "GetTask",
+   "id": "f4ae6a28-6885-4e5a-8aab-10668c9c5546",
+   "task_id": "e25b5ce2-5b7e-4302-b85d-fe55d0eb9338",
+   "status": 200,
+   "fault": "pass"
+  }
+ ],
+ "finished_at": 1794988839.7665634
+}

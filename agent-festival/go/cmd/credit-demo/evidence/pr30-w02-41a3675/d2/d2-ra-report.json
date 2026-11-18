@@ -1,0 +1,461 @@
+{
+ "scenario": "ra-report",
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "operator": "WangHaowen99 (plugin, scripted)",
+ "started_at": 1794988555.1824546,
+ "init_ok": true,
+ "run": "R8",
+ "status_before_resume": "waiting",
+ "dom_at_waiting": {
+  "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P8 v1",
+  "nodes": [
+   "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+   "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+   "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+   "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+   "related:黑盒 · Loop Forest 分叉 3",
+   "related/host:关联方排查 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C006】",
+   "related/b0:王氏汽配贸易 无逾期",
+   "related/b1:顺达物流 对外担保 1 笔",
+   "related/b2:宏图机械配件厂 近一年逾期 1 次",
+   "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+   "report:报告撰写人 总线 待核对 汇总已提供的结论和证据，缺失内容明确说明 远端结果待核"
+  ],
+  "err": null,
+  "notice": null
+ },
+ "steps_at_waiting": {
+  "bureau": "done",
+  "financial": "done",
+  "industry": "done",
+  "intake": "done",
+  "judge": "done",
+  "related": "done",
+  "report": "unknown"
+ },
+ "after_resume_samples": [
+  {
+   "run_status": "queued",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 排队中 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C006】",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 待核对 汇总已提供的结论和证据，缺失内容明确说明 远端结果待核"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 排队中 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+     "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+     "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+     "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C006】",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 待核对 汇总已提供的结论和证据，缺失内容明确说明 远端结果待核"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 已完成 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  },
+  {
+   "run_status": "done",
+   "dom": {
+    "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+    "nodes": [
+     "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+     "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+     "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+     "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+     "related:黑盒 · Loop Forest 分叉 3",
+     "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+     "related/b0:王氏汽配贸易 无逾期",
+     "related/b1:顺达物流 对外担保 1 笔",
+     "related/b2:宏图机械配件厂 近一年逾期 1 次",
+     "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+     "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+    ],
+    "err": null,
+    "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+   }
+  }
+ ],
+ "dom_final": {
+  "head": "Agent Bus ra-report 验证 1794988567，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 6 步 验证通过 8/8 C006 · P8 v1",
+  "nodes": [
+   "intake:材料受理 总线 复用 使用 get_application 核对本案件申请材料 ",
+   "financial:财务分析师 总线 复用 使用 get_financials 分析本案件财务数据，",
+   "industry:行业研究员 总线 复用 使用 get_industry_report 分析本案件",
+   "bureau:征信摘要查询员 总线 复用 使用 query_bureau_summary 核对",
+   "related:黑盒 · Loop Forest 分叉 3",
+   "related/host:关联方排查 复用 逐家核对本案件关联方证据 【关联方风险汇总报告｜案件号：C00",
+   "related/b0:王氏汽配贸易 无逾期",
+   "related/b1:顺达物流 对外担保 1 笔",
+   "related/b2:宏图机械配件厂 近一年逾期 1 次",
+   "judge:风险判断 复用 按原型规约判断并引用上游步骤 同意 50,000",
+   "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告（模拟）"
+  ],
+  "err": null,
+  "notice": "R8：恢复请求已接受，正在核对原任务；这不表示任务已完成。"
+ },
+ "w05_evidence": {
+  "variant": "unknown-at-report",
+  "armed": {
+   "armed": true,
+   "at": 1794988597.877071,
+   "done_remote": [
+    "intake",
+    "financial",
+    "industry",
+    "bureau"
+   ]
+  },
+  "status_before_resume": "waiting",
+  "completed_before": [
+   "bureau",
+   "financial",
+   "industry",
+   "intake"
+  ],
+  "unknown_before": [
+   "report"
+  ],
+  "resumes": [
+   {
+    "label": "resume",
+    "at": 1794988611.7033994,
+    "http": null,
+    "body": "resumed externally"
+   }
+  ],
+  "checks": {
+   "armed_after_two_completed": true,
+   "was_waiting_with_unknown": true,
+   "completed_before": [
+    "bureau",
+    "financial",
+    "industry",
+    "intake"
+   ],
+   "completed_nodes_unchanged": true,
+   "others_kept_request_and_task": true,
+   "one_send_per_request": true,
+   "send_counts": {
+    "583fa1d685f30e8503a1f76e": 1,
+    "7d75fcd79cc80b859b2f449a": 1,
+    "f08b622175e30b7072536291": 1,
+    "2a7296219330c06a3ec4c4bc": 1,
+    "5e37c7dc96d9cf0248917cb1": 1
+   },
+   "final_status": "done"
+  },
+  "transport_events": [
+   {
+    "at": 1794988567.7611003,
+    "method": "SendMessage",
+    "id": "583fa1d685f30e8503a1f76e",
+    "task_id": null,
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988568.852999,
+    "method": "GetTask",
+    "id": "21a115c8-cb03-4e67-9bb8-b2f84579bfab",
+    "task_id": "937c3103-6dee-4d1c-ba03-64f945287e01",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988569.898058,
+    "method": "GetTask",
+    "id": "a33d4467-9b21-4257-a132-24a2fdbf13a2",
+    "task_id": "937c3103-6dee-4d1c-ba03-64f945287e01",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988570.9451916,
+    "method": "GetTask",
+    "id": "f0dfeca9-6225-4666-9576-74bddfc3d743",
+    "task_id": "937c3103-6dee-4d1c-ba03-64f945287e01",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988571.9926534,
+    "method": "GetTask",
+    "id": "bb25c655-3a6f-43bf-8651-8da909e31622",
+    "task_id": "937c3103-6dee-4d1c-ba03-64f945287e01",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988572.138357,
+    "method": "SendMessage",
+    "id": "7d75fcd79cc80b859b2f449a",
+    "task_id": null,
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988572.1747375,
+    "method": "SendMessage",
+    "id": "f08b622175e30b7072536291",
+    "task_id": null,
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988572.2258298,
+    "method": "SendMessage",
+    "id": "2a7296219330c06a3ec4c4bc",
+    "task_id": null,
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988573.258615,
+    "method": "GetTask",
+    "id": "4ad46cdc-ea6a-4ff7-a5b7-cdf3c71c990f",
+    "task_id": "c4c786a9-2356-48b1-8650-68394db815c9",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988573.3276732,
+    "method": "GetTask",
+    "id": "952ad9d0-f2cd-47fd-acb5-fb07c65b7f15",
+    "task_id": "1eef11dc-5bf3-4b4b-b01c-558075ba915f",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988573.3778906,
+    "method": "GetTask",
+    "id": "c0f0d658-f90c-4141-ad95-e82136f75a01",
+    "task_id": "aa64d64d-8235-4b24-ad8c-081cf84edf45",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988574.3029232,
+    "method": "GetTask",
+    "id": "f89c10e9-aeb7-4a55-9c07-1b153a18bd48",
+    "task_id": "c4c786a9-2356-48b1-8650-68394db815c9",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988574.3881943,
+    "method": "GetTask",
+    "id": "628b43d0-355d-48e7-b190-8c70787d8ad9",
+    "task_id": "1eef11dc-5bf3-4b4b-b01c-558075ba915f",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988574.4341896,
+    "method": "GetTask",
+    "id": "40ce180e-a323-4791-97b2-6c4b4f7af83e",
+    "task_id": "aa64d64d-8235-4b24-ad8c-081cf84edf45",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988575.3530025,
+    "method": "GetTask",
+    "id": "f324c200-3b36-43e2-ad3c-dc9167081ba5",
+    "task_id": "c4c786a9-2356-48b1-8650-68394db815c9",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988575.4819047,
+    "method": "GetTask",
+    "id": "ea185bea-5160-4263-8519-6797fd0f74a7",
+    "task_id": "1eef11dc-5bf3-4b4b-b01c-558075ba915f",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988575.513116,
+    "method": "GetTask",
+    "id": "552d0d9b-c3bf-4bde-a74f-f3ac3f388979",
+    "task_id": "aa64d64d-8235-4b24-ad8c-081cf84edf45",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988576.5170014,
+    "method": "GetTask",
+    "id": "94ffbb60-606a-4591-a7c5-086fce2e30ba",
+    "task_id": "1eef11dc-5bf3-4b4b-b01c-558075ba915f",
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988598.8736413,
+    "method": "SendMessage",
+    "id": "5e37c7dc96d9cf0248917cb1",
+    "task_id": null,
+    "status": 200,
+    "fault": "pass"
+   },
+   {
+    "at": 1794988599.9313612,
+    "method": "GetTask",
+    "id": "820e6f7b-bc35-4b62-89d3-9bff31449387",
+    "task_id": "03a39e72-a7d3-43ca-add1-bd4ed3055016",
+    "status": 503,
+    "fault": "drop-query-once"
+   },
+   {
+    "at": 1794988611.2825537,
+    "method": "GetTask",
+    "id": "06c62863-8fd5-479e-aab5-f934f40a42e0",
+    "task_id": "03a39e72-a7d3-43ca-add1-bd4ed3055016",
+    "status": 200,
+    "fault": "pass"
+   }
+  ],
+  "error": null
+ },
+ "final_run": {
+  "status": "done",
+  "final": null,
+  "steps": {
+   "bureau": "done",
+   "financial": "done",
+   "industry": "done",
+   "intake": "done",
+   "judge": "done",
+   "related": "done",
+   "report": "done"
+  }
+ },
+ "finished_at": 1794988622.3018644
+}

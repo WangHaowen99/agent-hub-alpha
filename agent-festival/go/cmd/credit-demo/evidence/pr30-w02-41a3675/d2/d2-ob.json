@@ -1,0 +1,550 @@
+{
+ "scenario": "ob",
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "operator": "WangHaowen99 (plugin, scripted)",
+ "started_at": 1794988504.7634413,
+ "init_ok": true,
+ "run": "R7",
+ "held": {
+  "id": "cw_mwlttncc_10",
+  "rev": 507,
+  "run_status": "running",
+  "nodes": [
+   "intake:done",
+   "financial:waiting",
+   "industry:done",
+   "bureau:done",
+   "related:running",
+   "judge:pending",
+   "report:pending"
+  ],
+  "sentAt": 13559.70000000298,
+  "recvAt": 13567.90000000596,
+  "deliveredAt": 38572.40000000596,
+  "domBefore": {
+   "head": "Agent Bus ob 验证 1794988515，仅生成模拟授信报告，不提交银行操作 已完成 C006 · P7 v1",
+   "nodes": [
+    "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+    "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+    "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+    "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+    "related:黑盒 · Loop Forest 分叉 3",
+    "related/host:关联方排查 逐家核对本案件关联方证据 关联方风险汇总：",
+    "related/b0:宏图机械配件厂 近一年逾期 1 次",
+    "related/b1:顺达物流 对外担保 1 笔",
+    "related/b2:王氏汽配贸易 无逾期",
+    "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+    "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告"
+   ],
+   "err": null,
+   "notice": null
+  },
+  "domAfter": {
+   "head": "Agent Bus ob 验证 1794988515，仅生成模拟授信报告，不提交银行操作 已完成 C006 · P7 v1",
+   "nodes": [
+    "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+    "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+    "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+    "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+    "related:黑盒 · Loop Forest 分叉 3",
+    "related/host:关联方排查 逐家核对本案件关联方证据 关联方风险汇总：",
+    "related/b0:宏图机械配件厂 近一年逾期 1 次",
+    "related/b1:顺达物流 对外担保 1 笔",
+    "related/b2:王氏汽配贸易 无逾期",
+    "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+    "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 授信尽调报告"
+   ],
+   "err": null,
+   "notice": null
+  }
+ },
+ "held_age_at_delivery_ms": 25013,
+ "graph_replies": [
+  {
+   "id": "cw_mwlttcyy_2",
+   "rev": 465,
+   "run_status": "done",
+   "sentAt": 118.20000000298023,
+   "recvAt": 143,
+   "deliveredAt": 143,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttdx0_3",
+   "rev": 465,
+   "run_status": "done",
+   "sentAt": 1344.7000000029802,
+   "recvAt": 1360.1000000014901,
+   "deliveredAt": 1360.1000000014901,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttjji_5",
+   "rev": 490,
+   "run_status": "running",
+   "sentAt": 8634.60000000149,
+   "recvAt": 8647.60000000149,
+   "deliveredAt": 8647.60000000149,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttkh8_6",
+   "rev": 494,
+   "run_status": "running",
+   "sentAt": 9848.30000000447,
+   "recvAt": 9910.20000000298,
+   "deliveredAt": 9910.20000000298,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttlgb_8",
+   "rev": 502,
+   "run_status": "running",
+   "sentAt": 11110.70000000298,
+   "recvAt": 11147.10000000149,
+   "deliveredAt": 11147.10000000149,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttmeo_9",
+   "rev": 506,
+   "run_status": "running",
+   "sentAt": 12347.70000000298,
+   "recvAt": 12359,
+   "deliveredAt": 12359,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwlttncc_10",
+   "rev": 507,
+   "run_status": "running",
+   "sentAt": 13559.70000000298,
+   "recvAt": 13567.90000000596,
+   "deliveredAt": 38572.40000000596,
+   "heldMs": 25000,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwltu3fo_15",
+   "rev": 529,
+   "run_status": "running",
+   "sentAt": 34762,
+   "recvAt": 34769.10000000149,
+   "deliveredAt": 34769.10000000149,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwltu4d7_17",
+   "rev": 530,
+   "run_status": "running",
+   "sentAt": 35969.70000000298,
+   "recvAt": 35982.30000000447,
+   "deliveredAt": 35982.30000000447,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwltu5aw_18",
+   "rev": 531,
+   "run_status": "running",
+   "sentAt": 37182.80000000447,
+   "recvAt": 37192.70000000298,
+   "deliveredAt": 37192.70000000298,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwltu68j_19",
+   "rev": 534,
+   "run_status": "done",
+   "sentAt": 38393.20000000298,
+   "recvAt": 38403.40000000596,
+   "deliveredAt": 38403.40000000596,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  },
+  {
+   "id": "cw_mwltu766_20",
+   "rev": 534,
+   "run_status": "done",
+   "sentAt": 39604.5,
+   "recvAt": 39622.80000000447,
+   "deliveredAt": 39622.80000000447,
+   "heldMs": null,
+   "ok": true,
+   "code": null
+  }
+ ],
+ "graph_requests": [
+  {
+   "id": "cw_mwlttcyy_2",
+   "method": "plugin.credit_workbench.graph",
+   "at": 118.20000000298023
+  },
+  {
+   "id": "cw_mwlttdx0_3",
+   "method": "plugin.credit_workbench.graph",
+   "at": 1344.7000000029802
+  },
+  {
+   "id": "cw_mwlttjji_5",
+   "method": "plugin.credit_workbench.graph",
+   "at": 8634.60000000149
+  },
+  {
+   "id": "cw_mwlttkh8_6",
+   "method": "plugin.credit_workbench.graph",
+   "at": 9848.40000000596
+  },
+  {
+   "id": "cw_mwlttlgb_8",
+   "method": "plugin.credit_workbench.graph",
+   "at": 11110.70000000298
+  },
+  {
+   "id": "cw_mwlttmeo_9",
+   "method": "plugin.credit_workbench.graph",
+   "at": 12347.70000000298
+  },
+  {
+   "id": "cw_mwlttncc_10",
+   "method": "plugin.credit_workbench.graph",
+   "at": 13559.70000000298
+  },
+  {
+   "id": "cw_mwltu3fo_15",
+   "method": "plugin.credit_workbench.graph",
+   "at": 34762
+  },
+  {
+   "id": "cw_mwltu4d7_17",
+   "method": "plugin.credit_workbench.graph",
+   "at": 35969.70000000298
+  },
+  {
+   "id": "cw_mwltu5aw_18",
+   "method": "plugin.credit_workbench.graph",
+   "at": 37182.80000000447
+  },
+  {
+   "id": "cw_mwltu68j_19",
+   "method": "plugin.credit_workbench.graph",
+   "at": 38393.20000000298
+  },
+  {
+   "id": "cw_mwltu766_20",
+   "method": "plugin.credit_workbench.graph",
+   "at": 39604.5
+  }
+ ],
+ "newer_delivered_before_held": [
+  {
+   "id": "cw_mwltu3fo_15",
+   "rev": 529
+  },
+  {
+   "id": "cw_mwltu4d7_17",
+   "rev": 530
+  },
+  {
+   "id": "cw_mwltu5aw_18",
+   "rev": 531
+  },
+  {
+   "id": "cw_mwltu68j_19",
+   "rev": 534
+  }
+ ],
+ "view_unchanged_by_held": true,
+ "requests_while_held": [
+  {
+   "id": "cw_mwltu3fo_15",
+   "method": "plugin.credit_workbench.graph",
+   "at": 34762
+  },
+  {
+   "id": "cw_mwltu4d7_17",
+   "method": "plugin.credit_workbench.graph",
+   "at": 35969.70000000298
+  },
+  {
+   "id": "cw_mwltu5aw_18",
+   "method": "plugin.credit_workbench.graph",
+   "at": 37182.80000000447
+  },
+  {
+   "id": "cw_mwltu68j_19",
+   "method": "plugin.credit_workbench.graph",
+   "at": 38393.20000000298
+  }
+ ],
+ "final_status": "done",
+ "send_counts": {
+  "7f9deb89cb3f6b0aa073701f": 1,
+  "fa9e1a20f3c40bec378e96d9": 1,
+  "14c7c8de8105431e5821a70d": 1,
+  "a85b986c99f3e475480f3b06": 1,
+  "b1af29633d301d2f46b04ac4": 1
+ },
+ "transport_events": [
+  {
+   "at": 1794988516.54755,
+   "method": "SendMessage",
+   "id": "7f9deb89cb3f6b0aa073701f",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988517.6044528,
+   "method": "GetTask",
+   "id": "b7c109cf-aff4-4a33-acd7-3fafc82d94ed",
+   "task_id": "1067d48f-d86a-4736-aa30-27e29df81414",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988518.6552632,
+   "method": "GetTask",
+   "id": "84643ecf-b37b-455d-b904-301b9ebe88da",
+   "task_id": "1067d48f-d86a-4736-aa30-27e29df81414",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988519.7045846,
+   "method": "GetTask",
+   "id": "7a0adfba-5986-48f7-a434-86dc9f31db0d",
+   "task_id": "1067d48f-d86a-4736-aa30-27e29df81414",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988520.7573214,
+   "method": "GetTask",
+   "id": "40351105-6199-4aa5-88dc-cda64b373293",
+   "task_id": "1067d48f-d86a-4736-aa30-27e29df81414",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988520.9166646,
+   "method": "SendMessage",
+   "id": "fa9e1a20f3c40bec378e96d9",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988520.9620614,
+   "method": "SendMessage",
+   "id": "14c7c8de8105431e5821a70d",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988521.0001156,
+   "method": "SendMessage",
+   "id": "a85b986c99f3e475480f3b06",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988522.0428283,
+   "method": "GetTask",
+   "id": "d7c6af5b-fde8-4fb7-a3b4-d867d4029856",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988522.1062133,
+   "method": "GetTask",
+   "id": "b9391f43-a4fa-4cfe-ab2f-4e9115497f6b",
+   "task_id": "476a4011-b70c-405d-ad04-d9e03d3370eb",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988522.1489158,
+   "method": "GetTask",
+   "id": "ec05167a-9b31-4f30-bd65-85f1b041c031",
+   "task_id": "0b593884-e7d5-49ec-b5a8-13a989350f04",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988523.0852668,
+   "method": "GetTask",
+   "id": "b1f30455-14ea-4d42-a018-5696bde76416",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988523.1581392,
+   "method": "GetTask",
+   "id": "832bdb6a-a87d-44ab-8bf2-b88bbc288e6b",
+   "task_id": "476a4011-b70c-405d-ad04-d9e03d3370eb",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988523.2031362,
+   "method": "GetTask",
+   "id": "59a17a2e-91ee-4606-bb48-a2dda9aece1d",
+   "task_id": "0b593884-e7d5-49ec-b5a8-13a989350f04",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988524.17202,
+   "method": "GetTask",
+   "id": "3a4ce35e-3d2f-4a9a-873b-c51a21fb41f3",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988524.2255967,
+   "method": "GetTask",
+   "id": "ad1d632d-40d9-4910-b683-c8cd867ab984",
+   "task_id": "476a4011-b70c-405d-ad04-d9e03d3370eb",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988524.2492561,
+   "method": "GetTask",
+   "id": "6f44e87e-8212-41e9-a263-91c538c762b1",
+   "task_id": "0b593884-e7d5-49ec-b5a8-13a989350f04",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988525.220884,
+   "method": "GetTask",
+   "id": "8f2707ed-63fe-4c54-b156-5cdb6bbbe4f3",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988526.2632782,
+   "method": "GetTask",
+   "id": "fa09d337-6da4-45e8-b25e-5eab013e63e8",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988527.3037035,
+   "method": "GetTask",
+   "id": "f82a119f-8b09-43ce-98f4-77b7f0eccb8e",
+   "task_id": "d97174fe-2403-49bf-b248-87b2a35373e1",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988539.0177155,
+   "method": "SendMessage",
+   "id": "b1af29633d301d2f46b04ac4",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988540.1222386,
+   "method": "GetTask",
+   "id": "5e817c05-9b67-41e1-819a-78a24d83c366",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988542.2342155,
+   "method": "GetTask",
+   "id": "bad0bced-aebc-4d6e-a18c-ee6c4ce9dd65",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988543.7713528,
+   "method": "GetTask",
+   "id": "0ecd496c-175a-4d8f-993e-20b9dc12aff2",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988544.842024,
+   "method": "GetTask",
+   "id": "6b43124e-e8d4-42e4-b2f7-3454266343f1",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988545.9016356,
+   "method": "GetTask",
+   "id": "0f406e7c-60c4-47cd-a2aa-592ee8c1a8df",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988546.9612646,
+   "method": "GetTask",
+   "id": "f7168ead-eedb-4d71-8a80-8a55567edee6",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988548.0074065,
+   "method": "GetTask",
+   "id": "f32d50ab-ae6b-44bf-8b35-04d135a266c0",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988549.0574448,
+   "method": "GetTask",
+   "id": "04d8c37e-06b1-444e-a80f-a3432074c19f",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988550.1088839,
+   "method": "GetTask",
+   "id": "7ee9ba15-5889-432d-a5f1-430726b36aae",
+   "task_id": "f454681e-6bba-44f6-b357-7e1bcfdf3450",
+   "status": 200,
+   "fault": "pass"
+  }
+ ],
+ "finished_at": 1794988554.8604767
+}

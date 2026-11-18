@@ -1,0 +1,328 @@
+{
+ "scenario": "rb",
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "operator": "WangHaowen99 (plugin, scripted)",
+ "started_at": 1794988687.5436356,
+ "init_ok": true,
+ "run": "R10",
+ "status_before_resume": "waiting",
+ "before": {
+  "intake": {
+   "request_id": "890c582510fb6d1f334a6dd3",
+   "remote_task_id": "dc0f0e0a-e563-4717-8f4f-0a55d9eadf64",
+   "artifact_id": null,
+   "artifact_digest": null,
+   "model_events": {
+    "1ab53c32-fca7-47a4-a5b6-bb7e6c9cf19e": "2026-11-18T07:58:21Z",
+    "68c136df-81c8-4110-806b-e11d1cc51668": "2026-11-18T07:58:19Z"
+   },
+   "context_id": "ctx-a347f9460b55ca8587074dce",
+   "status": "unknown"
+  }
+ },
+ "leases_before": 1,
+ "status_2s_after_submit": "running",
+ "dom_2s": {
+  "head": "Agent Bus rb-plugin 验证 1794988699，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 1/7 C006 · P10 v1",
+  "nodes": [
+   "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+   "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+   "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+   "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件"
+  ],
+  "err": null,
+  "notice": null
+ },
+ "dom_after_client_timeout": {
+  "head": "Agent Bus rb-plugin 验证 1794988699，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 4/7 正在：关联方排查",
+  "nodes": [
+   "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+   "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+   "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+   "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+   "related:黑盒 · Loop Forest 分叉 3",
+   "related/host:关联方排查 逐家核对本案件关联方证据 汇总分支结论",
+   "related/b0:王氏汽配贸易 无逾期",
+   "related/b1:顺达物流 对外担保 1 笔",
+   "related/b2:宏图机械配件厂 近一年逾期 1 次"
+  ],
+  "err": null,
+  "notice": "R10：请求超时。请先查看原任务最新状态，勿连续重试。"
+ },
+ "resume_rpc_sends": 1,
+ "resume_reply_dropped": [
+  {
+   "id": "cw_mwltxkfq_16",
+   "ok": true,
+   "code": null
+  }
+ ],
+ "dom_after_reopen": {
+  "head": "Agent Bus rb-plugin 验证 1794988699，仅生成模拟授信报告，不提交银行操作 执行器重启 · 复用 0 步 执行中 6/7 C006 · P10 v1",
+  "nodes": [
+   "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+   "financial:财务分析师 总线 使用 get_financials 分析本案件财务数据，明确资",
+   "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+   "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+   "related:黑盒 · Loop Forest 分叉 3",
+   "related/host:关联方排查 逐家核对本案件关联方证据 关联方风险汇总：",
+   "related/b0:王氏汽配贸易 无逾期",
+   "related/b1:顺达物流 对外担保 1 笔",
+   "related/b2:宏图机械配件厂 近一年逾期 1 次",
+   "judge:风险判断 按原型规约判断并引用上游步骤 同意 50,000",
+   "report:报告撰写人 总线 汇总已提供的结论和证据，缺失内容明确说明 专业 Agent 执"
+  ],
+  "err": null,
+  "notice": null
+ },
+ "second_resume": {
+  "ok": false,
+  "code": "REJECTED",
+  "error": "任务不存在或已不在等待状态，请刷新查看原任务"
+ },
+ "final_status": "done",
+ "leases_after": 2,
+ "kept_request_and_task": true,
+ "send_counts": {
+  "890c582510fb6d1f334a6dd3": 1,
+  "b13a9573134321f40c99375c": 1,
+  "b5234915f7a4003fd61b18b4": 1,
+  "87c2a7b518d74cb19dd636ad": 1,
+  "305d282cb32fdc6ab2f038a2": 1
+ },
+ "transport_events": [
+  {
+   "at": 1794988699.2753446,
+   "method": "SendMessage",
+   "id": "890c582510fb6d1f334a6dd3",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988700.3306942,
+   "method": "GetTask",
+   "id": "54591033-05c9-49a0-8b68-a60bdc350ab1",
+   "task_id": "dc0f0e0a-e563-4717-8f4f-0a55d9eadf64",
+   "status": 503,
+   "fault": "drop-query-once"
+  },
+  {
+   "at": 1794988709.9434693,
+   "method": "GetTask",
+   "id": "9ee307f0-348b-42ed-a22a-a6d6996f3e51",
+   "task_id": "dc0f0e0a-e563-4717-8f4f-0a55d9eadf64",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988710.049152,
+   "method": "SendMessage",
+   "id": "b13a9573134321f40c99375c",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988710.0771968,
+   "method": "SendMessage",
+   "id": "b5234915f7a4003fd61b18b4",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988710.1796281,
+   "method": "SendMessage",
+   "id": "87c2a7b518d74cb19dd636ad",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988711.1699288,
+   "method": "GetTask",
+   "id": "294dffcb-67ea-455a-848c-bc07161017dc",
+   "task_id": "def9d588-7973-44ca-863d-6680c4fc0359",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988711.2311032,
+   "method": "GetTask",
+   "id": "31669036-e163-4010-bdcf-affa1b158fac",
+   "task_id": "8509ccd4-7a3f-4f40-b31c-45c050ee23b0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988711.28958,
+   "method": "GetTask",
+   "id": "410d27ef-0595-419a-8956-6437716ac0a9",
+   "task_id": "9a0e75dd-587b-4d78-bb32-568b28ca6681",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988712.2236087,
+   "method": "GetTask",
+   "id": "8249f661-e557-4f3c-97fa-09e830971cb7",
+   "task_id": "def9d588-7973-44ca-863d-6680c4fc0359",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988712.2727823,
+   "method": "GetTask",
+   "id": "0763956c-e80d-4a81-9c88-a54f9e9abb33",
+   "task_id": "8509ccd4-7a3f-4f40-b31c-45c050ee23b0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988712.3478951,
+   "method": "GetTask",
+   "id": "bac64d6c-956e-461d-9c6b-7a9198506d8c",
+   "task_id": "9a0e75dd-587b-4d78-bb32-568b28ca6681",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988713.274759,
+   "method": "GetTask",
+   "id": "3be09032-626f-4403-bc98-f123fadb3d9e",
+   "task_id": "def9d588-7973-44ca-863d-6680c4fc0359",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988713.321587,
+   "method": "GetTask",
+   "id": "258f8637-5677-475a-a8b8-1bcf59fe32c5",
+   "task_id": "8509ccd4-7a3f-4f40-b31c-45c050ee23b0",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988713.3954842,
+   "method": "GetTask",
+   "id": "5779d29b-b37b-4e41-aa0b-d96402ef4ca9",
+   "task_id": "9a0e75dd-587b-4d78-bb32-568b28ca6681",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988714.1456373,
+   "method": "GetTask",
+   "id": "95536106-fd46-4575-beb2-86333390a770",
+   "task_id": "def9d588-7973-44ca-863d-6680c4fc0359",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988734.8123965,
+   "method": "SendMessage",
+   "id": "305d282cb32fdc6ab2f038a2",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988735.902438,
+   "method": "GetTask",
+   "id": "062717bb-51a5-4c3c-a9b3-997513e35932",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988736.94879,
+   "method": "GetTask",
+   "id": "dcb624e6-f060-4d84-aabd-b8451d1dfa1e",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988737.9892476,
+   "method": "GetTask",
+   "id": "85a1f614-1eea-462d-a9f9-2e47997e028b",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988739.036123,
+   "method": "GetTask",
+   "id": "0f19d84a-5bae-47ab-ab5f-364989f3306a",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988740.1140518,
+   "method": "GetTask",
+   "id": "91762aa3-d192-451b-9e50-657b84d02882",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988741.161035,
+   "method": "GetTask",
+   "id": "2a4888f8-d866-4377-9c93-a91c989a1f15",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988742.2134192,
+   "method": "GetTask",
+   "id": "85a1ab66-0ea8-4371-8e33-3d1c8240ffcf",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988743.2610023,
+   "method": "GetTask",
+   "id": "abeb56bc-87e4-42f3-854c-3c06b9c6fc92",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988744.1512341,
+   "method": "GetTask",
+   "id": "b71ed418-2ac4-4e8f-b333-530e822328c0",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988745.2050183,
+   "method": "GetTask",
+   "id": "0f674d65-b18b-4cef-97b0-2df671e6757e",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988746.2552655,
+   "method": "GetTask",
+   "id": "d09cd3e0-a382-48ee-a858-5c9629dfdda8",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794988747.3041275,
+   "method": "GetTask",
+   "id": "274050b9-361e-4a75-b8d9-1cd73f7dfd59",
+   "task_id": "fcd083db-0aef-41a2-a190-d2d533235938",
+   "status": 200,
+   "fault": "pass"
+  }
+ ],
+ "finished_at": 1794988747.7937827
+}
