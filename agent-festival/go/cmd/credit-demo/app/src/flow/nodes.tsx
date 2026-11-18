@@ -3,7 +3,7 @@
 // Loop Forest group with fork nodes for the black box.
 import { memo, type CSSProperties } from "react";
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, Handle, Position, type EdgeProps, type NodeProps } from "@xyflow/react";
-import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleHelp, CircleX, Clock, GitBranch, Loader2 } from "lucide-react";
+import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleHelp, CirclePause, CircleX, Clock, GitBranch, Loader2 } from "lucide-react";
 import type { BranchData, EdgeData, ExpertData, GroupData, Line } from "./layout";
 
 // A denied node shakes once it has landed: the second delay is for that.
@@ -14,6 +14,7 @@ export function StatusIcon({ status, denied }: { status: string; denied?: boolea
   if (denied) return <Ban key="denied" className="ci pop t-bad" />;
   switch (status) {
     case "running": return <Loader2 key={status} className="ci spin t-run" />;
+    case "stopped": return <CirclePause key={status} className="ci pop t-mute" />;
     case "waiting": return <Clock key={status} className="ci pop t-warn" />;
     case "unknown": return <CircleHelp key={status} className="ci pop t-warn" />;
     case "done": return <CircleCheck key={status} className="ci pop t-ok" />;
@@ -33,7 +34,7 @@ function StatusLine({ line }: { line: Line }) {
     case "res": return <div key={k} className={`cn-row res t-${line.tone}`}><span>{line.text}</span></div>;
     case "box": return <div className="cn-row box"><i /><i /><i /><span>{line.text}</span></div>;
   }
-  return <div key={k} className={`cn-row note t-${line.tone ?? "mute"}`} title={line.text}><span>{line.text}</span></div>;
+  return <div key={k} className={`cn-row note t-${line.tone ?? "mute"}`} title={line.title ?? line.text}><span>{line.text}</span></div>;
 }
 
 export const ExpertNode = memo(({ data }: NodeProps) => {
@@ -87,10 +88,13 @@ export const BranchNode = memo(({ data }: NodeProps) => {
       ? <div className={`cb-sub find t-${b.tone ?? "mute"}`}><span key={b.finding} className="pop">{b.finding}</span></div>
       : b.status === "interrupted"
         ? <div className="cb-sub">执行器重启，已中断</div>
-        : <div className="cb-sub">{b.relation ?? ""}</div>;
+        : b.status === "stopped"
+          ? <div className="cb-sub" title={b.activity ? `停止前记录：${b.activity}` : undefined}>已停止</div>
+          : <div className="cb-sub">{b.relation ?? ""}</div>;
   const icon = b.status === "started" ? <Loader2 key="s" className="ci spin t-lf" />
     : b.status === "finished" ? <CircleCheck key="f" className="ci pop t-ok" />
-      : <CircleDashed key="i" className="ci t-mute" />;
+      : b.status === "stopped" ? <CirclePause key="p" className="ci pop t-mute" />
+        : <CircleDashed key="i" className="ci t-mute" />;
   return (
     <div className={`cb s-${b.status}`} style={enter(delay)} title={b.goal}>
       <Handle type="target" position={Position.Left} isConnectable={false} />

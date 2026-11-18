@@ -14,7 +14,7 @@ from playwright.sync_api import sync_playwright, expect
 
 DIST = Path(__file__).resolve().parents[2] / "workbench-plugin/frontend/dist"
 TRANSPORT = r"""
-window.fixture = {statuses: {R1:'waiting', R2:'running'}, sent:[], deferred:[], delay:false, rev:1};
+window.fixture = {statuses: {R1:'waiting', R2:'running'}, sent:[], deferred:[], delay:false, rev:1, nodes:[], layers:[]};
 window.WebSocket = class {
   static OPEN = 1;
   readyState = 1;
@@ -27,7 +27,7 @@ window.WebSocket = class {
       reply({plans:[1,2].map(n => ({plan:'P'+n, version:1, case:'C006', goal:'fixture '+n, ok:true, run:'R'+n, run_status:f.statuses['R'+n]}))});
     } else if (m.method.endsWith('.graph')) {
       const n = m.params.plan === 'P2' || m.params.run === 'R2' ? 2 : 1;
-      reply({plan:'P'+n, version:1, case:'C006', goal:'fixture '+n, hash:'fixture', ok:true, rev:++f.rev, nodes:[], layers:[],
+      reply({plan:'P'+n, version:1, case:'C006', goal:'fixture '+n, hash:'fixture', ok:true, rev:++f.rev, nodes:n === 1 ? f.nodes : [], layers:n === 1 ? f.layers : [],
         run:{id:'R'+n, status:f.statuses['R'+n], leases:1, url:''}});
     } else if (m.method.endsWith('.resume')) {
       const finish = () => { f.statuses[m.params.run] = 'running'; reply({run:m.params.run, status:'queued'}); };
@@ -98,6 +98,31 @@ class WorkbenchBrowserTests(unittest.TestCase):
         expect(self.page.locator(".wb-item.on .chip")).to_contain_text("任务受阻", timeout=10000)
         expect(self.page.locator(".wb-resume")).to_have_count(0)
         expect(self.page.locator(".wb-blocked")).to_contain_text("维护人员")
+
+    def test_running_step_of_a_waiting_task_is_drawn_stopped(self):
+        # The local black box is still listed as running after the task stopped.
+        self.page.evaluate("""() => {
+          fixture.layers = [['intake'], ['related']];
+          fixture.nodes = [
+            {id:'intake', name:'材料受理', kind:'investigate', task:'t', status:'done', execution:{kind:'agent_bus'},
+             remote:{updated_at:'2026-11-18T07:57:23Z', gateway:{last_error:{finished_at:'2026-11-18T07:57:23Z'}}}},
+            {id:'related', name:'关联方排查', kind:'blackbox', task:'t', deps:['intake'], status:'running', activity:'读关联方名单 · C006', execution:{kind:'loop_forest'},
+             branches:[{goal:'a', status:'started', title:'王氏汽配', activity:'查征信摘要'}]}];
+        }""")
+        host = self.page.locator(".react-flow__node", has_text="关联方排查")
+        expect(host).to_contain_text("已停止 · 最后观察")
+        expect(self.page.locator(".react-flow__node", has_text="王氏汽配")).to_contain_text("已停止")
+        expect(self.page.locator(".cg .spin")).to_have_count(0)
+        expect(self.page.locator(".ce-flow")).to_have_count(0)
+        expect(self.page.locator(".lf .sway")).to_have_count(0)
+        expect(self.page.locator(".cg-head")).to_contain_text("等待核对远端结果")
+        if directory := os.environ.get("EVIDENCE_DIR"):
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            self.page.screenshot(path=str(Path(directory) / "waiting-stopped-step.png"))
+        # The same step is live again once the task runs.
+        self.page.evaluate("fixture.statuses.R1 = 'running'")
+        expect(host).to_contain_text("读关联方名单", timeout=10000)
+        expect(self.page.locator(".cg .spin").first).to_be_visible()
 
 
 if __name__ == "__main__":

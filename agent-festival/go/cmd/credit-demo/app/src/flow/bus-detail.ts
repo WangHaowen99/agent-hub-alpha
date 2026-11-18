@@ -17,7 +17,7 @@ export interface RemoteExecution {
   agent_id: string; task_id: string; status: string; model_calls: number;
   node_execution_id: string; attempt: number; request_id: string; context_id: string;
   input_digest: string; artifact_id: string; artifact_digest: string;
-  agent_started_at: string; intent_saved_at?: string; committed_at?: string;
+  agent_started_at: string; updated_at?: string; intent_saved_at?: string; committed_at?: string;
   reason?: string; reused_count?: number;
   discovery?: { checked_at: string; candidates: { instance_id: string; health: string; capability_version: string; contract_version: string; eligible: boolean }[] };
   gateway?: { source: string; protocol: string; path_mode: string; send_count: number; query_count: number;
@@ -34,7 +34,7 @@ const row = (name: string, value: unknown) => `<div class="cg-fact"><dt>${esc(na
 const timed = (name: string, value?: string) => `<div class="cg-fact"><dt>${esc(name)}</dt><dd><time title="${esc(value)}">${time(value)}</time></dd></div>`;
 const stage = (i: number, name: string, state: string, tone: string, body: string) =>
   `<section class="cg-proof"><header><span class="cg-proof-number">${i}</span><h5>${esc(name)}</h5><span class="cg-proof-state ${tone}">${esc(state)}</span></header>${body}</section>`;
-const stateLabel = (s?: string) => ({ pending: "尚未派发", running: "执行中", waiting: "等待结果", unknown: "待核对", done: "已完成", reused: "结果复用", failed: "失败", skipped: "未执行" }[s ?? ""] ?? "待批准");
+const stateLabel = (s?: string) => ({ pending: "尚未派发", running: "执行中", stopped: "已停止", waiting: "等待结果", unknown: "待核对", done: "已完成", reused: "结果复用", failed: "失败", skipped: "未执行" }[s ?? ""] ?? "待批准");
 
 export function executionLabel(n: GraphNode): string {
   if (n.execution?.kind === "agent_bus" || n.remote) return "Agent Bus · DIRECT";

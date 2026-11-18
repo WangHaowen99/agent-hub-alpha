@@ -33,7 +33,8 @@ export interface Options {
 export const finished = (s?: string) => s === "done" || s === "reused";
 // Once a run exists, an expert appears when it starts. A remote node may be
 // waiting for its result, or have one that still has to be checked (unknown).
-export const started = (s?: string) => s === "running" || s === "waiting" || s === "unknown" || s === "failed" || finished(s);
+// "stopped" is drawn only: a step still listed as running in a halted task (halt.ts).
+export const started = (s?: string) => s === "running" || s === "stopped" || s === "waiting" || s === "unknown" || s === "failed" || finished(s);
 
 export type Tone = "ok" | "bad" | "mute";
 

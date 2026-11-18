@@ -5,6 +5,7 @@
 import dagre from "@dagrejs/dagre";
 import type { Edge, Node } from "@xyflow/react";
 import { condLabel, decisionLabel, finished, receiptLabel, started, type Branch, type Graph, type GraphNode, type Tone } from "../types";
+import { stoppedLine } from "./halt";
 
 export const NODE_W = 212;
 export const BRANCH_W = 196;
@@ -14,7 +15,7 @@ const LF_TOP = 30, LF_PAD = 10, LF_GAP = 44, LF_MORE = 18;
 
 // The one status line under the task: what a running step is doing, a
 // judgment or receipt, how a step ended, or (in a plan) the closed black box.
-export type Line = { kind: "act" | "res" | "note" | "box"; text: string; tone?: Tone };
+export type Line = { kind: "act" | "res" | "note" | "box"; text: string; tone?: Tone; title?: string };
 export interface ExpertData extends Record<string, unknown> {
   n: GraphNode; status: string; denied: boolean; line?: Line; delay: number;
   host?: boolean; // the black box inside its Loop Forest group
@@ -189,7 +190,7 @@ export function build(g: Graph, delays: Delays): Built {
       const eid = `${id}/e${k}`;
       edges.push({
         id: eid, source: hostId(id), target: branchId(id, k), type: "flow",
-        data: { state: b.status === "started" ? "lf-active" : b.status === "interrupted" ? "lf-off" : "lf", delay: delays.get(eid, () => k * 140) },
+        data: { state: b.status === "started" ? "lf-active" : b.status === "interrupted" || b.status === "stopped" ? "lf-off" : "lf", delay: delays.get(eid, () => k * 140) },
       });
     });
   }
@@ -223,6 +224,7 @@ function gist(output?: string): string {
 function lineOf(g: Graph, n: GraphNode, status: string): Line | undefined {
   if (!g.run) return n.kind === "blackbox" ? { kind: "box", text: "运行时展开" } : undefined;
   if (status === "running") return { kind: "act", text: n.activity || "执行中" };
+  if (status === "stopped") return { kind: "note", tone: "mute", ...stoppedLine(g, n.activity) };
   if (status === "waiting") return { kind: "act", text: n.activity || "等待远端结果" };
   if (status === "unknown") return { kind: "note", text: n.activity || "结果待核对，不会自动重发", tone: "bad" };
   const res = finished(status) ? resultOf(g, n) : undefined;

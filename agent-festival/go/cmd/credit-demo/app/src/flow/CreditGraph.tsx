@@ -5,6 +5,7 @@ import { Background, Controls, ReactFlow, useReactFlow, type Node } from "@xyflo
 import { CircleCheck, CircleX, RotateCcw, X } from "lucide-react";
 import { finished, type Graph, type GraphNode, type Options } from "../types";
 import { associationText, busOverviewHTML, executionDetailHTML } from "./bus-detail";
+import { stoppedView } from "./halt";
 import { build, Delays, type Built } from "./layout";
 import { edgeTypes, nodeTypes } from "./nodes";
 
@@ -17,7 +18,10 @@ export function CreditGraph({ g, opts }: { g: Graph; opts: Options }) {
   // Approval swaps the whole plan for the run view: start the entrances over.
   const lastMode = useRef(mode);
   if (lastMode.current !== mode) { lastMode.current = mode; delays.current = new Delays(); }
-  const built = useMemo(() => build(g, delays.current), [g]);
+  // A halted task's still-running steps are drawn as stopped (halt.ts); the
+  // header keeps reading the snapshot as served.
+  const view = useMemo(() => stoppedView(g), [g]);
+  const built = useMemo(() => build(view, delays.current), [view]);
   const [detail, setDetail] = useState<string>();
   const [gate, setGate] = useState(false);
   const canApprove = !!g.approve && !!opts.approve && !opts.page;
@@ -27,10 +31,10 @@ export function CreditGraph({ g, opts }: { g: Graph; opts: Options }) {
     <div className={`cg m-${mode}${g.run?.stalled ? " m-stalled" : ""}`}>
       <Head g={g} canApprove={canApprove} onApprove={() => setGate((x) => !x)} />
       {gate && canApprove && <Gate g={g} opts={opts} onClose={() => setGate(false)} />}
-      {g.bus && <BusOverview g={g} onInspect={(id) => setDetail(id)} />}
+      {g.bus && <BusOverview g={view} onInspect={(id) => setDetail(id)} />}
       <Canvas built={built} empty={!built.nodes.length} blank={!g.nodes.length} onPick={(id) => setDetail((cur) => (cur === id ? undefined : id))} />
       <Foot g={g} />
-      {detail && <Detail g={g} id={detail} onClose={() => setDetail(undefined)} />}
+      {detail && <Detail g={view} id={detail} onClose={() => setDetail(undefined)} />}
     </div>
   );
 }
