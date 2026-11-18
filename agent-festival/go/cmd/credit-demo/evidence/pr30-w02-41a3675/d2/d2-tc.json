@@ -1,0 +1,255 @@
+{
+ "scenario": "two-plugin-clients",
+ "source": "41a36755563ebeb442f2d93050c1d3430d510e80",
+ "run": "R12",
+ "status_before": "waiting",
+ "leases_before": 1,
+ "notices": [
+  "R12：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+  "R12：任务不存在或已不在等待状态，请刷新查看原任务。请先查看原任务最新状态，勿连续重试。"
+ ],
+ "final_status": "done",
+ "leases_after": 2,
+ "kept_request_and_task": true,
+ "send_counts": {
+  "53a93ee0279a06e615102963": 1,
+  "613b3904061ef3704db47658": 1,
+  "1d2d92b57ac5fad0b20ff823": 1,
+  "4f8a6a555cb60c4a0ae7b95a": 1,
+  "dc7643d84508c2b5e063dbb1": 1
+ },
+ "transport_events": [
+  {
+   "at": 1794989034.1255565,
+   "method": "SendMessage",
+   "id": "53a93ee0279a06e615102963",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989035.1933053,
+   "method": "GetTask",
+   "id": "63bd571a-d4a6-473b-9c21-448933ee3bc0",
+   "task_id": "cf1e0a3c-8fd9-4727-a0c7-25712c8a3382",
+   "status": 503,
+   "fault": "drop-query-once"
+  },
+  {
+   "at": 1794989075.5561318,
+   "method": "GetTask",
+   "id": "0239b928-91df-4394-bf19-19445b569331",
+   "task_id": "cf1e0a3c-8fd9-4727-a0c7-25712c8a3382",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989075.9148443,
+   "method": "SendMessage",
+   "id": "613b3904061ef3704db47658",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989075.988364,
+   "method": "SendMessage",
+   "id": "1d2d92b57ac5fad0b20ff823",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989076.0048742,
+   "method": "SendMessage",
+   "id": "4f8a6a555cb60c4a0ae7b95a",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989077.0703874,
+   "method": "GetTask",
+   "id": "79509d68-f252-465a-9e88-efed061dc1ea",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989077.1838222,
+   "method": "GetTask",
+   "id": "c96cccc7-6323-4d09-959e-00356fa64771",
+   "task_id": "88db27bf-0d69-41ac-9b85-25caa2184fd8",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989077.2415068,
+   "method": "GetTask",
+   "id": "06722109-3c2e-4779-b6f3-1e7bbac44f01",
+   "task_id": "87085270-5c28-490d-9abc-302935787cd9",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989078.2313702,
+   "method": "GetTask",
+   "id": "6582f7c8-7834-4336-a72f-37f0b3726b34",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989078.3223414,
+   "method": "GetTask",
+   "id": "ba6d787e-9ba0-476a-87e1-ee241af2c34b",
+   "task_id": "88db27bf-0d69-41ac-9b85-25caa2184fd8",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989078.3836627,
+   "method": "GetTask",
+   "id": "bf765572-e9b6-42cc-9a78-16034f31873e",
+   "task_id": "87085270-5c28-490d-9abc-302935787cd9",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989079.3598158,
+   "method": "GetTask",
+   "id": "14f08947-8e7a-4125-935f-b68e46dd8707",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989079.5090544,
+   "method": "GetTask",
+   "id": "3f05db5c-d84f-4a89-826f-a3d90cdd4b1a",
+   "task_id": "88db27bf-0d69-41ac-9b85-25caa2184fd8",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989079.5411344,
+   "method": "GetTask",
+   "id": "85d06b01-8a9f-4442-bc88-66297f54f490",
+   "task_id": "87085270-5c28-490d-9abc-302935787cd9",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989080.4346497,
+   "method": "GetTask",
+   "id": "41934953-e93a-4dd6-b08a-d69805ca4a4a",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989081.5534782,
+   "method": "GetTask",
+   "id": "3562fc6a-221e-4ccf-a699-513e309b033c",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989083.559766,
+   "method": "GetTask",
+   "id": "606da92b-5309-4812-a8b6-95ea9a180ef8",
+   "task_id": "00e4cad6-aaa8-4a7f-8127-d9272a51087e",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989107.0932178,
+   "method": "SendMessage",
+   "id": "dc7643d84508c2b5e063dbb1",
+   "task_id": null,
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989108.1535606,
+   "method": "GetTask",
+   "id": "84a66995-fc60-49d2-b79f-64dc1f1e569f",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989109.2216775,
+   "method": "GetTask",
+   "id": "6e6cd5b6-3a4d-47e3-adc7-d3918e55ec66",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989110.3800826,
+   "method": "GetTask",
+   "id": "eeac31b8-d110-4864-a1e0-932b144ba55c",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989111.4436538,
+   "method": "GetTask",
+   "id": "481e4114-4927-4b6e-9306-c88743f74f1a",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989112.5252838,
+   "method": "GetTask",
+   "id": "4607b7df-2338-4338-bc20-8e7c2827fab9",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989113.6382384,
+   "method": "GetTask",
+   "id": "ae32d2c4-e54c-4d69-b756-34936cd70adc",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989114.7128193,
+   "method": "GetTask",
+   "id": "ccdf118b-0ba2-407b-bcff-fda3d7c94910",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989115.8082457,
+   "method": "GetTask",
+   "id": "0241b64b-a5be-42a0-8077-5f45c3bf31a8",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989116.8874264,
+   "method": "GetTask",
+   "id": "36f44756-fb5f-46a3-9da7-55ca2600074e",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  },
+  {
+   "at": 1794989117.9445183,
+   "method": "GetTask",
+   "id": "792e1b2f-ea11-4efd-954d-d5ab0ff05477",
+   "task_id": "ceff5498-87a2-492c-86c8-cbeff6407dd2",
+   "status": 200,
+   "fault": "pass"
+  }
+ ]
+}
