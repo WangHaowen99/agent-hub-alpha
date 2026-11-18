@@ -50,7 +50,12 @@ final class RemoteAgentMember implements SubAgentExecutor {
         observation = new LinkedHashMap<>();
         observation.put("rpc_id", id);
         observation.put("method", method);
-        observation.put("started_at", clock.instant().toString());
+        // The interval is measured on the monotonic clock: a wall-clock step back
+        // during the call (VM time correction) would otherwise record finished_at
+        // before started_at, and Go rejects the whole update (time_order).
+        Instant started = clock.instant();
+        long startedNanos = System.nanoTime();
+        observation.put("started_at", started.toString());
         observation.put("outcome", "invalid_response");
         observation.put("error_code", "INVALID_A2A_RESPONSE");
         try {
@@ -75,7 +80,7 @@ final class RemoteAgentMember implements SubAgentExecutor {
             }
             throw e;
         } finally {
-            observation.put("finished_at", clock.instant().toString());
+            observation.put("finished_at", started.plusNanos(System.nanoTime() - startedNanos).toString());
         }
     }
 
