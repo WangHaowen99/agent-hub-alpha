@@ -2,7 +2,7 @@
 
 #16 公开年报 demo 的共用材料：原件快照、参考答案、反例和报告模板。W02～W07 都以这里为准。
 
-**状态：参考答案已人工核对。** 核对人与时间见 `answers.json` 各项的 `verification`。重新运行 `build_answers.py` 会把状态重置为 `pending`，需要重新核对。
+**状态：固定样例参考答案已由提交者 WangHaowen99 人工核对。** 核对人与时间见 `answers.json` 各项的 `verification`。这不是独立业务验收，也不证明新年报处理能力或 D1/D2 全链路通过。独立业务验收人与新样本验收仍需另行确认。重新运行 `build_answers.py` 会把状态重置为 `pending`，需要重新核对。
 
 ## 文件
 
@@ -50,7 +50,7 @@ python3 -I tools/build_answers.py text/ answers.json
 
 ## 人工核对
 
-核对人不参与实现，打开原件逐项确认，全部确认后在 `answers.json` 中把对应项的 `verification` 改为 `{"status": "verified", "verifier": "<姓名>", "verified_at": "<时间>"}`。
+核对人打开原件逐项确认，全部确认后在 `answers.json` 中把对应项的 `verification` 改为 `{"status": "verified", "verifier": "<姓名>", "verified_at": "<时间>"}`，如实记录与提交者的关系。当前记录为提交者人工核对；若需声明独立核对，应另附未参与实现的核对人及其核对记录，不能仅凭 `verified` 状态推断独立性。
 
 - [x] 原件与 `source.json` 一致（`check_snapshot.py` 输出 ok）
 - [x] PDF 第 14 页（印刷第 13 页）表 2.1：营业收入、归属于本行股东的净利润两年数及增减

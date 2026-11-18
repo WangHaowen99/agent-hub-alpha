@@ -1,6 +1,6 @@
 {
   "snapshot": "cmb-2025-annual-report-a",
-  "note": "程序抽取并复算，已由独立核对人对照原件逐项人工核对；核对人与时间见各项 verification。",
+  "note": "程序抽取并复算，已由提交者 WangHaowen99 对照原件逐项人工核对；核对人与时间见各项 verification。这是固定样例的人工核对记录，不代表独立业务验收或新年报泛化验收。",
   "indicators": [
     {
       "id": "revenue",
