@@ -20,6 +20,7 @@ const POLL_MS = 1200, LIST_MS = 5000;
 function statusOf(p: PlanRow): [string, string] {
   if (p.run_status === "done") return ["ok", "已完成"];
   if (p.run_status === "failed") return ["bad", "执行失败"];
+  if (p.run_status === "blocked") return ["bad", "任务受阻"];
   if (p.run_status === "waiting") return ["wait", "等待核对"];
   if (p.run_status) return ["run", "执行中"];
   if (!p.ok) return ["bad", "预检未通过"];
@@ -37,21 +38,20 @@ const savedPick = (): Pick | undefined => {
 
 // A human command through the existing plugin channel. Never auto-retry a
 // timeout: the original run is polled to reconcile whether it was accepted.
-function ResumeControl({ run, onAccepted }: { run: string; onAccepted: () => void }) {
+function ResumeControl({ run, onAccepted, onMessage }: { run: string; onAccepted: () => void; onMessage: (message: string) => void }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
   const pending = useRef(false);
   return <form className="wb-resume" onSubmit={async (e) => {
     e.preventDefault();
     if (pending.current) return;
-    pending.current = true; setBusy(true); setMessage("");
+    pending.current = true; setBusy(true); onMessage("");
     try {
       await gw.call("plugin.credit_workbench.resume", { run, password });
-      setMessage("恢复请求已接受，正在核对原任务；这不表示任务已完成。");
+      onMessage("恢复请求已接受，正在核对原任务；这不表示任务已完成。");
       onAccepted();
     } catch (error) {
-      setMessage(`${(error as Error).message}。请先查看原任务最新状态，勿连续重试。`);
+      onMessage(`${(error as Error).message}。请先查看原任务最新状态，勿连续重试。`);
     } finally {
       setPassword(""); pending.current = false; setBusy(false);
     }
@@ -60,7 +60,6 @@ function ResumeControl({ run, onAccepted }: { run: string; onAccepted: () => voi
     <label>演示密码 <input type="password" value={password} autoComplete="off" disabled={busy}
       onChange={(e) => setPassword(e.target.value)} /></label>
     <button type="submit" disabled={busy || !password}>{busy ? "提交中…" : "核对原任务并继续"}</button>
-    {message && <span role="status">{message}</span>}
   </form>;
 }
 
@@ -69,6 +68,9 @@ function App() {
   const [pick, setPick] = useState<Pick | undefined>(savedPick);
   const [g, setG] = useState<Graph>();
   const [err, setErr] = useState("");
+  // Keep the command receipt after waiting -> queued unmounts ResumeControl.
+  // Scope it to its run; it is not a replacement for the polled task status.
+  const [notice, setNotice] = useState<{ run: string; message: string }>();
   const [nonce, setNonce] = useState(0);
   const shown = useRef("");
   const shownGraph = useRef<Graph>();
@@ -126,6 +128,7 @@ function App() {
   }, [pick?.plan, pick?.v, nonce]);
 
   const approve = useCallback(async (graph: Graph, _user: string, password: string) => {
+    setNotice(undefined);
     try {
       await gw.call("plugin.credit_workbench.approve", { plan: graph.plan, version: graph.version, hash: graph.hash, password });
       return undefined;
@@ -140,6 +143,7 @@ function App() {
     shown.current = "";
     shownGraph.current = undefined;
     setG(undefined);
+    setNotice(undefined);
     setPick({ plan: p.plan, v: p.version });
   };
 
@@ -161,7 +165,13 @@ function App() {
       </aside>
       <main className="wb-main">
         {err && <div className="wb-err">{err}</div>}
-        {g?.run?.status === "waiting" && <ResumeControl key={g.run.id} run={g.run.id} onAccepted={() => setNonce((n) => n + 1)} />}
+        {notice && notice.run === g?.run?.id && <div className="wb-notice" role="status">{notice.run}：{notice.message}</div>}
+        {g?.run?.status === "blocked" && <div className="wb-blocked" role="status">{g.run.id} 任务受阻。请由维护人员核对绑定版本与配置；此处不能按普通等待任务恢复。</div>}
+        {g?.run?.status === "waiting" && <ResumeControl key={g.run.id} run={g.run.id} onAccepted={() => setNonce((n) => n + 1)}
+          onMessage={(message) => {
+            const run = g.run!.id;
+            if (shownGraph.current?.run?.id === run) setNotice(message ? { run, message } : undefined);
+          }} />}
         {g ? (
           <ReactFlowProvider key={`${g.plan}/${g.version}`}><CreditGraph g={g} opts={opts} /></ReactFlowProvider>
         ) : (

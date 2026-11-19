@@ -1,11 +1,13 @@
 """NGA collaboration bridge. Never merge, approve, delete, or execute imported code."""
 import json
+import hashlib
 import os
 import re
 import subprocess
 import tempfile
 import urllib.error
 import urllib.request
+import urllib.parse
 
 GH = 'https://api.github.com/repos/chaosxingxc-orion/agent-hub-alpha'
 GC = 'https://api.gitcode.com/api/v5/repos/xingchao_ml/agent-hub-alpha'
@@ -21,7 +23,7 @@ def number(value):
 
 
 def managed_branch(value):
-    return bool(re.fullmatch(r'(gitcode/mr-|github/pr-)[1-9][0-9]*', value))
+    return bool(re.fullmatch(r'(gitcode/mr-|github/pr-)[1-9][0-9]*|(gitcode|github)/base-[0-9a-f]{40}', value))
 
 
 def marker(key):
@@ -39,6 +41,8 @@ def origin_body(key, obj, url):
     status = 'merged' if obj.get('merged_at') else obj.get('state', 'open')
     return (f'{marker(key)}\nSource: {url}\nSource status: {status}\n'
             f'Source head: {obj.get("head", {}).get("sha", "n/a")}\n\n'
+            f'Source base: {obj.get("base", {}).get("ref", "n/a")} '
+            f'({obj.get("base", {}).get("sha", "n/a")})\n\n'
             'Synchronized review copy. Final integration is on GitHub; '
             'copied reviews are attributed discussion, not approval.\n\n' + (obj.get('body') or ''))
 
@@ -130,6 +134,30 @@ def upsert_comments(api, family, n, changes):
             api.call(f'/{family}/comments/{ident}', 'PATCH', {'body': body})
 
 
+def mirror_base(source, obj, dest, source_api):
+    base = obj.get('base', {})
+    ref, sha = base.get('ref', ''), base.get('sha', '')
+    if not ref or not re.fullmatch(r'[0-9a-f]{40}', sha):
+        raise ValueError('Missing or invalid source base; refusing main fallback')
+    if ref == 'main':
+        return 'main'
+    # Pull payloads can retain a historical comparison base. Resolve the live
+    # named branch before import; transfer still rejects concurrent movement.
+    current = source_api.call('/branches/' + urllib.parse.quote(ref, safe=''))['commit']
+    sha = current.get('sha') or current.get('id') or ''
+    if not re.fullmatch(r'[0-9a-f]{40}', sha):
+        raise ValueError('Invalid live source base')
+    obj['base'] = {**base, 'sha': sha}
+    # GitCode v5 cannot retarget existing requests. A stable bridge-owned branch
+    # follows normal fast-forwards; rewinds/divergence fail, never force-update.
+    key = hashlib.sha256(ref.encode('utf-8')).hexdigest()[:40]
+    branch = f'{"gitcode" if source == "gc" else "github"}/base-{key}'
+    if dest is None or dest.get('base', {}).get('ref') != branch or dest.get('base', {}).get('sha') != sha:
+        transfer(GC_GIT if source == 'gc' else GH_GIT, GH_GIT if source == 'gc' else GC_GIT,
+                 f'refs/heads/{ref}', branch, sha)
+    return branch
+
+
 def sync_discussion(gh, gc, gnum, cnum, family):
     gc_path = f'{family}/{cnum}'
     gh_path = f'issues/{gnum}'
@@ -173,19 +201,46 @@ def reconcile(gh, gc):
                 continue
             try:
                 source_url = obj['html_url']
-                body = origin_body(key, obj, source_url)
                 title = f'[{"GitCode MR" if source == "gc" else "GitHub PR"} #{n}] {obj["title"]}'[:250]
                 api = gh if source == 'gc' else gc
                 branch = f'gitcode/mr-{n}' if source == 'gc' else f'github/pr-{n}'
                 sha = obj['head']['sha']
+                active = obj.get('state') == 'open' and (dest is None or dest.get('state') == 'open')
+                base = mirror_base(source, obj, dest, gc if source == 'gc' else gh) if active else None
+                body = origin_body(key, obj, source_url)
+                if active and source == 'gh' and dest and dest.get('base', {}).get('ref') != base:
+                    api.call(f'/pulls/{number(dest["number"])}', 'PATCH', {'title': title, 'draft': True})
+                    raise RuntimeError('GitCode v5 cannot retarget an existing mirror; replace or retarget it in the UI before resuming')
                 if dest is None or (dest.get('state') == 'open' and dest.get('head', {}).get('sha') != sha):
                     transfer(GC_GIT if source == 'gc' else GH_GIT, GH_GIT if source == 'gc' else GC_GIT,
                              f'refs/merge-requests/{n}/head' if source == 'gc' else f'refs/pull/{n}/head', branch, sha)
                 if dest is None:
-                    dest = api.call('/pulls', 'POST', {'title': title, 'body': body, 'head': branch, 'base': 'main', 'draft': True})
+                    dest = api.call('/pulls', 'POST', {'title': title, 'body': body, 'head': branch, 'base': base,
+                                                     'draft': True})
                     targets.append(dest)
-                elif dest.get('body') != body or not matches_title(dest, title):
-                    api.call(f'/pulls/{number(dest["number"])}', 'PATCH', {'title': title, 'body': body})
+                else:
+                    payload = {'title': title, 'body': body}
+                    changed = dest.get('body') != body or not matches_title(dest, title)
+                    if active and source == 'gc':
+                        payload['base'] = base
+                        changed |= dest.get('base', {}).get('ref') != base
+                    if source == 'gh':
+                        # GitCode resets omitted draft on PATCH. GitHub mirror readiness
+                        # is instead a maintainer decision and is never auto-promoted.
+                        payload['draft'] = bool(obj.get('draft')) if active else bool(dest.get('draft'))
+                        changed |= dest.get('draft') != payload['draft']
+                    if changed:
+                        api.call(f'/pulls/{number(dest["number"])}', 'PATCH', payload)
+                if active:
+                    actual = api.call(f'/pulls/{number(dest["number"])}')
+                    if actual.get('base', {}).get('ref') != base:
+                        if source == 'gh':
+                            api.call(f'/pulls/{number(dest["number"])}', 'PATCH', {'title': title, 'draft': True})
+                        raise RuntimeError('Mirror base verification failed; request remains unapproved')
+                    if source == 'gh' and bool(actual.get('draft')) != bool(obj.get('draft')):
+                        api.call(f'/pulls/{number(dest["number"])}', 'PATCH', {'title': title, 'draft': bool(obj.get('draft'))})
+                        if bool(api.call(f'/pulls/{number(dest["number"])}').get('draft')) != bool(obj.get('draft')):
+                            raise RuntimeError('Mirror draft verification failed')
                 gn, cn = (number(dest['number']), n) if source == 'gc' else (n, number(dest['number']))
                 sync_discussion(gh, gc, gn, cn, 'pulls')
                 print(f'Linked GitCode MR {cn} and GitHub PR {gn}; source {sha}')

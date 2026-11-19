@@ -401,7 +401,7 @@ func mustOpenAdopt(t *testing.T, path string) *adopt.Machine {
 func adoptRequest(t *testing.T, op string) *adopt.Request {
 	t.Helper()
 	return &adopt.Request{
-		AdoptionVersion:  "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:         ledger.Identity{BusinessRequestID: "br-e4", EvaluationRevision: "er-1", OperationID: op},
 		Versions:         ledger.Versions{Evidence: "ev-1", Rule: "rule-1", Model: "m-1", Readout: "r-1", Policy: "p-1"},
 		PayloadDigest:    "sha256:" + strings.Repeat("a", 64),

@@ -5,6 +5,7 @@ from unittest.mock import patch
 import copy
 import io
 import urllib.error
+import hashlib
 
 spec = importlib.util.spec_from_file_location('bridge', Path(__file__).with_name('collaboration_bridge.py'))
 b = importlib.util.module_from_spec(spec)
@@ -12,6 +13,109 @@ spec.loader.exec_module(b)
 
 
 class Tests(unittest.TestCase):
+    def test_live_branch_tip_wins_over_stale_pull_base_sha(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        gh.pulls[0]['base'] = {'ref': 'candidate', 'sha': 'b'*40}
+        call = gh.call
+        def live(path, method='GET', data=None):
+            if path == '/branches/candidate':
+                return {'commit': {'sha': 'c'*40}}
+            return call(path, method, data)
+        with patch.object(b, 'transfer') as transfer, patch.object(gh, 'call', side_effect=live):
+            b.reconcile(gh, gc)
+            self.assertTrue(any(c.args[2] == 'refs/heads/candidate' and c.args[4] == 'c'*40 for c in transfer.call_args_list))
+            self.assertIn('Source base: candidate ('+'c'*40+')', gc.pulls[1]['body'])
+
+    def test_candidate_base_tracks_source_without_retargeting(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        gh.pulls[0]['base'] = {'ref': 'codex/candidate', 'sha': 'b' * 40}
+        gh.pulls[0]['draft'] = True
+        expected = 'github/base-' + hashlib.sha256(b'codex/candidate').hexdigest()[:40]
+        with patch.object(b, 'transfer') as transfer:
+            b.reconcile(gh, gc)
+            mirror = gc.pulls[1]
+            self.assertEqual(expected, mirror['base']['ref'])
+            self.assertTrue(mirror['draft'])
+            self.assertTrue(any(c.args[2:5] == ('refs/heads/codex/candidate', expected, 'b'*40) for c in transfer.call_args_list))
+            gh.pulls[0]['base']['sha'] = 'c'*40
+            gh.pulls[0]['draft'] = False
+            b.reconcile(gh, gc)
+            self.assertEqual(expected, mirror['base']['ref'])
+            self.assertTrue(any(c.args[2:5] == ('refs/heads/codex/candidate', expected, 'c'*40) for c in transfer.call_args_list))
+            self.assertFalse(mirror['draft'])
+            gh.pulls[0]['draft'] = True
+            b.reconcile(gh, gc)
+            self.assertTrue(mirror['draft'])
+
+    def test_missing_base_fails_closed_without_main_fallback(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        del gh.pulls[0]['base']
+        with patch.object(b, 'transfer'), self.assertRaisesRegex(RuntimeError, 'base'):
+            b.reconcile(gh, gc)
+        self.assertEqual(1, len(gc.pulls))
+
+    def test_gitcode_unsupported_retarget_is_drafted_and_fails(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        with patch.object(b, 'transfer'):
+            b.reconcile(gh, gc)
+            gh.pulls[0]['base'] = {'ref': 'candidate-gh', 'sha': 'b'*40}
+            with self.assertRaisesRegex(RuntimeError, 'retarget'):
+                b.reconcile(gh, gc)
+            self.assertEqual('main', gc.pulls[1]['base']['ref'])
+            self.assertTrue(gc.pulls[1]['draft'])
+
+    def test_github_mirror_can_retarget(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        with patch.object(b, 'transfer'):
+            b.reconcile(gh, gc)
+            gc.pulls[0]['base'] = {'ref': 'candidate-gc', 'sha': 'c'*40}
+            b.reconcile(gh, gc)
+            self.assertEqual('gitcode/base-'+hashlib.sha256(b'candidate-gc').hexdigest()[:40], gh.pulls[1]['base']['ref'])
+
+    def test_create_readback_rejects_ignored_target(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        gh.pulls[0]['base'] = {'ref': 'candidate', 'sha': 'b'*40}
+        call = gc.call
+        def ignored(path, method='GET', data=None):
+            if method == 'POST' and path == '/pulls':
+                data = {**data, 'base': 'main'}
+            return call(path, method, data)
+        with patch.object(b, 'transfer'), patch.object(gc, 'call', side_effect=ignored):
+            with self.assertRaisesRegex(RuntimeError, 'base verification'):
+                b.reconcile(gh, gc)
+        self.assertTrue(gc.pulls[1]['draft'])
+
+    def test_base_transfer_failure_does_not_retarget_or_create(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        gh.pulls[0]['base'] = {'ref': 'candidate', 'sha': 'b'*40}
+        def transfer(*args):
+            if '/base-' in args[3]:
+                raise RuntimeError('base unavailable')
+        with patch.object(b, 'transfer', side_effect=transfer), self.assertRaisesRegex(RuntimeError, 'base unavailable'):
+            b.reconcile(gh, gc)
+        self.assertEqual(1, len(gc.pulls))
+
+    def test_github_human_readiness_is_not_overwritten(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        with patch.object(b, 'transfer'):
+            b.reconcile(gh, gc)
+            self.assertTrue(gh.pulls[1]['draft'])
+            gh.pulls[1]['draft'] = False
+            gc.pulls[0]['body'] = 'source edit'
+            b.reconcile(gh, gc)
+            self.assertFalse(gh.pulls[1]['draft'])
+
+    def test_closed_mirror_keeps_historical_base(self):
+        gh, gc = FakeAPI('gh'), FakeAPI('gc')
+        with patch.object(b, 'transfer') as transfer:
+            b.reconcile(gh, gc)
+            gc.pulls[1]['state'] = 'closed'
+            gh.pulls[0]['base'] = {'ref': 'removed', 'sha': 'b'*40}
+            transfer.reset_mock()
+            b.reconcile(gh, gc)
+            self.assertEqual('main', gc.pulls[1]['base']['ref'])
+            transfer.assert_not_called()
+
     def test_gitcode_draft_title_does_not_create_an_update_loop(self):
         self.assertTrue(b.matches_title({'title': '[WIP]generated', 'draft': True}, 'generated'))
         self.assertTrue(b.matches_title({'title': 'generated'}, 'generated'))
@@ -119,6 +223,8 @@ class FakeAPI:
         obj = {'number': n, 'title': 'title', 'body': 'source text', 'state': 'open', 'html_url': 'https://example.invalid/' + str(n)}
         if head:
             obj['head'] = {'ref': head, 'sha': 'a' * 40}
+            obj['base'] = {'ref': 'main', 'sha': 'f' * 40}
+            obj['draft'] = False
         return obj
 
     def pages(self, path):
@@ -136,6 +242,10 @@ class FakeAPI:
     def call(self, path, method='GET', data=None):
         bits = path.strip('/').split('/')
         if method == 'GET':
+            if bits[0] == 'branches':
+                ref = b.urllib.parse.unquote(bits[1])
+                p = next(x for x in self.pulls if x.get('base', {}).get('ref') == ref)
+                return {'commit': {'sha': p['base']['sha']}}
             objects = self.pulls if bits[0] == 'pulls' else self.issues
             return copy.deepcopy(next(x for x in objects if x['number'] == int(bits[1])))
         if method == 'POST' and bits[-1] == 'comments':
@@ -154,11 +264,17 @@ class FakeAPI:
         objects = self.pulls if bits[0] == 'pulls' else self.issues
         if method == 'POST':
             obj = self.obj(10 + len(objects) - 1, data.get('head'))
-            obj.update({k:v for k,v in data.items() if k != 'head'})
+            obj.update({k:v for k,v in data.items() if k not in ('head', 'base')})
+            if 'base' in data:
+                obj['base'] = {'ref': data['base']}
             objects.append(obj)
             return copy.deepcopy(obj)
         obj = next(x for x in objects if x['number'] == int(bits[1]))
-        obj.update(data)
+        obj.update({k:v for k,v in data.items() if k != 'base'})
+        if 'base' in data and self.platform != 'gc':
+            obj['base'] = {'ref': data['base']}
+        if self.platform == 'gc' and bits[0] == 'pulls':
+            obj['draft'] = data.get('draft', False)
         return copy.deepcopy(obj)
 
 

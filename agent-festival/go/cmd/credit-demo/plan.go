@@ -70,6 +70,9 @@ type Plan struct {
 	BusBindings map[string]BusBinding `json:"bus_bindings,omitempty"`
 	Scenario    string                `json:"scenario,omitempty"`  // package id; empty for plans proposed before packages
 	Selection   *SelectionRef         `json:"selection,omitempty"` // the capability selection the team came from
+	// Binding is the judgment spec and execution config the plan was proposed
+	// under; the approval digest covers it (AR-04).
+	Binding *ExecBinding `json:"exec_binding,omitempty"`
 }
 
 func (p *Plan) Key() string { return fmt.Sprintf("%s-v%d", p.ID, p.Version) }
@@ -375,6 +378,9 @@ func planHash(p *Plan, contractHashes map[string]string) string {
 	}
 	if p.Selection != nil {
 		doc["selection"] = map[string]any{"id": p.Selection.ID, "digest": p.Selection.Digest}
+	}
+	if p.Binding != nil {
+		doc["exec_binding"] = p.Binding
 	}
 	raw, _ := rfc8785.Canonicalize(jsonDoc(doc))
 	sum := sha256.Sum256(raw)

@@ -77,13 +77,26 @@ type Request struct {
 	Accountability   *ledger.Accountability `json:"accountability,omitempty"`
 }
 
+// FailureKind identifies the cause of an Adopt rejection without parsing text.
+type FailureKind string
+
+const (
+	FailureRequest  FailureKind = "invalid_request"
+	FailureConflict FailureKind = "input_conflict"
+	FailureStorage  FailureKind = "storage_unavailable"
+	FailureState    FailureKind = "state_rejected"
+)
+
 // Outcome is the machine's answer to a call. Status is one of
 // adopted | reused | dispatched | unresolved | completed | failed | rejected.
-// Event is the ledger event the call wrote, nil when nothing was written.
+// Event is the confirmed ledger event; nil does not rule out a partial write.
+// Failure classifies Adopt rejections. It does not change ledger events or
+// authorize retries; an append error can require storage reconciliation.
 type Outcome struct {
-	Status string
-	Detail string
-	Event  *ledger.Event
+	Status  string
+	Detail  string
+	Event   *ledger.Event
+	Failure FailureKind `json:"failure,omitempty"`
 }
 
 // A zero-value Machine is not usable (Adopt would panic on the nil ops
@@ -272,12 +285,12 @@ func (m *Machine) Adopt(req *Request) Outcome {
 	// its caller, and an in-process caller could bypass every external
 	// validation — an empty grant pin would then reach the file).
 	if errs := m.checkRequest(req); len(errs) > 0 {
-		return Outcome{Status: "rejected", Detail: "request rejected: " + errs[0]}
+		return Outcome{Status: "rejected", Detail: "request rejected: " + errs[0], Failure: FailureRequest}
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.seqExhausted() {
-		return Outcome{Status: "rejected", Detail: seqExhaustedMsg}
+		return Outcome{Status: "rejected", Detail: seqExhaustedMsg, Failure: FailureState}
 	}
 	op := req.Identity.OperationID
 	if st, ok := m.ops[op]; ok {
@@ -292,10 +305,10 @@ func (m *Machine) Adopt(req *Request) Outcome {
 				Outcome:        ledger.Outcome{Status: "conflict", Detail: detail},
 			}
 			if err := m.append(ev); err != nil {
-				return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error()}
+				return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error(), Failure: FailureStorage}
 			}
 			m.seq = ev.ArbitrationSeq
-			return Outcome{Status: "rejected", Detail: detail, Event: ev}
+			return Outcome{Status: "rejected", Detail: detail, Event: ev, Failure: FailureConflict}
 		}
 		ev := &ledger.Event{
 			EventType:      "adoption",
@@ -307,7 +320,7 @@ func (m *Machine) Adopt(req *Request) Outcome {
 			Outcome:        ledger.Outcome{Status: "reused", Detail: "retry under the same key and digest"},
 		}
 		if err := m.append(ev); err != nil {
-			return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error()}
+			return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error(), Failure: FailureStorage}
 		}
 		m.seq = ev.ArbitrationSeq
 		return Outcome{Status: "reused", Event: ev}
@@ -332,7 +345,7 @@ func (m *Machine) Adopt(req *Request) Outcome {
 		Outcome:          ledger.Outcome{Status: string(StateAdopted), Detail: "adopted by the gate"},
 	}
 	if err := m.append(ev); err != nil {
-		return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error()}
+		return Outcome{Status: "rejected", Detail: "ledger append failed: " + err.Error(), Failure: FailureStorage}
 	}
 	m.ops[op] = st
 	m.seq = ev.ArbitrationSeq

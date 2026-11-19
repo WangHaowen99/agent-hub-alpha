@@ -130,7 +130,8 @@ final class RemoteAgentMember implements SubAgentExecutor {
                 task=rpc("GetTask",UUID.randomUUID().toString(),Map.of("id",taskID));
             }
         } catch (RemoteFailed e) { update(call,taskID,"failed",e.getMessage(),++seq); throw e; }
-        catch (GoClient.FencedException e) { throw e; }
+        catch (GoClient.FencedException | GoClient.InputConflictException | GoClient.StorageUnavailableException
+               | GoClient.BindingRejectedException | GoClient.ControlRejectedException e) { throw e; } // control-plane facts, not an unknown remote outcome
         catch (Exception e) {
             if (e instanceof InterruptedException) Thread.currentThread().interrupt();
             String reason=e instanceof IllegalStateException?e.getMessage():e.getClass().getSimpleName();

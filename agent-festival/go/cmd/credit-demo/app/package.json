@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test test/bus-detail.test.mjs test/order.test.mjs",
+    "test": "node --test test/bus-detail.test.mjs test/order.test.mjs test/gateway-order.test.mjs",
+    "test:browser": "python test/workbench-browser.py",
     "check": "tsc --noEmit"
   },
   "devDependencies": {

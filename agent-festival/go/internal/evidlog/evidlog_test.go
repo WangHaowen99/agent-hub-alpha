@@ -388,7 +388,7 @@ func TestDurableAcceptsExtraFieldLine(t *testing.T) {
 	// the clean twin must PASS (attribute the rejection to the extra field,
 	// not to a broken construction) and the extra-field doc must FAIL.
 	envelope := func(entries ...json.RawMessage) map[string]any {
-		raw, err := json.Marshal(map[string]any{"evidlog_version": "0.1.0", "entries": entries})
+		raw, err := json.Marshal(map[string]any{"evidlog_version": "0.2.0", "entries": entries})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -669,7 +669,7 @@ func TestConformantLineSharesLadder(t *testing.T) {
 // TestSeqGapRejected pins the density rule at doc level (mirrors the invalid fixture).
 func TestSeqGapRejected(t *testing.T) {
 	doc := map[string]any{
-		"evidlog_version": "0.1.0",
+		"evidlog_version": "0.2.0",
 		"entries": []any{
 			map[string]any{"seq": 0, "tool": "t", "selector": "s1", "caller": "c", "at": "2026-11-01T10:00:00Z"},
 			map[string]any{"seq": 2, "tool": "t", "selector": "s2", "caller": "c", "at": "2026-11-01T10:00:00Z"},

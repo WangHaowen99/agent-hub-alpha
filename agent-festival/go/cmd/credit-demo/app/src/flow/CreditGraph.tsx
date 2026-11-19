@@ -46,7 +46,7 @@ function Head({ g, canApprove, onApprove }: { g: Graph; canApprove: boolean; onA
     const pass = g.verify.checks.filter((c) => c.ok).length;
     chip = g.verify.ok ? ["ok", `验证通过 ${pass}/${g.verify.checks.length}`] : ["bad", `验证未通过 ${pass}/${g.verify.checks.length}`];
   } else if (g.run) {
-    chip = ({ queued: ["wait", "排队中"], running: ["run", `执行中 ${settled}/${total}`], waiting: ["wait", "等待核对远端结果"], done: ["ok", "已完成"], failed: ["bad", "执行失败"] } as Record<string, [string, string]>)[g.run.status] ?? ["mute", g.run.status];
+    chip = ({ queued: ["wait", "排队中"], running: ["run", `执行中 ${settled}/${total}`], waiting: ["wait", "等待核对远端结果"], blocked: ["bad", "任务受阻"], done: ["ok", "已完成"], failed: ["bad", "执行失败"] } as Record<string, [string, string]>)[g.run.status] ?? ["mute", g.run.status];
     if (g.run.stalled) chip = ["bad", "执行器无响应 · 等待接管"];
   } else if (!g.ok) chip = ["bad", "预检未通过"];
   else if (g.superseded) chip = ["mute", `已更新为 v${g.superseded}`];

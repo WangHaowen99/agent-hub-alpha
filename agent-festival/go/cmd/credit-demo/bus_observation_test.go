@@ -16,6 +16,36 @@ func receiptCommand(in CallCommand, c *RemoteCall) CallCommand {
 	return in
 }
 
+func TestGatewayObservationNamesInvalidFieldWithoutEchoingContent(t *testing.T) {
+	for _, tc := range []struct {
+		field  string
+		change func(*GatewayExchange)
+	}{
+		{"rpc_id", func(e *GatewayExchange) { e.RPCID = "secret invalid id" }},
+		{"method", func(e *GatewayExchange) { e.Method = "secret method" }},
+		{"started_at", func(e *GatewayExchange) { e.StartedAt = "secret time" }},
+		{"finished_at", func(e *GatewayExchange) { e.FinishedAt = "secret time" }},
+		{"time_order", func(e *GatewayExchange) { e.FinishedAt = "2026-11-10T00:00:00Z" }},
+		{"http_status", func(e *GatewayExchange) { e.HTTPStatus = 600 }},
+		{"error_code", func(e *GatewayExchange) { e.ErrorCode = "secret error" }},
+		{"outcome", func(e *GatewayExchange) { e.Outcome = "secret outcome" }},
+	} {
+		t.Run(tc.field, func(t *testing.T) {
+			c := &RemoteCall{RequestID: "request", ContextID: "context"}
+			in := CallCommand{RemoteTaskID: "task", ContextID: "context", Gateway: &GatewayExchange{
+				RPCID: "request", Method: "SendMessage", StartedAt: "2026-11-11T00:00:00Z", FinishedAt: "2026-11-11T00:00:01Z", HTTPStatus: 200, Outcome: "task_received"}}
+			tc.change(in.Gateway)
+			err := recordGateway(c, in)
+			if err == nil || err.Error() != "invalid Gateway observation: "+tc.field || strings.Contains(err.Error(), "secret") {
+				t.Fatalf("unexpected diagnostic: %v", err)
+			}
+			if len(c.GatewayExchanges) != 0 {
+				t.Fatal("rejected observation was committed")
+			}
+		})
+	}
+}
+
 func TestDiscoverySnapshotPersistsWithoutChangingApprovedBinding(t *testing.T) {
 	s, in, version := busFixture(t)
 	binding := s.st.Plans["P1"][0].BusBindings["report"]

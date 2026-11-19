@@ -30,14 +30,14 @@ public final class Main {
     private static final Map<String, int[]> FORMAT_DOC_CLAIMS = new LinkedHashMap<>();
 
     static {
-        ORACLE_PINS.put("ledger", new int[] {9, 33}); // refreshed 2026-11-13 to the
+        ORACLE_PINS.put("ledger", new int[] {9, 36}); // refreshed 2026-11-13 to the
         // Go/Python oracle count (9 must-accept + 33 must-reject, `go run ./cmd/ledger`
         // ALL GREEN); the D93 fourth-copy drift probe stays — the pin is still
         // hand-copied, still checked, still expected to drift when the corpus grows.
         ORACLE_PINS.put("adoption", new int[] {2, 5});
         ORACLE_PINS.put("judgment", new int[] {2, 19});
         ORACLE_PINS.put("release", new int[] {3, 14});
-        FORMAT_DOC_CLAIMS.put("ledger", new int[] {9, 33}); // same refresh; format doc §1 now says 9+33
+        FORMAT_DOC_CLAIMS.put("ledger", new int[] {9, 36}); // same refresh; format doc §1 now says 9+33
         FORMAT_DOC_CLAIMS.put("adoption", new int[] {2, 5});
         FORMAT_DOC_CLAIMS.put("judgment", new int[] {2, 19});
         FORMAT_DOC_CLAIMS.put("release", new int[] {2, 9}); // the PRE-E1 header claim, kept as the stale-detection probe (E1 fixed the doc to 3+14)
@@ -65,7 +65,7 @@ public final class Main {
         SuiteRunner main = new SuiteRunner(defaultLoader);
         Path ex = schemaDir.resolve("examples");
         rc += main.run("ledger", ex.resolve("ledger/valid"), ex.resolve("ledger/invalid"),
-                ledger::check, 9, 33, true);
+                ledger::check, 9, 36, true);
         rc += main.run("adoption", ex.resolve("adoption/valid"), ex.resolve("adoption/invalid"),
                 adoption::check, 2, 5, true);
         rc += main.run("judgment", ex.resolve("judgment/valid"), ex.resolve("judgment/invalid"),
@@ -78,7 +78,7 @@ public final class Main {
         FixtureLoader decimalLoader = new FixtureLoader(FixtureLoader.FloatDomain.BIG_DECIMAL);
         SuiteRunner decimal = new SuiteRunner(decimalLoader);
         rc += decimal.run("ledger", ex.resolve("ledger/valid"), ex.resolve("ledger/invalid"),
-                ledger::check, 9, 33, false);
+                ledger::check, 9, 36, false);
         rc += decimal.run("adoption", ex.resolve("adoption/valid"),
                 ex.resolve("adoption/invalid"), adoption::check, 2, 5, false);
         rc += decimal.run("judgment", ex.resolve("judgment/valid"),
@@ -207,8 +207,8 @@ public final class Main {
         }
         System.out.println("total actual = " + total
                 + "   (format-doc machine manifest now carries the live counts; the 2+9 probe column above is the pre-E1 historical claim kept deliberately to prove this detector can see staleness — E1 already healed the doc)");
-        if (total != 211) { // refreshed 2026-11-13: full-corpus fixture count (find schema -name "*.json" -not -name "*.schema.json" | wc -l), per issue #10
-            System.out.println("COUNT-FAIL: total drifted from the 211 pinned by this spike");
+        if (total != 214) { // refreshed 2026-11-13: full-corpus fixture count (find schema -name "*.json" -not -name "*.schema.json" | wc -l), per issue #10
+            System.out.println("COUNT-FAIL: total drifted from the 214 pinned by this spike");
             bad++;
         }
         return bad;
@@ -228,7 +228,7 @@ public final class Main {
     private static String twoEventDoc(String rawSeqA, String rawSeqB) {
         return """
                 {
-                  "ledger_version": "0.1.0",
+                  "ledger_version": "0.2.0",
                   "events": [
                     {
                       "event_type": "adoption",

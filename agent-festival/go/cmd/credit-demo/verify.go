@@ -140,9 +140,13 @@ func (s *Service) Verify(runID string, tamper bool) (*Report, error) {
 	jc := Check{Name: "判断合规约", OK: r.Decision != nil}
 	if r.Decision != nil {
 		level := fmt.Sprint(r.Decision["level"])
-		jc.OK = contains(s.levels, level)
-		q, _ := s.spec["question"].(map[string]any)
-		jc.Detail = fmt.Sprintf("规约 %v@%v；结论 %s；依据步骤 %v", q["question_id"], q["spec_version"], level, r.Decision["evidence_steps"])
+		if bs, err := s.runSpec(r); err != nil {
+			jc.OK, jc.Detail = false, err.Error()
+		} else {
+			jc.OK = contains(bs.levels, level)
+			q, _ := bs.spec["question"].(map[string]any)
+			jc.Detail = fmt.Sprintf("规约 %v@%v（任务绑定的版本）；结论 %s；依据步骤 %v", q["question_id"], q["spec_version"], level, r.Decision["evidence_steps"])
+		}
 	} else {
 		jc.Detail = "没有已采纳的判断"
 	}
@@ -171,7 +175,7 @@ func (s *Service) Verify(runID string, tamper bool) (*Report, error) {
 			steps = append(steps, st)
 		}
 		var doc map[string]any
-		rawDoc, _ := json.Marshal(map[string]any{"case_version": "0.1.0", "case_id": strings.ToLower(r.ID), "steps": steps,
+		rawDoc, _ := json.Marshal(map[string]any{"case_version": "0.2.0", "case_id": strings.ToLower(r.ID), "steps": steps,
 			"recorded_events": evs, "expected": map[string]any{"fidelity": "match", "conformance": "pass"}})
 		_ = numberDecode(rawDoc, &doc)
 		c, lerr := replay.LoadCase(doc)

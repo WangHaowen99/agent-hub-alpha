@@ -128,6 +128,7 @@ type GraphRun struct {
 	Leases   int    `json:"leases"`
 	Stalled  bool   `json:"stalled,omitempty"` // heartbeats stopped; the lease is running out
 	URL      string `json:"url"`
+	Waiting  string `json:"waiting,omitempty"` // why a queued run is not running yet (e.g. no executor on its bound model)
 }
 
 func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
@@ -215,6 +216,14 @@ func (s *Service) graph(p *Plan, withVerify bool) (*Graph, error) {
 			URL: fmt.Sprintf("%s/ui/run/%s", s.cfg.PublicURL, run.ID)}
 		if run.Decision != nil {
 			g.Run.Decision = fmt.Sprint(run.Decision["level"])
+		}
+		if run.Status == "queued" && len(run.LeaseRefusals) > 0 {
+			f := run.LeaseRefusals[len(run.LeaseRefusals)-1]
+			model := f.Model
+			if model == "" {
+				model = "（未上报）"
+			}
+			g.Run.Waiting = fmt.Sprintf("等待模型为 %s 的执行器；%s 上报 %s，已拒绝领取 %d 次", f.Bound, f.Worker, model, f.Count)
 		}
 		if run.Status == "running" && !run.LeaseUntil.IsZero() {
 			// The executor beats every lease/3 seconds and each beat renews the

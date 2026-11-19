@@ -139,6 +139,38 @@ docker rm -f agent-hub-issue16-fault-proxy-1
 
 ## 全新部署、备份与回滚
 
+### 编排器关闭补丁与恢复边界
+
+编排器构建在 `sources.lock.json` 固定的 agent-solution 源码上应用
+`patches/blueprint-scheduler-drain.patch`，并以独立 Maven 版本
+`0.1.3-aha-drain1` 构建，避免与未修复的 `0.1.3` 混用。补丁修改的是
+`BlueprintScheduler.close()`：由宿主取消并等待旧成员退出、释放 Loop Forest
+进程级工具注册后，才允许本宿主开始下一轮；不新增调度器。
+
+本地 Java 回归：在固定的 agent-solution 源码应用该补丁，先运行
+`mvn -N -Drevision=0.1.3-aha-drain1 -Dmaven.test.skip=true install`，再运行
+`mvn -f common/agent-core-ext-java/pom.xml -pl agent-core-ext-orchestration -am -Drevision=0.1.3-aha-drain1 -Dmaven.test.skip=true install`。
+随后在 `agent-festival/examples/credit-orchestrator` 执行 `mvn clean test`。
+`SchedulerRecoveryTest` 使用真实 SDK 调度器和工具注册表；`JudgmentErrorsTest`
+使用真实 HTTP 客户端与计数模型替身，不代表真实模型或共同镜像的整链验收。
+
+关闭等待不设强行放行时限：成员不响应取消时，宿主不得在旧资源仍存活的情况下
+重新执行。此时需要运维隔离或重启进程；真实模型取消行为、共同部署恢复仍需 D2 验收。
+`STORAGE_UNAVAILABLE` 也不表示“没有写入”：采纳账本可能已写入而状态快照失败。
+服务冻结写入后，应保留数据并核对账本与快照，再决定恢复；不能将此错误用于模型内容修订或盲目重发。
+
+启动时会复用现有采纳检查器和回放引擎，核对每个已知任务的 `adopt.jsonl` 与
+`state.json` 中的操作序列、原决策摘要/身份/绑定和节点结果。账本先行写入、
+账本丢失或损坏、旧格式不兼容、原决策结果缺失时，该任务进入
+`blocked / RECONCILIATION_REQUIRED`，撤销旧令牌，普通恢复不能放行；其他正常任务继续运行。
+状态改变前保存 `reconciliation-<摘要>.json` 原快照副本，副本保存失败则停止启动。
+副本和账本应作为本地运维证据保留，外发前脱敏；不要删账本或将任务改为 queued 来绕过核对。
+修复数据也不会自动解除原有 blocked 状态，人工修复/解除的受控流程仍待联合验收。
+
+新判断将决策和带步骤标识的节点结果写入同一快照：响应丢失、执行端未发 StepPut 时，
+StepGet 仍可复用该结果。它不提供账本与快照之间的跨文件原子性，也不从摘要恢复丢失的模型内容。
+旧任务已存下完整且可核对的结果可继续；不完整或不兼容记录保留并阻断，不执行猜测式迁移。
+
 另用干净项目和端口可重跑部署（相同镜像、独立卷；资源不足时先停当前项目）：
 
 ```sh

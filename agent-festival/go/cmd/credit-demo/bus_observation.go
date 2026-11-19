@@ -57,12 +57,24 @@ func recordGateway(c *RemoteCall, in CallCommand) error {
 	e.Sequence = 0
 	start, errStart := time.Parse(time.RFC3339Nano, e.StartedAt)
 	end, errEnd := time.Parse(time.RFC3339Nano, e.FinishedAt)
-	if !rpcIDPattern.MatchString(e.RPCID) || !contains([]string{"SendMessage", "GetTask"}, e.Method) ||
-		errStart != nil || errEnd != nil || end.Before(start) ||
-		(e.HTTPStatus != 0 && (e.HTTPStatus < 100 || e.HTTPStatus > 599)) ||
-		(e.ErrorCode != "" && !gatewayCodePattern.MatchString(e.ErrorCode)) ||
-		!contains([]string{"task_received", "http_error", "protocol_error", "transport_error", "invalid_response"}, e.Outcome) {
-		return fmt.Errorf("invalid Gateway observation")
+	// Name the rejected field, never its possibly sensitive value. This makes
+	// a real deployment's failed observation diagnosable without weakening it.
+	for _, check := range []struct {
+		field string
+		valid bool
+	}{
+		{"rpc_id", rpcIDPattern.MatchString(e.RPCID)},
+		{"method", contains([]string{"SendMessage", "GetTask"}, e.Method)},
+		{"started_at", errStart == nil},
+		{"finished_at", errEnd == nil},
+		{"time_order", !end.Before(start)},
+		{"http_status", e.HTTPStatus == 0 || (e.HTTPStatus >= 100 && e.HTTPStatus <= 599)},
+		{"error_code", e.ErrorCode == "" || gatewayCodePattern.MatchString(e.ErrorCode)},
+		{"outcome", contains([]string{"task_received", "http_error", "protocol_error", "transport_error", "invalid_response"}, e.Outcome)},
+	} {
+		if !check.valid {
+			return fmt.Errorf("invalid Gateway observation: %s", check.field)
+		}
 	}
 	if e.Method == "SendMessage" && e.RPCID != c.RequestID {
 		return errCallConflict

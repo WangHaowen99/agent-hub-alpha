@@ -25,16 +25,17 @@
      verify with python3 tools/corpus_manifest.py --check (rc=1 on drift) -->
 | 族 | valid + invalid |
 |---|---|
-| `ledger` | 9 + 33 |
+| `ledger` | 9 + 36 |
 | `adoption` | 2 + 5 |
 | `judgment` | 2 + 19 |
 | `release` | 3 + 14 |
 | `replay` | 8 + 9 |
 | `compose` | 10 + 36 |
 | `evidlog` | 1 + 6 |
-| 增长族合计 | 157 |
+| 增长族合计 | 160 |
 | 基座契约/信封 | 50 |
-| 全仓合计（含密钥库） | 211 |
+| 全仓合计（含密钥库） | 214 |
+
 ## 二、夹具的钉子语法
 
 每个夹具是一份带内嵌钉的 JSON 文档：

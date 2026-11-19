@@ -52,6 +52,8 @@ func TestSharedSubtreeLockstep(t *testing.T) {
 		// the fifth shared atom: the payload-digest shape (R9 M-1) — the
 		// machine's "conforming by construction" depends on adoption ⊆ ledger
 		{"payload_digest", idemProps["payload_digest"].(map[string]any), ledgerProps["payload_digest"].(map[string]any)},
+		// The identity pair above includes logical_execution and generation.
+		// There is no second top-level identity that a consumer could discard.
 	}
 	for _, pair := range pairs {
 		a, err := json.Marshal(stripDescription(pair.ledger))

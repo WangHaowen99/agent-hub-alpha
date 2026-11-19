@@ -1,0 +1,26 @@
+diff --git a/common/agent-core-ext-java/agent-core-ext-orchestration/src/main/java/com/openjiuwen/agents/orchestration/BlueprintScheduler.java b/common/agent-core-ext-java/agent-core-ext-orchestration/src/main/java/com/openjiuwen/agents/orchestration/BlueprintScheduler.java
+index 295b40860..40a6d957d 100644
+--- a/common/agent-core-ext-java/agent-core-ext-orchestration/src/main/java/com/openjiuwen/agents/orchestration/BlueprintScheduler.java
++++ b/common/agent-core-ext-java/agent-core-ext-orchestration/src/main/java/com/openjiuwen/agents/orchestration/BlueprintScheduler.java
+@@ -415,5 +415,20 @@ public final class BlueprintScheduler implements AutoCloseable {
+     @Override
+     public void close() {
+-        pool.shutdown();
++        // Called by the owning thread, never by a member of this pool.
++        // A failed sibling must not leave another member's process-global
++        // Loop Forest tools installed when the owner starts a replacement run.
++        pool.shutdownNow();
++        boolean interrupted = false;
++        while (!pool.isTerminated()) {
++            try {
++                pool.awaitTermination(1, TimeUnit.DAYS);
++            } catch (InterruptedException ex) {
++                interrupted = true;
++                pool.shutdownNow();
++            }
++        }
++        if (interrupted) {
++            Thread.currentThread().interrupt();
++        }
+     }
+ }

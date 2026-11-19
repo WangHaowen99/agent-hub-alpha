@@ -161,7 +161,8 @@ func TestBusResultWriteFailureDoesNotExposeSuccess(t *testing.T) {
 func TestBusPersistenceReloadReusesArtifactWithoutModelIncrement(t *testing.T) {
 	s, in, _ := busFixture(t)
 	c := beginFixture(t, s, in)
-	auth := CallCommand{RunID: in.RunID, Step: in.Step, Token: c.CapabilityToken, ServiceID: c.Binding.AgentID, ServiceVersion: c.Binding.Version, ContextID: c.ContextID, EventID: "model-1"}
+	// the runtime reports the model it is about to call (AR-04 M1); the fixture runs on its bound model
+	auth := CallCommand{RunID: in.RunID, Step: in.Step, Token: c.CapabilityToken, ServiceID: c.Binding.AgentID, ServiceVersion: c.Binding.Version, ContextID: c.ContextID, EventID: "model-1", Model: "fixture-model"}
 	if _, err := s.AgentContext(auth); err != nil {
 		t.Fatal(err)
 	}

@@ -1,0 +1,75 @@
+{
+  "descriptor": {
+    "schema_version": "publication-reference/v2",
+    "logical_id": "intent-gate",
+    "native_agent_id": "candidate-fixture-A",
+    "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "contract_version": "1.0.0",
+    "protocol_version": "1.0",
+    "card_digest": "4157645baa1d8cd7588d261135c7dd6daf1dedbd16c77af9b433b5dde65af4de",
+    "contract_digest": "f43c1b171d43cfb975684ed244bbb09ddd11308671f5d79fb268d2cf0c703c61",
+    "tenant": "builder-h02b",
+    "source_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "wheel_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "acceptance_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "closure_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "original_handoff": {
+      "status": "bound_to_original_projections",
+      "command_id": "controlled-build",
+      "candidate_ref": {
+        "id": "fixture-A",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "task_ref": {
+        "id": "fixture-task"
+      },
+      "operation_ref": {
+        "id": "fixture-op"
+      },
+      "evidence_ref": {
+        "id": "fixture-op",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "generation": 1
+    },
+    "address": "127.0.0.1",
+    "port": 18081,
+    "endpoint_path": "/a2a/jsonrpc/",
+    "agent_card": {
+      "name": "candidate-fixture-A",
+      "description": "余额 <只读> & 判断",
+      "supportedInterfaces": [
+        {
+          "url": "http://127.0.0.1:18081/a2a/jsonrpc/",
+          "protocolBinding": "JSONRPC",
+          "protocolVersion": "1.0"
+        }
+      ],
+      "defaultInputModes": [
+        "text/plain"
+      ],
+      "defaultOutputModes": [
+        "application/json"
+      ],
+      "skills": [],
+      "capabilities": {}
+    },
+    "governance": "unverified",
+    "execution_authorized": false,
+    "capability_version": "1.0.0",
+    "deployment_version": "reference-A",
+    "instance_id": "owned-A"
+  },
+  "canonical_card": "{\"capabilities\":{},\"defaultInputModes\":[\"text/plain\"],\"defaultOutputModes\":[\"application/json\"],\"description\":\"余额 <只读> & 判断\",\"name\":\"candidate-fixture-A\",\"skills\":[],\"supportedInterfaces\":[{\"protocolBinding\":\"JSONRPC\",\"protocolVersion\":\"1.0\"}]}",
+  "expected_card_digest": "4157645baa1d8cd7588d261135c7dd6daf1dedbd16c77af9b433b5dde65af4de",
+  "contract": {
+    "schema_version": "1.0",
+    "input": {
+      "query": "text",
+      "context": "role-content-list"
+    },
+    "output": "IntentPrediction/1.0"
+  },
+  "expected_contract_digest": "f43c1b171d43cfb975684ed244bbb09ddd11308671f5d79fb268d2cf0c703c61"
+}

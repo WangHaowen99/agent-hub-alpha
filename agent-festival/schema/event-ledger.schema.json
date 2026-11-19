@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agent-festival.local/schema/event-ledger/0.1.0",
   "title": "Event Ledger — draft 0.1.0",
-  "description": "Append-only record of adoption and effect events (piece 4 of the NGA unified-architecture growth layer). An event carries the three-layer business identity (07 proposal §6 objects T1/J1-D1/B1), the accountability triple (festival D31), the P5 five-dimension version binding, and the correlation keys the replay matcher (piece 6) consumes: operation identity, payload digest, dependency versions, and the recorded arbitration order (07 §8 retention list). The adopt state machine (piece 2) is the single writer; replay (piece 6) is a reader; nothing else writes. Replay re-uses the recorded order, never re-arbitrates (legacy 12号 §3 semantics — not re-stated in the current proposal; see the drift register in schema/README.md). Record-family inputs (model outputs, tool responses, provider receipts) are NOT stored here — piece 6 fixtures supply them (S1 fork ruling; the current proposal's retention list covers them separately, see the drift register). Provenance (dual anchor): semantics per the current NGA architecture proposal §3/§6/§8 and overall-design P5; formerly NGA overall-design §7.2 / P5, 12-replay-and-audit-contract §2-§3, 15-graph-loop §B4 (superseded by the 2026-10-31 consolidation). All 'proposed' status in NGA — every field here is an evidence-track probe answer, not an NGA commitment.",
+  "description": "Append-only record of adoption and effect events (piece 4 of the NGA unified-architecture growth layer). An event carries the three-layer business identity (07 proposal §6 objects T1/J1-D1/B1), the accountability triple (festival D31), the P5 five-dimension version binding, and the correlation keys the replay matcher (piece 6) consumes: operation identity, payload digest, dependency versions, and the recorded arbitration order (07 §8 retention list). The adopt state machine (piece 2) is the single writer; replay (piece 6) is a reader; nothing else writes. Replay re-uses the recorded order, never re-arbitrates (legacy 12号 §3 semantics — not re-stated in the current proposal; see the drift register in schema/README.md). Record-family inputs (model outputs, tool responses, provider receipts) are NOT stored here — piece 6 fixtures supply them (S1 fork ruling; the current proposal's retention list covers them separately, see the drift register). Provenance (dual anchor): semantics per the current NGA architecture proposal §3/§6/§8 and overall-design P5; formerly NGA overall-design §7.2 / P5, 12-replay-and-audit-contract §2-§3, 15-graph-loop §B4 (superseded by the 2026-10-31 consolidation). All 'proposed' status in NGA — every field here is an evidence-track probe answer, not an NGA commitment. | v0.2.0 (2026-11-15): batch-0 structured keys — logical_execution (o four-tuple), execution_generation (e), external_status (b three-state) added as optional fields per邢 GC#2 formalization; operation_id semantics narrowed to attempt (a) granularity; optional identity fields preserve the old event shape under ledger_version 0.2.0; documents declaring 0.1.0 require explicit version migration and revalidation. Column-definition change → per 77号 freshness protocol urgent exception: report this round, not monthly.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,7 +12,7 @@
   "properties": {
     "ledger_version": {
       "type": "string",
-      "const": "0.1.0"
+      "const": "0.2.0"
     },
     "events": {
       "type": "array",
@@ -161,6 +161,46 @@
         "operation_id": {
           "type": "string",
           "minLength": 1
+        },
+        "logical_execution": {
+          "type": "object",
+          "description": "o = (T, g, node_path, iteration_path) — the logical node execution identity (邢 GC#2 2026-11-13 formalization, adopted verbatim). T = the accepted task (business_request_id + graph_version); g = the adopted graph version/sha; node_path/iteration_path locate the node within the graph including loop/branch ordinals. operation_id remains the attempt (a) identity — o is the durable logical key that survives retries. All four fields required (atomic tuple — partial or empty logical_execution is invalid; M-1 fix): old events carry only operation_id (a-granularity); new events SHOULD carry logical_execution for graph-aware consumers (W04). See batch-0 scope (130/132号).",
+          "additionalProperties": false,
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "T — the accepted task identifier. In v0.1.0+1.0.0 this maps to business_request_id at the single-node level; graph-aware producers supply their own task identifier."
+            },
+            "graph_version": {
+              "type": "string",
+              "minLength": 1,
+              "description": "g — the adopted graph version/sha. Frozen at adoption by W04; Go stores but does not decide."
+            },
+            "node_path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Path of the node within the graph (e.g. 'n3' or 'workflow/collection/n3' for nested). Nested/loop use parent path + ordinals."
+            },
+            "iteration_path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Loop/branch ordinal path (e.g. 'iter:2' or 'loop:1/branch:B/iter:2'). Composes with node_path to form the full execution position."
+            }
+          },
+          "required": [
+            "task_id",
+            "graph_version",
+            "node_path",
+            "iteration_path"
+          ],
+          "minProperties": 4,
+          "maxProperties": 4
+        },
+        "execution_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "e — current execution ownership generation. Minted once per claim (hermes generation-stamp precedent: first opener wins). Renewal/takeover decisions belong to W04; Go stores the result. 0 = original claim; increments on verified takeover."
         }
       }
     },
@@ -215,6 +255,15 @@
           "description": "sha256 hex of JCS(request payload) — same shape and stack as the base's ContractHash.",
           "type": "string",
           "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "external_status": {
+          "type": "string",
+          "enum": [
+            "pre_send",
+            "remote_effective_local_unconfirmed",
+            "result_delivered_caller_unreceived"
+          ],
+          "description": "b — three-state record for a protected external request (邢 matrix row 5): pre_send (request not yet left), remote_effective_local_unconfirmed (provider accepted but local receipt lost), result_delivered_caller_unreceived (formal result landed but caller didn't receive). Runtime state or timeout is NOT a business terminal; this field records the observation, W04 verifies it."
         }
       }
     },

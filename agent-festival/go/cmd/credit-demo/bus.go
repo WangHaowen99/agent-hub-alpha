@@ -48,6 +48,7 @@ type RemoteCall struct {
 	ArtifactID       string                     `json:"artifact_id,omitempty"`
 	ArtifactDigest   string                     `json:"artifact_digest,omitempty"`
 	ModelEvents      map[string]string          `json:"model_events"`
+	ActualModels     map[string]string          `json:"actual_models,omitempty"` // model event id -> model the runtime reported
 	Discovery        *DiscoverySnapshot         `json:"discovery,omitempty"`
 	GatewayExchanges map[string]GatewayExchange `json:"gateway_exchanges,omitempty"`
 	// This scoped credential is persisted privately and never projected to UI.
@@ -73,6 +74,7 @@ type CallCommand struct {
 	ServiceVersion  string           `json:"service_version,omitempty"`
 	EventID         string           `json:"event_id,omitempty"`
 	Gateway         *GatewayExchange `json:"gateway,omitempty"`
+	Model           string           `json:"model,omitempty"` // the model the remote runtime is about to call
 }
 
 var errCallConflict = errors.New("node input, contract or result conflict")
@@ -90,6 +92,10 @@ func (s *Service) readBinding(expert string) (BusBinding, error) {
 	return binding, err
 }
 
+// discoveryClient is shared by all RDC lookups. Each request is bounded; the
+// lookup runs outside the service lock (see BeginCall).
+var discoveryClient = &http.Client{Timeout: 5 * time.Second}
+
 func (s *Service) observeBinding(expert string) (BusBinding, *DiscoverySnapshot, error) {
 	id := busAgents[expert]
 	if id == "" || s.cfg.BusRegistryURL == "" || s.cfg.BusRegistryToken == "" {
@@ -101,7 +107,7 @@ func (s *Service) observeBinding(expert string) (BusBinding, *DiscoverySnapshot,
 	}
 	req.Header.Set("Authorization", "Bearer "+s.cfg.BusRegistryToken)
 	req.Header.Set("X-Tenant-ID", s.cfg.BusTenant)
-	resp, err := (&http.Client{Timeout: 5 * time.Second}).Do(req)
+	resp, err := discoveryClient.Do(req)
 	if err != nil {
 		return BusBinding{}, nil, fmt.Errorf("RDC discovery unavailable: %w", err)
 	}
@@ -132,7 +138,7 @@ func (s *Service) observeBinding(expert string) (BusBinding, *DiscoverySnapshot,
 	}
 	instancesRequest, _ := http.NewRequest(http.MethodGet, strings.TrimRight(s.cfg.BusRegistryURL, "/")+"/v2/agents/"+url.PathEscape(id)+"/instances", nil)
 	instancesRequest.Header = req.Header.Clone()
-	instancesResponse, err := (&http.Client{Timeout: 5 * time.Second}).Do(instancesRequest)
+	instancesResponse, err := discoveryClient.Do(instancesRequest)
 	if err != nil {
 		return BusBinding{}, nil, fmt.Errorf("RDC instances unavailable: %w", err)
 	}
@@ -245,50 +251,93 @@ func copyCall(c *RemoteCall) *RemoteCall {
 	return &result
 }
 
-func (s *Service) BeginCall(in CallCommand) (map[string]any, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+// beginSnapshot is what BeginCall checked under the lock before leaving it
+// for capability discovery; the send intent is written only if it still holds.
+type beginSnapshot struct {
+	epoch   int
+	plan    string
+	binding BusBinding
+	digest  string
+	expert  string
+}
+
+// beginCheck validates the caller and the node under s.mu. If the node already
+// has a call it answers from that call (reuse/query/unknown) and returns a
+// non-nil result; otherwise it returns the snapshot discovery must confirm.
+func (s *Service) beginCheck(in CallCommand) (map[string]any, *beginSnapshot, error) {
 	r, err := s.fence(in.RunID, in.Token)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	st := r.Steps[in.Step]
 	if st == nil {
-		return nil, fmt.Errorf("node is not in the approved graph")
+		return nil, nil, fmt.Errorf("node is not in the approved graph")
 	}
 	p := s.st.Plans[r.PlanID][r.PlanVersion-1]
 	binding, ok := p.BusBindings[in.Step]
 	if !ok {
-		return nil, fmt.Errorf("node has no approved remote capability")
+		return nil, nil, fmt.Errorf("node has no approved remote capability")
 	}
-	digest, err := canonicalHash(map[string]any{"input": in.Input, "goal": in.Goal, "binding": binding, "model": s.cfg.Model})
+	digest, err := canonicalHash(map[string]any{"input": in.Input, "goal": in.Goal, "binding": binding, "model": s.runModel(r)})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if st.Call != nil {
 		c := st.Call
 		if c.InputDigest != digest || c.Binding != binding {
-			return nil, errCallConflict
+			return nil, nil, errCallConflict
 		}
 		action := "unknown"
 		if st.Status == "done" {
 			action = "reuse"
 			st.Reused++
 			if err := s.save(); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		} else if c.RemoteTaskID != "" {
 			action = "query"
 		}
-		return map[string]any{"action": action, "call": copyCall(c), "output": st.Output}, nil
+		return map[string]any{"action": action, "call": copyCall(c), "output": st.Output}, nil, nil
 	}
-	actual, discovery, err := s.observeBinding(st.Expert)
+	return nil, &beginSnapshot{epoch: r.Epoch, plan: p.Key(), binding: binding, digest: digest, expert: st.Expert}, nil
+}
+
+// BeginCall records the send intent of a remote node (AR-05, #27). Capability
+// discovery talks to RDC outside the service lock, so a slow or unreachable
+// registry never holds up heartbeats, other nodes' results or reads; after
+// discovery everything checked before is checked again under the lock, and
+// any drift (lease taken over, plan or binding changed, another request
+// already wrote the intent) prevents a send from a stale snapshot.
+func (s *Service) BeginCall(in CallCommand) (map[string]any, error) {
+	s.mu.Lock()
+	out, snap, err := s.beginCheck(in)
+	s.mu.Unlock()
+	if err != nil || out != nil {
+		return out, err
+	}
+
+	actual, discovery, err := s.observeBinding(snap.expert)
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	out, again, cerr := s.beginCheck(in)
+	if cerr != nil || out != nil {
+		// fenced, conflicting, or another request recorded the intent meanwhile
+		return out, cerr
+	}
 	if err != nil {
 		return nil, err
 	}
-	if actual != binding {
+	if *again != *snap {
+		return nil, fmt.Errorf("%w: run state changed during capability discovery", errCallConflict)
+	}
+	if actual != snap.binding {
 		return nil, errCallConflict
 	}
+	r := s.st.Runs[in.RunID]
+	st := r.Steps[in.Step]
+	p := s.st.Plans[r.PlanID][r.PlanVersion-1]
+	binding, digest := snap.binding, snap.digest
 	node := sha(r.ID, p.Key(), in.Step, "iteration:0")
 	c := &RemoteCall{NodeExecutionID: node, GraphRevision: p.Key(), NodePath: in.Step, LoopIteration: 0, Attempt: 1, Binding: binding,
 		InputDigest: digest, Input: in.Input, Goal: in.Goal, RequestID: newToken(), MessageID: newToken(), ContextID: "ctx-" + newToken(),
@@ -393,6 +442,13 @@ func (s *Service) agentCall(in CallCommand) (*Run, *StepRec, error) {
 	if r == nil {
 		return nil, nil, errFenced
 	}
+	if r.Status == "blocked" {
+		// A blocked run grants no new execution start or model permit to any of
+		// its nodes; withdrawing the host lease alone does not stop remote
+		// runtimes that still hold a node credential (AR-04 review P1). Reads
+		// and audit go through other endpoints and are not affected.
+		return nil, nil, errFenced
+	}
 	st := r.Steps[in.Step]
 	if st == nil || st.Call == nil || in.Token == "" || st.Call.CapabilityToken != in.Token {
 		return nil, nil, errFenced
@@ -406,7 +462,7 @@ func (s *Service) agentCall(in CallCommand) (*Run, *StepRec, error) {
 func (s *Service) AgentContext(in CallCommand) (map[string]any, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, st, err := s.agentCall(in)
+	r, st, err := s.agentCall(in)
 	if err != nil {
 		return nil, err
 	}
@@ -421,23 +477,40 @@ func (s *Service) AgentContext(in CallCommand) (map[string]any, error) {
 	if err := s.save(); err != nil {
 		return nil, err
 	}
-	return map[string]any{"call": copyCall(c), "expert": st.Expert, "tools": expertByID(st.Expert).Tools}, nil
+	return map[string]any{"call": copyCall(c), "expert": st.Expert, "tools": expertByID(st.Expert).Tools, "model": s.runModel(r)}, nil
 }
 
+// ModelCall is the remote runtime's record of a model call, made before the
+// call. The runtime reports the model it is about to use; anything but the
+// run's bound model stops the run as blocked and is refused, so the call is
+// not made (AR-04 M1).
 func (s *Service) ModelCall(in CallCommand) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, st, err := s.agentCall(in)
+	r, st, err := s.agentCall(in)
 	if err != nil {
 		return err
 	}
 	if in.EventID == "" || len(in.EventID) > 150 {
 		return fmt.Errorf("model event id required")
 	}
+	if bound := s.runModel(r); in.Model != bound {
+		reason := modelMismatch(bound, "远端 "+in.ServiceID, in.Model)
+		st.Call.Reason = reason
+		s.blockRun(r, reason)
+		if err := s.save(); err != nil {
+			return err
+		}
+		return fmt.Errorf("%w: %s", errModelBinding, reason)
+	}
 	if st.Call.ModelEvents[in.EventID] != "" {
 		return nil
 	}
 	st.Call.ModelEvents[in.EventID] = now()
+	if st.Call.ActualModels == nil {
+		st.Call.ActualModels = map[string]string{}
+	}
+	st.Call.ActualModels[in.EventID] = in.Model
 	return s.save()
 }
 
@@ -485,15 +558,9 @@ func (s *Service) busRoutes(mux *http.ServeMux) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			if err != nil {
-				status := http.StatusBadRequest
-				if errors.Is(err, errFenced) || errors.Is(err, errCallConflict) {
-					status = http.StatusConflict
-				}
-				if errors.Is(err, errStorage) {
-					status = http.StatusServiceUnavailable
-				}
+				status, code := errorCode(err)
 				w.WriteHeader(status)
-				_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error(), "code": code})
 				return
 			}
 			_ = json.NewEncoder(w).Encode(out)

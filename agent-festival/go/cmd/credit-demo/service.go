@@ -23,19 +23,21 @@ import (
 )
 
 type Config struct {
-	Addr             string
-	DataDir          string
-	OrchestratorURL  string
-	PublicURL        string   // where browsers reach this service: a path behind the front proxy, e.g. /credit
-	Origins          []string // browser origins of the WorkSwarm UI; the MCP App may fetch /api/graph from them
-	MemberMCPURL     string
-	Model            string
-	SpecPath         string
-	LeaseSeconds     int
-	BusRegistryURL   string
-	BusRegistryToken string
-	BusTenant        string
-	ScenarioDir      string // operator-imported approved scenario packages (*.json); built-in packages always load
+	BuilderHubEnabled  bool
+	BuilderPublication *builderPublicationConfig
+	Addr               string
+	DataDir            string
+	OrchestratorURL    string
+	PublicURL          string   // where browsers reach this service: a path behind the front proxy, e.g. /credit
+	Origins            []string // browser origins of the WorkSwarm UI; the MCP App may fetch /api/graph from them
+	MemberMCPURL       string
+	Model              string
+	SpecPath           string
+	LeaseSeconds       int
+	BusRegistryURL     string
+	BusRegistryToken   string
+	BusTenant          string
+	ScenarioDir        string // operator-imported approved scenario packages (*.json); built-in packages always load
 }
 
 // StepRec is the authoritative record of one blueprint step in a run.
@@ -68,6 +70,7 @@ type Run struct {
 	PlanID      string              `json:"plan_id"`
 	PlanVersion int                 `json:"plan_version"`
 	PlanHash    string              `json:"plan_hash"`
+	Binding     *ExecBinding        `json:"exec_binding,omitempty"` // what the run resolves for its whole life (AR-04)
 	CaseID      string              `json:"case_id"`
 	Status      string              `json:"status"` // queued running done failed
 	ApprovedBy  string              `json:"approved_by"`
@@ -88,8 +91,10 @@ type Run struct {
 	Receipt     string              `json:"receipt,omitempty"`
 	ReceiptOf   string              `json:"receipt_status,omitempty"` // approved declined cancelled unknown
 	ReplaySteps []map[string]any    `json:"replay_steps,omitempty"`
-	Scenario    string              `json:"scenario,omitempty"`
-	Final       string              `json:"final_output,omitempty"`
+	// LeaseRefusals: executors on another model that asked for this run (AR-04 review P2).
+	LeaseRefusals []LeaseRefusal `json:"lease_refusals,omitempty"`
+	Scenario      string         `json:"scenario,omitempty"`
+	Final         string         `json:"final_output,omitempty"`
 }
 
 type State struct {
@@ -113,6 +118,8 @@ type Service struct {
 	bank       *Provider
 	spec       map[string]any
 	levels     []string
+	specDigest string                // digest of the currently published judgment spec
+	specCache  map[string]*boundSpec // archived specs resolved for older runs; guarded by mu
 	machines   map[string]*adopt.Machine
 	logs       map[string]*evidlog.Log
 	lastSaved  []byte
@@ -150,14 +157,10 @@ func OpenService(cfg Config) (*Service, error) {
 	}
 	s := &Service{cfg: cfg, cat: cat, spec: spec, machines: map[string]*adopt.Machine{}, logs: map[string]*evidlog.Log{},
 		st: &State{Plans: map[string][]*Plan{}, Runs: map[string]*Run{}}}
-	if lv, ok := spec["levels"].([]any); ok {
-		for _, l := range lv {
-			if m, ok := l.(map[string]any); ok {
-				s.levels = append(s.levels, fmt.Sprint(m["name"]))
-			}
-		}
+	s.levels = levelsOf(spec)
+	if s.specDigest, err = s.archiveSpec(spec); err != nil {
+		return nil, fmt.Errorf("archive judgment spec: %w", err)
 	}
-	s.levels = append(s.levels, "on_missing_evidence", "on_undefined_rule")
 	if raw, err := os.ReadFile(filepath.Join(cfg.DataDir, "state.json")); err == nil {
 		if err := json.Unmarshal(raw, s.st); err != nil {
 			return nil, fmt.Errorf("state.json: %w", err)
@@ -170,6 +173,9 @@ func OpenService(cfg Config) (*Service, error) {
 	}
 	s.lastSaved, _ = json.Marshal(s.st)
 	s.writeState = writeJSON
+	if err := s.reconcileAdoptions(); err != nil {
+		return nil, fmt.Errorf("persist startup reconciliation: %w", err)
+	}
 	s.bank = NewProvider(func(string, string, string) {})
 	s.bank.TerminalDelay = 4 * time.Second
 	return s, nil
@@ -281,6 +287,7 @@ func (s *Service) Propose(in ProposeInput) (*Plan, error) {
 	if err := s.bindPlan(p); err != nil {
 		return nil, err
 	}
+	p.Binding = &ExecBinding{JudgmentSpec: s.specDigest, SpecVersion: specVersion(s.spec), Model: s.cfg.Model}
 	p.Hash = planHash(p, s.cat.Hashes)
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -376,6 +383,15 @@ func (s *Service) Approve(planID string, version int, hash, user string, via *Vi
 	if p.Hash != hash || planHash(p, s.cat.Hashes) != hash {
 		return nil, fmt.Errorf("the plan changed after it was shown — reload and review again")
 	}
+	// A new run uses the currently published rules: a plan shown under other
+	// rules or another execution config must be proposed and reviewed again.
+	if p.Binding == nil {
+		return nil, fmt.Errorf("this plan predates version binding — propose it again and review the new version")
+	}
+	if p.Binding.JudgmentSpec != s.specDigest || p.Binding.Model != s.cfg.Model {
+		return nil, fmt.Errorf("the judgment spec or execution config changed after the plan was shown (now %s, model %s) — propose it again and review the new version",
+			specVersion(s.spec), s.cfg.Model)
+	}
 	if pc := precheck(p); !pc.OK {
 		return nil, fmt.Errorf("precheck rejects this plan")
 	}
@@ -396,7 +412,8 @@ func (s *Service) Approve(planID string, version int, hash, user string, via *Vi
 		return s.st.Runs[p.RunID], nil
 	}
 	s.st.NextRun++
-	r := &Run{ID: fmt.Sprintf("R%d", s.st.NextRun), PlanID: p.ID, PlanVersion: p.Version, PlanHash: p.Hash, CaseID: p.CaseID,
+	binding := *p.Binding
+	r := &Run{ID: fmt.Sprintf("R%d", s.st.NextRun), PlanID: p.ID, PlanVersion: p.Version, PlanHash: p.Hash, Binding: &binding, CaseID: p.CaseID,
 		Status: "queued", ApprovedBy: user, ApprovedVia: via, CreatedAt: now(), Steps: map[string]*StepRec{}, Scenario: os.Getenv("CREDIT_BANK_SCENARIO")}
 	for _, l := range p.Layers {
 		for _, id := range l {
@@ -450,6 +467,7 @@ type Job struct {
 	MemberMCPURL  string                    `json:"member_mcp_url"`
 	LeaseSeconds  int                       `json:"lease_seconds"`
 	GraphRevision string                    `json:"graph_revision"`
+	Model         string                    `json:"model"` // the run's bound model; the executor must run exactly this
 }
 
 func newToken() string {
@@ -460,7 +478,18 @@ func newToken() string {
 
 // Lease hands one runnable run to an executor. A run whose lease expired is
 // taken over with a new token; the old executor's writes are then fenced.
+// Lease is LeaseAs for an in-process executor configured like the service.
 func (s *Service) Lease(worker string) (*Job, error) {
+	return s.LeaseAs(worker, s.cfg.Model)
+}
+
+// LeaseAs hands a run only to an executor whose actual model is the run's
+// bound model (AR-04 M1). An executor on another model, or one that does not
+// report its model, gets nothing for that run: the run stays queued for an
+// executor on its bound model and keeps the refusal so the projection can say
+// why it is not running. One mismatched poller is not evidence that no
+// matching executor exists, so it does not block the run (review P2).
+func (s *Service) LeaseAs(worker, executorModel string) (*Job, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.storageErr != nil {
@@ -478,11 +507,33 @@ func (s *Service) Lease(worker string) (*Job, error) {
 		}
 		vs := s.st.Plans[r.PlanID]
 		p := vs[r.PlanVersion-1]
+		// A run whose bound spec cannot be resolved stops here, explicitly; it
+		// is never resumed under the currently published spec.
+		var spec *boundSpec
+		if p.hasJudge() {
+			var err error
+			if spec, err = s.runSpec(r); err != nil {
+				r.Status = "blocked"
+				r.Final = "规约版本不可解析，任务已停止：" + err.Error() + "。不会改用当前规约继续，需人工处理。"
+				if err := s.save(); err != nil {
+					return nil, err
+				}
+				continue
+			}
+		}
+		if bound := s.runModel(r); executorModel != bound {
+			if s.noteLeaseRefusal(r, worker, executorModel, bound) {
+				if err := s.save(); err != nil {
+					return nil, err
+				}
+			}
+			continue
+		}
 		r.Epoch++
 		r.Token = newToken()
 		r.LeaseUntil = time.Now().Add(time.Duration(s.cfg.LeaseSeconds) * time.Second)
 		r.Status = "running"
-		r.Leases = append(r.Leases, fmt.Sprintf("%s 第 %d 次领取（%s）", now(), r.Epoch, worker))
+		r.Leases = append(r.Leases, fmt.Sprintf("%s 第 %d 次领取（%s，模型 %s）", now(), r.Epoch, worker, executorModel))
 		for _, st := range r.Steps {
 			if st.Status == "running" {
 				st.Status = "pending"
@@ -512,7 +563,7 @@ func (s *Service) Lease(worker string) (*Job, error) {
 						deps = st.DependsOn
 					}
 				}
-				m["judge_prompt"] = s.judgePrompt() + fmt.Sprintf("\nevidence_steps 只能填上游产物开头 [step:xxx] 标注的步骤 id，可选：%s。\n", strings.Join(deps, "、"))
+				m["judge_prompt"] = judgePromptFor(spec) + fmt.Sprintf("\nevidence_steps 只能填上游产物开头 [step:xxx] 标注的步骤 id，可选：%s。\n", strings.Join(deps, "、"))
 			}
 			members[a.ID] = m
 		}
@@ -530,9 +581,54 @@ func (s *Service) Lease(worker string) (*Job, error) {
 		}
 		return &Job{RunID: r.ID, Token: r.Token, Epoch: r.Epoch, Mode: "graph", Team: p.Team, SpecDigest: p.SpecDigest,
 			UserInput: input,
-			Members:   members, MemberMCPURL: s.cfg.MemberMCPURL, LeaseSeconds: s.cfg.LeaseSeconds, GraphRevision: p.Key()}, nil
+			Members:   members, MemberMCPURL: s.cfg.MemberMCPURL, LeaseSeconds: s.cfg.LeaseSeconds, GraphRevision: p.Key(),
+			Model: executorModel}, nil
 	}
 	return nil, nil
+}
+
+// errModelBinding: an executor is about to run a model other than the run's
+// bound model. Mapped to HTTP 409 with this code; the call is not made.
+var errModelBinding = errors.New("MODEL_BINDING_MISMATCH")
+
+func modelMismatch(bound, who, actual string) string {
+	if actual == "" {
+		actual = "（未上报）"
+	}
+	return fmt.Sprintf("执行端模型与任务绑定不一致，已在调用模型前停止：任务绑定 %s，%s 上报 %s。不会改用其他模型继续，需人工处理。", bound, who, actual)
+}
+
+// LeaseRefusal records executors that asked for a run but run another model.
+type LeaseRefusal struct {
+	Worker string `json:"worker"`
+	Model  string `json:"model"` // what the executor reported ("" if nothing)
+	Bound  string `json:"bound"`
+	First  string `json:"first"`
+	Last   string `json:"last"`
+	Count  int    `json:"count"`
+}
+
+// noteLeaseRefusal keeps the latest refusals on the run. It reports whether a
+// new (worker, model) pair was added, so repeated polls do not rewrite state.
+// Must hold s.mu.
+func (s *Service) noteLeaseRefusal(r *Run, worker, model, bound string) bool {
+	for i := range r.LeaseRefusals {
+		if f := &r.LeaseRefusals[i]; f.Worker == worker && f.Model == model {
+			f.Last, f.Count = now(), f.Count+1
+			return false
+		}
+	}
+	r.LeaseRefusals = append(r.LeaseRefusals, LeaseRefusal{Worker: worker, Model: model, Bound: bound, First: now(), Last: now(), Count: 1})
+	if len(r.LeaseRefusals) > 20 {
+		r.LeaseRefusals = r.LeaseRefusals[len(r.LeaseRefusals)-20:]
+	}
+	return true
+}
+
+// blockRun stops a run for an operator decision and withdraws the current
+// executor's lease, so it can write nothing further. Must hold s.mu.
+func (s *Service) blockRun(r *Run, reason string) {
+	r.Status, r.Final, r.Token = "blocked", reason, ""
 }
 
 var errFenced = fmt.Errorf("fenced: this executor's lease was taken over")
@@ -700,23 +796,23 @@ func (s *Service) Done(runID, token string, skipped []string, final string, fail
 	return s.save()
 }
 
-func (s *Service) judgePrompt() string {
+func judgePromptFor(bs *boundSpec) string {
 	var b strings.Builder
-	q, _ := s.spec["question"].(map[string]any)
+	q, _ := bs.spec["question"].(map[string]any)
 	fmt.Fprintf(&b, "你是风险判断员。只按已发布的判断规约 %v@%v 作判断，不得自行补充规则。\n\n规则（precedence 越小越优先）：\n", q["question_id"], q["spec_version"])
-	if rules, ok := s.spec["rules"].([]any); ok {
+	if rules, ok := bs.spec["rules"].([]any); ok {
 		for _, r := range rules {
 			if m, ok := r.(map[string]any); ok {
 				fmt.Fprintf(&b, "- precedence %v：%v；例外：%v\n", m["precedence"], m["coverage"], m["exceptions"])
 			}
 		}
 	}
-	if res, ok := s.spec["resolution"].(map[string]any); ok {
+	if res, ok := bs.spec["resolution"].(map[string]any); ok {
 		fmt.Fprintf(&b, "\n证据缺失时：%v\n规则未覆盖时：%v\n", res["on_missing_evidence"], res["on_undefined_rule"])
 	}
 	fmt.Fprintf(&b, "\n术语：资产单位为 USD-millions；逾期按征信记录中的逾期事件计，近六个月窗口只约束上档规则。\n")
 	fmt.Fprintf(&b, "规则里的资产和逾期都只指申请人本人：关联方、行业等其它上游产物写进报告，不作为规则事实。\n")
-	fmt.Fprintf(&b, "\n可选结论：%s。\n", strings.Join(s.levels, " | "))
+	fmt.Fprintf(&b, "\n可选结论：%s。\n", strings.Join(bs.levels, " | "))
 	b.WriteString("\n只输出一个 JSON 对象，不要输出其它文字：\n{\"level\": \"<可选结论之一>\", \"rationale\": \"<一句话依据，引用具体数字>\", \"evidence_steps\": [\"<你依据的上游步骤 id>\"]}\n")
 	return b.String()
 }
@@ -762,13 +858,21 @@ func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	j, err := extractJSON(raw)
+	st := r.Steps[step]
+	if st == nil || expertByID(st.Expert) == nil || expertByID(st.Expert).Kind != "judge" || st.Call != nil {
+		return "", fmt.Errorf("%w: not a local judgment node", errAdoptionRejected)
+	}
+	bs, err := s.runSpec(r)
 	if err != nil {
 		return "", err
 	}
+	j, err := extractJSON(raw)
+	if err != nil {
+		return "", fmt.Errorf("%w: %v", errJudgmentRejected, err)
+	}
 	level := fmt.Sprint(j["level"])
-	if !contains(s.levels, level) {
-		return "", fmt.Errorf("level %q is not one of %v", level, s.levels)
+	if !contains(bs.levels, level) {
+		return "", fmt.Errorf("%w: level %q is not one of %v", errJudgmentRejected, level, bs.levels)
 	}
 	var evidence []string
 	if ev, ok := j["evidence_steps"].([]any); ok {
@@ -777,17 +881,18 @@ func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 			id = strings.TrimPrefix(id, "step:")
 			st, ok := r.Steps[id]
 			if !ok || st.Status != "done" {
-				return "", fmt.Errorf("evidence step %q did not run in this case", id)
+				return "", fmt.Errorf("%w: evidence step %q did not run in this case", errJudgmentRejected, id)
 			}
 			evidence = append(evidence, id+"="+st.Output)
 		}
 	}
 	if len(evidence) == 0 {
-		return "", fmt.Errorf("evidence_steps is empty")
+		return "", fmt.Errorf("%w: evidence_steps is empty", errJudgmentRejected)
 	}
 	m, err := s.machine(runID)
 	if err != nil {
-		return "", err
+		s.storageErr = fmt.Errorf("%w: adoption ledger: %v", errStorage, err)
+		return "", s.storageErr
 	}
 	decision := map[string]any{"level": level, "rationale": j["rationale"], "evidence_steps": j["evidence_steps"], "case": r.CaseID}
 	digest, err := adopt.Digest(decision)
@@ -798,35 +903,46 @@ func (s *Service) Judgment(runID, token, step, raw string) (string, error) {
 	if strings.HasPrefix(level, "grant-") {
 		grants = effectGrants
 	}
-	q, _ := s.spec["question"].(map[string]any)
+	q, _ := bs.spec["question"].(map[string]any)
 	op := "op-" + r.ID
 	req := &adopt.Request{
-		AdoptionVersion: "0.1.0",
+		AdoptionVersion: "0.2.0",
 		Identity:        ledger.Identity{BusinessRequestID: "br-" + strings.ToLower(r.CaseID) + "-" + strings.ToLower(r.ID), EvaluationRevision: "er-1", OperationID: op},
 		Versions: ledger.Versions{Evidence: sha(evidence...), Rule: fmt.Sprintf("%v@%v", q["question_id"], q["spec_version"]),
-			Model: s.cfg.Model, Readout: "risk-readout-1", Policy: r.PlanHash},
+			Model: s.runModel(r), Readout: "risk-readout-1", Policy: r.PlanHash},
 		PayloadDigest:    digest,
 		GrantsAtDecision: grants,
 		Accountability:   &ledger.Accountability{Session: r.ID, Skill: "risk-judge", Role: "customer-manager"},
 	}
 	out := m.Adopt(req)
+	if out.Failure == adopt.FailureStorage {
+		// Do not publish a replay step or grant new writes after an uncertain
+		// ledger write. Repair/reopen is required, never another model answer.
+		s.storageErr = fmt.Errorf("%w: %s", errStorage, out.Detail)
+		return "", s.storageErr
+	}
 	reqDoc := jsonDoc(req)
 	r.ReplaySteps = append(r.ReplaySteps, map[string]any{"op": "adopt", "request": reqDoc})
 	if out.Status != "adopted" && out.Status != "reused" {
 		if err := s.save(); err != nil {
 			return "", err
 		}
-		return "", fmt.Errorf("adoption %s: %s", out.Status, out.Detail)
+		if out.Failure == adopt.FailureConflict {
+			return "", fmt.Errorf("%w: %s", errCallConflict, out.Detail)
+		}
+		return "", fmt.Errorf("%w: %s", errAdoptionRejected, out.Detail)
 	}
 	r.Decision, r.DecisionOp = decision, op
 	r.BusinessReq = req.Identity.BusinessRequestID
-	if st := r.Steps[step]; st != nil {
-		st.Activity = "判断已采纳：" + level
-	}
+	output := judgmentOutput(decision)
+	// Publish the adopted value and the reusable node result in one snapshot.
+	// The executor's later StepPut is idempotent, including a lost HTTP reply.
+	st.Activity = "判断已采纳：" + level
+	st.Status, st.Output, st.FinishedAt = "done", "[step:"+step+"]\n"+output, now()
 	if err := s.save(); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("DECISION=%s\n依据：%v\n证据步骤：%v", strings.ToUpper(level), j["rationale"], j["evidence_steps"]), nil
+	return output, nil
 }
 
 func (s *Service) record(r *Run, op string, extra map[string]any) {

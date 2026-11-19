@@ -86,7 +86,7 @@ func notATransition(i int, op, status, from string) string {
 // Version is the ledger document version — the Go-side twin of the schema's
 // ledger_version const (kept in lockstep by the fixture suites: every
 // fixture and every machine-written document carry it).
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // SchemaPath is where event-ledger.schema.json was found ("" = not found;
 // exported so drivers can resolve the fixture directory from it).
@@ -101,6 +101,19 @@ type Identity struct {
 	BusinessRequestID  string `json:"business_request_id"`
 	EvaluationRevision string `json:"evaluation_revision,omitempty"`
 	OperationID        string `json:"operation_id"`
+	// v0.2.0 batch-0 structured keys (optional in v0.2.0; document version migration remains explicit).
+	LogicalExecution    *LogicalExecution `json:"logical_execution,omitempty"`
+	ExecutionGeneration *int              `json:"execution_generation,omitempty"`
+}
+
+// LogicalExecution is the o four-tuple (邢 GC#2 formalization, adopted verbatim):
+// T (task_id) + g (graph_version) + node_path + iteration_path. Optional in
+// v0.2.0 — old events carry only operation_id (a-granularity).
+type LogicalExecution struct {
+	TaskID        string `json:"task_id"`
+	GraphVersion  string `json:"graph_version"`
+	NodePath      string `json:"node_path"`
+	IterationPath string `json:"iteration_path"`
 }
 
 // Versions is the P5 five-dimension version binding.
@@ -116,6 +129,8 @@ type Versions struct {
 type Idempotency struct {
 	OperationID   string `json:"operation_id"`
 	PayloadDigest string `json:"payload_digest"`
+	// v0.2.0 batch-0: b three-state external observation (matrix row 5).
+	ExternalStatus string `json:"external_status,omitempty"`
 }
 
 // Outcome is the event's verdict.

@@ -107,6 +107,16 @@ def ledger_errors(doc: dict) -> list[str]:
             errs.append(f"[LEDGER.SEQ_FLOAT_SYNTAX] events/{i}: arbitration_seq {seq!r} is not an integer literal — "
                         f"the counter domain is machine-written int64; this package does no "
                         f"float math (user ruling 2026-11-02)")
+        # v0.2.0 M-2: execution_generation must be an integer LITERAL
+        # (R16 same-family gate). The identity field may be absent (old
+        # events) — when present, float syntax is a reject.
+        eg_raw = e.get("identity", {}).get("execution_generation")
+        if eg_raw is not None:
+            if isinstance(eg_raw, float):
+                errs.append(f"[LEDGER.EG_FLOAT_SYNTAX] events/{i}: execution_generation {eg_raw} is not an integer literal — "
+                            f"ownership generations are whole numbers minted by claim, not computed")
+            elif not isinstance(eg_raw, int):
+                errs.append(f"[LEDGER.EG_TYPE] events/{i}: execution_generation must be an integer, got {type(eg_raw).__name__}")
         if isinstance(seq, int) and seq > INT64_MAX:
             errs.append(f"[LEDGER.SEQ_INT64_OVERFLOW] events/{i}: arbitration_seq {seq} exceeds the int64 domain — "
                         f"the machine's counter domain; such a document is not machine-writable")
@@ -327,8 +337,8 @@ def main() -> int:
     # corpus that shrank without its pin rebased must fail here too
     n_valid = len(list((ex / "valid").glob("*.json")))
     n_invalid = len(list((ex / "invalid").glob("*.json")))
-    if (n_valid, n_invalid) != (9, 33):
-        print(f"[ledger] FAIL corpus count {n_valid}+{n_invalid} != pinned 9+33 (corpus count changed?)")
+    if (n_valid, n_invalid) != (9, 36):
+        print(f"[ledger] FAIL corpus count {n_valid}+{n_invalid} != pinned 9+36 (corpus count changed?)")
         bad += 1
     for e in check_status_lockstep() + check_lockstep():
         print(f"[ledger] FAIL {e}")

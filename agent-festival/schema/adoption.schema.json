@@ -15,7 +15,7 @@
   "properties": {
     "adoption_version": {
       "type": "string",
-      "const": "0.1.0"
+      "const": "0.2.0"
     },
     "identity": {
       "description": "Piece-0 three-layer business identity.",
@@ -37,6 +37,46 @@
         "operation_id": {
           "type": "string",
           "minLength": 1
+        },
+        "logical_execution": {
+          "type": "object",
+          "description": "o = (T, g, node_path, iteration_path) — the logical node execution identity (邢 GC#2 2026-11-13 formalization, adopted verbatim). T = the accepted task (business_request_id + graph_version); g = the adopted graph version/sha; node_path/iteration_path locate the node within the graph including loop/branch ordinals. operation_id remains the attempt (a) identity — o is the durable logical key that survives retries. All four fields required (atomic tuple — partial or empty logical_execution is invalid; M-1 fix): old events carry only operation_id (a-granularity); new events SHOULD carry logical_execution for graph-aware consumers (W04). See batch-0 scope (130/132号).",
+          "additionalProperties": false,
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "T — the accepted task identifier. In v0.1.0+1.0.0 this maps to business_request_id at the single-node level; graph-aware producers supply their own task identifier."
+            },
+            "graph_version": {
+              "type": "string",
+              "minLength": 1,
+              "description": "g — the adopted graph version/sha. Frozen at adoption by W04; Go stores but does not decide."
+            },
+            "node_path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Path of the node within the graph (e.g. 'n3' or 'workflow/collection/n3' for nested). Nested/loop use parent path + ordinals."
+            },
+            "iteration_path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Loop/branch ordinal path (e.g. 'iter:2' or 'loop:1/branch:B/iter:2'). Composes with node_path to form the full execution position."
+            }
+          },
+          "required": [
+            "task_id",
+            "graph_version",
+            "node_path",
+            "iteration_path"
+          ],
+          "minProperties": 4,
+          "maxProperties": 4
+        },
+        "execution_generation": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "e — current execution ownership generation. Minted once per claim (hermes generation-stamp precedent: first opener wins). Renewal/takeover decisions belong to W04; Go stores the result. 0 = original claim; increments on verified takeover."
         }
       }
     },

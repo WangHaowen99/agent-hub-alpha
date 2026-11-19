@@ -63,7 +63,7 @@ final class Worker implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                JsonNode job = go.lease(worker);
+                JsonNode job = go.lease(worker, modelName());
                 if (job == null) {
                     continue;
                 }
@@ -78,6 +78,14 @@ final class Worker implements Runnable {
     private void execute(JsonNode job) {
         String run = job.path("run_id").asText();
         String token = job.path("token").asText();
+        String bound = job.path("model").asText();
+        if (!bound.equals(modelName())) {
+            // The control service hands out only runs bound to the model we reported;
+            // never run a member on another model than the run's binding (AR-04 M1).
+            LOG.error("run {}: bound model {} but this executor calls {}; not executing", run, bound, modelName());
+            go.done(run, token, List.of(), null, "MODEL_BINDING_MISMATCH: run bound to " + bound + ", executor model " + modelName());
+            return;
+        }
         LOG.info("run {} leased (epoch {})", run, job.path("epoch").asInt());
         AtomicBoolean fenced = new AtomicBoolean();
         ScheduledExecutorService beat = Executors.newSingleThreadScheduledExecutor();
@@ -189,16 +197,7 @@ final class Worker implements Runnable {
                 String prompt = mj.path("judge_prompt").asText();
                 return (userInput, subGoal) -> {
                     ReActAgentMember judge = new ReActAgentMember(agent("judge-" + step, prompt, 3));
-                    String raw = judge.execute(userInput, subGoal);
-                    try {
-                        return go.judgment(run, token, step, raw);
-                    } catch (GoClient.FencedException ex) {
-                        throw ex;
-                    } catch (RuntimeException first) {
-                        String retry = judge.execute(userInput, subGoal + "\n\n上一次输出被规约校验拒绝：" + first.getMessage()
-                                + "\n请严格按要求只输出一个 JSON 对象。");
-                        return go.judgment(run, token, step, retry);
-                    }
+                    return judgeWithRevision(go, run, token, step, judge, userInput, subGoal);
                 };
             }
             default: {
@@ -215,6 +214,21 @@ final class Worker implements Runnable {
                 }
                 return new ReActAgentMember(agent);
             }
+        }
+    }
+
+    // Keep the revision policy in the node executor, not in the transport client.
+    static String judgeWithRevision(GoClient go, String run, String token, String step,
+            SubAgentExecutor judge, String userInput, String subGoal) {
+        String raw = judge.execute(userInput, subGoal);
+        try {
+            return go.judgment(run, token, step, raw);
+        } catch (GoClient.PolicyRejectedException first) {
+            // only a content rejection earns a revision; a lost lease, a storage
+            // failure or a transport error is never answered by calling the model again
+            String retry = judge.execute(userInput, subGoal + "\n\n上一次输出被规约校验拒绝：" + first.getMessage()
+                    + "\n请严格按要求只输出一个 JSON 对象。");
+            return go.judgment(run, token, step, retry);
         }
     }
 
@@ -256,13 +270,18 @@ final class Worker implements Runnable {
                 .timeout(120.0)
                 .build();
         ModelRequestConfig request = ModelRequestConfig.builder()
-                .modelName(first("MODEL_NAME", "SWARM_MODEL_NAME"))
+                .modelName(modelName())
                 .temperature(0.1)
                 .topP(0.95)
                 .maxTokens(2000)
                 .build();
         agent.setLlm(new Model(client, request));
         return agent;
+    }
+
+    /** The model this executor actually calls; reported at lease and checked against the run's binding. */
+    private String modelName() {
+        return first("MODEL_NAME", "SWARM_MODEL_NAME");
     }
 
     private String first(String... keys) {

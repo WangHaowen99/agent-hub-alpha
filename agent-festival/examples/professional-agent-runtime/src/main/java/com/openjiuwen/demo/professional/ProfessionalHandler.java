@@ -58,6 +58,16 @@ final class ProfessionalHandler implements AgentHandler {
             JsonNode approved = post("/agent/context",auth);
             JsonNode call = approved.path("call");
             if (!call.path("context_id").asText().equals(conversation)) throw new IllegalArgumentException("Context identity mismatch");
+            String actualModel = env.get("SWARM_MODEL_NAME");
+            if (!approved.path("model").asText().equals(actualModel)) {
+                // Report the model this runtime would call; the control service stops the
+                // run as blocked and refuses, so no model client is built (AR-04 M1).
+                var report = new LinkedHashMap<>(auth);
+                report.put("event_id",UUID.randomUUID().toString());
+                report.put("model",actualModel);
+                post("/agent/model",report);
+                throw new IllegalStateException("Runtime model differs from the run's bound model");
+            }
             String identity = call.path("request_id").asText();
             ReActAgent agent = new ReActAgent(AgentCard.builder().name("professional-"+identity).build());
             ReActAgentConfig config = ReActAgentConfig.builder().build();
@@ -69,12 +79,13 @@ final class ProfessionalHandler implements AgentHandler {
             agent.configure(config);
             ModelClientConfig client = ModelClientConfig.builder().clientId("model-"+identity).clientProvider("OpenAI")
                 .apiKey(env.get("SWARM_API_KEY")).apiBase(env.get("SWARM_API_BASE")).verifySsl(true).timeout(120.0).build();
-            ModelRequestConfig model = ModelRequestConfig.builder().modelName(env.get("SWARM_MODEL_NAME"))
+            ModelRequestConfig model = ModelRequestConfig.builder().modelName(actualModel)
                 .temperature(0.1).maxTokens(2000).build();
             agent.setLlm(new Model(client,model) {
                 @Override public CompletionStage<AssistantMessage> invoke(List<BaseMessage> messages,ModelInvokeOptions options) {
                     var event = new LinkedHashMap<>(auth);
                     event.put("event_id",UUID.randomUUID().toString());
+                    event.put("model",actualModel); // checked against the run's binding before the call (AR-04 M1)
                     post("/agent/model",event); // Persist attempt before invoking the actual model client.
                     return super.invoke(messages,options);
                 }
