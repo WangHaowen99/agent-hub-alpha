@@ -1,0 +1,41 @@
+{
+ "scenario": "ra-two",
+ "run": "R13",
+ "status_before_resume": "waiting",
+ "steps_at_waiting": {
+  "bureau": "done",
+  "financial": "unknown",
+  "industry": "done",
+  "intake": "done",
+  "judge": "pending",
+  "related": "running",
+  "report": "pending"
+ },
+ "dom_at_waiting": {
+  "head": "Agent Bus ra 验证 1795013050，仅生成模拟授信报告，不提交银行操作 等待核对远端结果 C006 · P13 v1",
+  "nodes": [
+   "intake:材料受理 总线 使用 get_application 核对本案件申请材料 申请人",
+   "financial:财务分析师 总线 待核对 使用 get_financials 分析本案件财务数据",
+   "industry:行业研究员 总线 使用 get_industry_report 分析本案件行业依",
+   "bureau:征信摘要查询员 总线 使用 query_bureau_summary 核对本案件",
+   "related:黑盒 · Loop Forest 分叉 0 等待分叉",
+   "related/host:关联方排查 逐家核对本案件关联方证据 已停止 · 最后观察 22:44:19"
+  ],
+  "err": null,
+  "notice": null
+ },
+ "final_run": {
+  "status": "done",
+  "final": null,
+  "steps": {
+   "bureau": "done",
+   "financial": "done",
+   "industry": "done",
+   "intake": "done",
+   "judge": "done",
+   "related": "done",
+   "report": "done"
+  }
+ },
+ "note": "Go 41a3675; plugin bundle from fix commit 736258f (stopped display only); swapped temporarily into the W02 env mount, restored afterwards"
+}
