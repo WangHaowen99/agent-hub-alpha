@@ -15,6 +15,7 @@ export function StatusIcon({ status, denied }: { status: string; denied?: boolea
   switch (status) {
     case "running": return <Loader2 key={status} className="ci spin t-run" />;
     case "stopped": return <CirclePause key={status} className="ci pop t-mute" />;
+    case "inflight": return <Clock key={status} className="ci pop t-warn" />;
     case "waiting": return <Clock key={status} className="ci pop t-warn" />;
     case "unknown": return <CircleHelp key={status} className="ci pop t-warn" />;
     case "done": return <CircleCheck key={status} className="ci pop t-ok" />;

@@ -34,7 +34,7 @@ const row = (name: string, value: unknown) => `<div class="cg-fact"><dt>${esc(na
 const timed = (name: string, value?: string) => `<div class="cg-fact"><dt>${esc(name)}</dt><dd><time title="${esc(value)}">${time(value)}</time></dd></div>`;
 const stage = (i: number, name: string, state: string, tone: string, body: string) =>
   `<section class="cg-proof"><header><span class="cg-proof-number">${i}</span><h5>${esc(name)}</h5><span class="cg-proof-state ${tone}">${esc(state)}</span></header>${body}</section>`;
-const stateLabel = (s?: string) => ({ pending: "尚未派发", running: "执行中", stopped: "已停止", waiting: "等待结果", unknown: "待核对", done: "已完成", reused: "结果复用", failed: "失败", skipped: "未执行" }[s ?? ""] ?? "待批准");
+const stateLabel = (s?: string) => ({ pending: "尚未派发", running: "执行中", stopped: "已停止", inflight: "远端在途", waiting: "等待结果", unknown: "待核对", done: "已完成", reused: "结果复用", failed: "失败", skipped: "未执行" }[s ?? ""] ?? "待批准");
 
 export function executionLabel(n: GraphNode): string {
   if (n.execution?.kind === "agent_bus" || n.remote) return "Agent Bus · DIRECT";

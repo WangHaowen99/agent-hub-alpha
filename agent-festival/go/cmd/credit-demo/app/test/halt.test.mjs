@@ -5,20 +5,24 @@ const load = async (entry) => {
   const out = await build({ entryPoints: [entry], bundle: true, write: false, format: 'esm', platform: 'node' });
   return import('data:text/javascript;base64,' + Buffer.from(out.outputFiles[0].text).toString('base64'));
 };
-const { stoppedView, lastObserved, stoppedLine } = await load('src/flow/halt.ts');
+const { stoppedView, lastObserved, lastObservedStep, stoppedLine, inflightLine } = await load('src/flow/halt.ts');
 const layout = await load('src/flow/layout.ts');
 
 // R9-like snapshot: financial lost a query reply and the task stopped while the
 // local black box (related) was still listed as running with one fork started.
 const graph = (status) => ({
   plan: 'P9', version: 1, case: 'C006', goal: 'g', ok: true, hash: 'h', rev: 1,
-  layers: [['intake'], ['financial', 'related'], ['judge']],
+  layers: [['intake'], ['financial', 'industry', 'related'], ['judge']],
   run: { id: 'R9', status, leases: 1, url: '' },
   nodes: [
     { id: 'intake', name: '材料受理', kind: 'investigate', task: 't', status: 'done',
       remote: { updated_at: '2026-11-18T07:57:18Z', committed_at: '2026-11-18T07:57:18Z', agent_started_at: '2026-11-18T07:57:14Z' } },
     { id: 'financial', name: '财务分析师', kind: 'investigate', task: 't', deps: ['intake'], status: 'unknown',
       remote: { updated_at: '2026-11-18T07:57:21Z', gateway: { last_error: { finished_at: '2026-11-18T07:57:23.1Z' }, last_exchange: { finished_at: '2026-11-18T07:57:23.1Z' } } } },
+    // A sent call still out when the task stopped: the remote task may still run.
+    { id: 'industry', name: '行业研究员', kind: 'investigate', task: 't', deps: ['intake'], status: 'waiting', activity: '专业 Agent 执行中，查询原任务',
+      execution: { kind: 'agent_bus' },
+      remote: { request_id: 'q2', task_id: 't2', agent_started_at: '2026-11-18T07:57:16Z', updated_at: '2026-11-18T07:57:19Z', gateway: { last_exchange: { finished_at: '2026-11-18T07:57:20Z' } } } },
     { id: 'related', name: '关联方排查', kind: 'blackbox', task: 't', deps: ['intake'], status: 'running', activity: '读关联方名单 · C006',
       branches: [{ goal: 'a', status: 'started', title: '王氏汽配', activity: '查征信摘要' }, { goal: 'b', status: 'finished', title: '顺达物流', finding: '无逾期' }] },
     { id: 'judge', name: '风险判断', kind: 'judge', task: 't', deps: ['financial', 'related'], status: 'pending' },
@@ -33,7 +37,7 @@ for (const status of ['waiting', 'failed', 'blocked']) {
     assert.equal(related.status, 'stopped');
     assert.deepEqual(related.branches.map((b) => b.status), ['stopped', 'finished']);
     assert.equal(v.nodes[0], g.nodes[0], 'untouched steps are kept as served');
-    assert.equal(g.nodes[2].status, 'running', 'the served snapshot is not modified');
+    assert.equal(g.nodes[3].status, 'running', 'the served snapshot is not modified');
   });
 }
 
@@ -78,4 +82,47 @@ test('a running task still draws its running step as live', () => {
   assert.equal(host.data.line.text, '读关联方名单 · C006');
   assert.ok(built.edges.some((e) => e.data.state === 'active'));
   assert.equal(built.edges.find((e) => e.id === 'related/e0').data.state, 'lf-active');
+});
+
+for (const status of ['waiting', 'failed', 'blocked']) {
+  test(`a ${status} task draws a sent Agent Bus call as in flight, with its own last observation`, () => {
+    const g = graph(status);
+    const v = stoppedView(g);
+    const industry = v.nodes.find((n) => n.id === 'industry');
+    assert.equal(industry.status, 'inflight');
+    assert.equal(g.nodes.find((n) => n.id === 'industry').status, 'waiting', 'the served snapshot is not modified');
+    assert.equal(lastObservedStep(industry), '2026-11-18T07:57:20Z', 'the step time, not the task-wide one');
+    const built = layout.build(v, new layout.Delays());
+    const card = built.nodes.find((n) => n.id === 'industry');
+    assert.equal(card.data.status, 'inflight');
+    assert.equal(card.data.line.kind, 'note');
+    assert.equal(card.data.line.tone, 'warn');
+    assert.match(card.data.line.text, /^远端在途 · 最后观察 \d{2}:\d{2}:\d{2}$/);
+    assert.match(card.data.line.title, /远端任务可能仍在执行/);
+    assert.match(card.data.line.title, /最近记录：专业 Agent 执行中，查询原任务/);
+    assert.ok(!built.nodes.some((n) => n.data.line?.kind === 'act'), 'no live status line in a halted task');
+    assert.ok(!built.edges.some((e) => e.data.state === 'active' || e.data.state === 'lf-active'));
+  });
+}
+
+test('an Agent Bus step with no recorded call is stopped, not in flight; unknown stays to be checked', () => {
+  const g = graph('waiting');
+  g.nodes.push({ id: 'report', name: '报告撰写人', kind: 'report', task: 't', deps: ['judge'], status: 'running', execution: { kind: 'agent_bus' } });
+  const v = stoppedView(g);
+  assert.equal(v.nodes.find((n) => n.id === 'report').status, 'stopped');
+  assert.equal(v.nodes.find((n) => n.id === 'financial').status, 'unknown');
+});
+
+test('an in-flight call without recorded times reads only "远端在途"', () => {
+  const line = inflightLine({ id: 'x', name: 'x', kind: 'investigate', task: 't', status: 'inflight', remote: { request_id: 'q' } });
+  assert.equal(line.text, '远端在途');
+  assert.match(line.title, /没有带时间的记录/);
+});
+
+test('a running task still draws a waiting Agent Bus call as live', () => {
+  const built = layout.build(stoppedView(graph('running')), new layout.Delays());
+  const card = built.nodes.find((n) => n.id === 'industry');
+  assert.equal(card.data.status, 'waiting');
+  assert.equal(card.data.line.kind, 'act');
+  assert.equal(card.data.line.text, '专业 Agent 执行中，查询原任务');
 });

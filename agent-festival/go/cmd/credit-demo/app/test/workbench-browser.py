@@ -124,6 +124,30 @@ class WorkbenchBrowserTests(unittest.TestCase):
         expect(host).to_contain_text("读关联方名单", timeout=10000)
         expect(self.page.locator(".cg .spin").first).to_be_visible()
 
+    def test_sent_remote_call_of_a_waiting_task_is_in_flight_not_live(self):
+        # A sent Agent Bus call is still out when the task stops for a check.
+        self.page.evaluate("""() => {
+          fixture.layers = [['intake'], ['industry']];
+          fixture.nodes = [
+            {id:'intake', name:'材料受理', kind:'investigate', task:'t', status:'done', execution:{kind:'agent_bus'},
+             remote:{updated_at:'2026-11-18T07:57:18Z'}},
+            {id:'industry', name:'行业研究员', kind:'investigate', task:'t', deps:['intake'], status:'waiting', activity:'专业 Agent 执行中，查询原任务',
+             execution:{kind:'agent_bus'}, remote:{request_id:'q2', task_id:'t2', updated_at:'2026-11-18T07:57:20Z'}}];
+        }""")
+        card = self.page.locator(".react-flow__node", has_text="行业研究员")
+        expect(card).to_contain_text("远端在途 · 最后观察")
+        expect(self.page.locator(".cn-row.act")).to_have_count(0)
+        expect(self.page.locator(".ce-flow")).to_have_count(0)
+        expect(self.page.locator(".cg-head")).to_contain_text("等待核对远端结果")
+        if directory := os.environ.get("EVIDENCE_DIR"):
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            self.page.wait_for_timeout(1500)  # let the canvas fit both cards
+            self.page.screenshot(path=str(Path(directory) / "waiting-inflight-call.png"))
+        # Once the task runs again the call is drawn as live waiting.
+        self.page.evaluate("fixture.statuses.R1 = 'running'")
+        expect(card).to_contain_text("专业 Agent 执行中，查询原任务", timeout=10000)
+        expect(self.page.locator(".cn-row.act").first).to_be_visible()
+
 
 if __name__ == "__main__":
     unittest.main()
