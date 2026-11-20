@@ -5,7 +5,7 @@ const load = async (entry) => {
   const out = await build({ entryPoints: [entry], bundle: true, write: false, format: 'esm', platform: 'node' });
   return import('data:text/javascript;base64,' + Buffer.from(out.outputFiles[0].text).toString('base64'));
 };
-const { stoppedView, lastObserved, lastObservedStep, stoppedLine, inflightLine } = await load('src/flow/halt.ts');
+const { stoppedView, lastObserved, lastObservedStep, stoppedLine, inflightLine, callEvidence } = await load('src/flow/halt.ts');
 const layout = await load('src/flow/layout.ts');
 
 // R9-like snapshot: financial lost a query reply and the task stopped while the
@@ -125,4 +125,94 @@ test('a running task still draws a waiting Agent Bus call as live', () => {
   assert.equal(card.data.status, 'waiting');
   assert.equal(card.data.line.kind, 'act');
   assert.equal(card.data.line.text, '专业 Agent 执行中，查询原任务');
+});
+
+// Three evidence tiers for an Agent Bus call (the owner's counterexample first):
+// a waiting task, a running step, and a call record with only intent_saved_at.
+const T0 = '2026-11-20T03:10:00Z', T1 = '2026-11-20T03:10:02Z', T2 = '2026-11-20T03:10:05Z';
+const sendErr = { rpc_id: 'q1', method: 'SendMessage', started_at: T0, finished_at: T1, outcome: 'transport_error', sequence: 3 };
+const receipt = { rpc_id: 'q1', method: 'SendMessage', started_at: T0, finished_at: T1, http_status: 200, outcome: 'task_received', sequence: 3 };
+const call = (remote, status = 'running') => ({
+  plan: 'P1', version: 1, case: 'C006', goal: 'g', ok: true, hash: 'h', rev: 1, layers: [['intake'], ['industry']],
+  run: { id: 'R1', status: 'waiting', leases: 0, url: '' },
+  nodes: [
+    { id: 'intake', name: '材料受理', kind: 'investigate', task: 't', status: 'done', execution: { kind: 'agent_bus' } },
+    { id: 'industry', name: '行业研究员', kind: 'investigate', task: 't', deps: ['intake'], status, execution: { kind: 'agent_bus' },
+      remote: { request_id: 'q1', task_id: '', agent_started_at: '', intent_saved_at: T0, updated_at: T0, ...remote } },
+  ],
+});
+const drawn = (g) => {
+  const card = layout.build(stoppedView(g), new layout.Delays()).nodes.find((n) => n.id === 'industry');
+  if (!card) return undefined;
+  return { status: card.data.status, text: card.data.line?.text, tone: card.data.line?.tone, title: card.data.line?.title };
+};
+const tiers = [
+  ['only the intent record (owner counterexample)', {}, 'intent', 'unconfirmed', /^已登记，发送待确认$/, [/没有 Gateway 发送记录/, /不能确认请求已到达专家端/]],
+  ['a SendMessage that ended without a task', { gateway: { send_count: 1, query_count: 0, first_send: sendErr, last_exchange: sendErr, last_error: sendErr } },
+    'send', 'unconfirmed', /^已登记，发送待确认$/, [/Gateway 记录了 1 次发送/, /未收到 HTTP 回执/, /不能确认请求已到达专家端/]],
+  ['a Gateway task receipt', { gateway: { send_count: 1, query_count: 0, first_send: receipt, first_receipt: receipt, last_exchange: receipt } },
+    'receipt', 'inflight', /^远端在途 · 最后观察 \d{2}:\d{2}:\d{2}$/, [/Gateway 任务回执/, /远端任务可能仍在执行/]],
+  ['only a remote task id', { task_id: 'rt-1' }, 'receipt', 'inflight', /^远端在途 · 最后观察 /, [/（远端任务号）/]],
+  ['only the expert start', { agent_started_at: T2 }, 'receipt', 'inflight', /^远端在途 · 最后观察 /, [/（专家已开始执行）/]],
+];
+for (const [name, remote, evidence, status, text, titles] of tiers) {
+  for (const served of ['running', 'waiting']) {
+    test(`halted task, ${served} step with ${name}: ${status}`, () => {
+      const g = call(remote, served);
+      assert.equal(callEvidence(g.nodes[1].remote), evidence);
+      const d = drawn(g);
+      assert.equal(d.status, status);
+      assert.equal(d.tone, 'warn');
+      assert.match(d.text, text);
+      for (const t of titles) assert.match(d.title, t);
+      assert.equal(g.nodes[1].status, served, 'the served snapshot is not modified');
+    });
+  }
+}
+
+test('an unknown result keeps the original request and shows its last observation, halted or not', () => {
+  for (const runStatus of ['waiting', 'running']) {
+    const g = call({ status: 'unknown', updated_at: T2, gateway: { send_count: 1, query_count: 0, first_send: sendErr, last_exchange: sendErr, last_error: sendErr } }, 'unknown');
+    g.run.status = runStatus;
+    g.nodes[1].activity = 'Gateway 未回执，查询原任务';
+    assert.equal(stoppedView(g).nodes[1].status, 'unknown', 'Go serves unknown; the view keeps it');
+    const d = drawn(g);
+    assert.equal(d.status, 'unknown');
+    assert.equal(d.tone, 'bad');
+    assert.match(d.text, /^结果未知 · 最后观察 \d{2}:\d{2}:\d{2}$/);
+    assert.match(d.title, /保留原请求（q1）/);
+    assert.match(d.title, /不会自动重发/);
+    assert.match(d.title, /最近记录：Gateway 未回执，查询原任务/);
+  }
+});
+
+test('terminal steps are drawn as served whatever their call record proves', () => {
+  for (const served of ['done', 'reused', 'failed', 'skipped']) {
+    for (const [, remote] of tiers) {
+      const g = call(remote, served);
+      const v = stoppedView(g);
+      assert.equal(v.nodes[1].status, served);
+      const d = drawn(g);
+      if (!d) { assert.equal(served, 'skipped', 'only a skipped step has no card'); continue; }
+      assert.equal(d.status, served);
+      assert.ok(!/发送待确认|远端在途|结果未知/.test(d.text ?? ''), `${served}: ${d.text}`);
+    }
+  }
+  for (const runStatus of ['done', 'queued', 'running']) {
+    const g = call({}, 'running');
+    g.run.status = runStatus;
+    assert.equal(stoppedView(g), g, `a ${runStatus} task is drawn as served`);
+  }
+});
+
+test('the same snapshot fetched twice is drawn the same, and drawing is idempotent', () => {
+  for (const [, remote] of tiers) {
+    const raw = JSON.stringify(call(remote));
+    const first = layout.build(stoppedView(JSON.parse(raw)), new layout.Delays());
+    const again = layout.build(stoppedView(JSON.parse(raw)), new layout.Delays());
+    const pick = (b) => b.nodes.map((n) => [n.id, n.data.status, n.data.line?.text, n.data.line?.title]);
+    assert.deepEqual(pick(again), pick(first));
+    const once = stoppedView(JSON.parse(raw));
+    assert.deepEqual(stoppedView(once), once);
+  }
 });

@@ -5,7 +5,7 @@
 import dagre from "@dagrejs/dagre";
 import type { Edge, Node } from "@xyflow/react";
 import { condLabel, decisionLabel, finished, receiptLabel, started, type Branch, type Graph, type GraphNode, type Tone } from "../types";
-import { inflightLine, stoppedLine } from "./halt";
+import { inflightLine, stoppedLine, unconfirmedLine, unknownLine } from "./halt";
 
 export const NODE_W = 212;
 export const BRANCH_W = 196;
@@ -226,8 +226,9 @@ function lineOf(g: Graph, n: GraphNode, status: string): Line | undefined {
   if (status === "running") return { kind: "act", text: n.activity || "执行中" };
   if (status === "stopped") return { kind: "note", tone: "mute", ...stoppedLine(g, n.activity) };
   if (status === "inflight") return { kind: "note", tone: "warn", ...inflightLine(n) };
+  if (status === "unconfirmed") return { kind: "note", tone: "warn", ...unconfirmedLine(n) };
   if (status === "waiting") return { kind: "act", text: n.activity || "等待远端结果" };
-  if (status === "unknown") return { kind: "note", text: n.activity || "结果待核对，不会自动重发", tone: "bad" };
+  if (status === "unknown") return { kind: "note", tone: "bad", ...unknownLine(n) };
   const res = finished(status) ? resultOf(g, n) : undefined;
   if (res) return { kind: "res", text: res[1], tone: res[0] };
   const said = finished(status) ? gist(n.output) : "";

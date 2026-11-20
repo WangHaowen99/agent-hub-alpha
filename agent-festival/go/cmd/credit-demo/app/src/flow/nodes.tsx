@@ -3,7 +3,7 @@
 // Loop Forest group with fork nodes for the black box.
 import { memo, type CSSProperties } from "react";
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, Handle, Position, type EdgeProps, type NodeProps } from "@xyflow/react";
-import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleHelp, CirclePause, CircleX, Clock, GitBranch, Loader2 } from "lucide-react";
+import { Ban, Circle, CircleCheck, CircleDashed, CircleDot, CircleHelp, CirclePause, CircleX, Clock, GitBranch, Hourglass, Loader2 } from "lucide-react";
 import type { BranchData, EdgeData, ExpertData, GroupData, Line } from "./layout";
 
 // A denied node shakes once it has landed: the second delay is for that.
@@ -16,6 +16,7 @@ export function StatusIcon({ status, denied }: { status: string; denied?: boolea
     case "running": return <Loader2 key={status} className="ci spin t-run" />;
     case "stopped": return <CirclePause key={status} className="ci pop t-mute" />;
     case "inflight": return <Clock key={status} className="ci pop t-warn" />;
+    case "unconfirmed": return <Hourglass key={status} className="ci pop t-warn" />;
     case "waiting": return <Clock key={status} className="ci pop t-warn" />;
     case "unknown": return <CircleHelp key={status} className="ci pop t-warn" />;
     case "done": return <CircleCheck key={status} className="ci pop t-ok" />;
