@@ -72,12 +72,22 @@ func (s *Service) plannerServer() *mcp.Server {
 	ro := &mcp.ToolAnnotations{ReadOnlyHint: true}
 	planResult := func(p *Plan) *mcp.CallToolResult { return result(s.planView(p)) }
 	mcp.AddTool(srv, &mcp.Tool{Name: "list_capabilities", Annotations: ro,
-		Description: "List the registered experts (capabilities) with their signed contracts: what each reads, its effects and bounds. Only these experts can be put on a team. plan_rules is the due-diligence rule every plan must satisfy; precheck enforces it."},
+		Description: "List the registered experts (capabilities) with their signed contracts: what each reads, its effects and bounds. Only these experts can be put on a team, and only with experts of the same scenario package. plan_rules is the due-diligence rule every credit plan must satisfy; precheck enforces it. scenarios lists the approved packages; one with selection=true is planned through select_capabilities."},
 		func(context.Context, *mcp.CallToolRequest, Empty) (*mcp.CallToolResult, any, error) {
-			return result(map[string]any{"experts": s.capabilityCards(), "cases": []string{"C006", "C007"}, "plan_rules": ddRules()}), nil, nil
+			return result(map[string]any{"experts": s.capabilityCards(), "cases": []string{"C006", "C007"},
+				"plan_rules": scenarios.get(defaultScenario).planRules(), "scenarios": scenarioViews()}), nil, nil
+		})
+	mcp.AddTool(srv, &mcp.Tool{Name: "select_capabilities",
+		Description: "For a task in a scenario package that publishes a selection policy: recall its approved capabilities, exclude those whose declared scope does not cover the task (undeclared scope is unknown and does not pass), rank the rest, select one per output, check that inputs and outputs bind, and map them to graph nodes. Returns the stored selection record. If outcome is graph, propose_plan with selection_id adopts the selected team; otherwise tell the user the reason and ask for what is missing. Nothing executes."},
+		func(_ context.Context, _ *mcp.CallToolRequest, in SelectionQuery) (*mcp.CallToolResult, any, error) {
+			rec, err := s.Select(in)
+			if err != nil {
+				return fail(err), nil, nil
+			}
+			return result(rec), nil, nil
 		})
 	mcp.AddTool(srv, &mcp.Tool{Name: "propose_plan",
-		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval in the 编排台 workbench."},
+		Description: "Propose (or revise, with plan_id) a team plan for a case: each agent binds a registered expert to a role, a sub-task and its dependencies. With selection_id the team comes from that capability selection (agents may be omitted; any agent given must use a selected capability and keep the data bindings). The service compiles it into a blueprint and runs the contract precheck. Nothing executes: execution needs the user's approval in the 编排台 workbench."},
 		func(_ context.Context, _ *mcp.CallToolRequest, in ProposeInput) (*mcp.CallToolResult, any, error) {
 			p, err := s.Propose(in)
 			if err != nil {

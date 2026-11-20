@@ -49,7 +49,7 @@ func TestRestartReconcilesAdoptionBeforeExecution(t *testing.T) {
 					t.Fatal(err)
 				}
 			case "extra-dispatch":
-				if out := s.machines[r.ID].Dispatch("op-"+r.ID, liveGrants()); out.Status != "dispatched" {
+				if out := s.machines[r.ID].Dispatch("op-"+r.ID, s.liveGrants(r)); out.Status != "dispatched" {
 					t.Fatal(out)
 				}
 			case "torn-tail":

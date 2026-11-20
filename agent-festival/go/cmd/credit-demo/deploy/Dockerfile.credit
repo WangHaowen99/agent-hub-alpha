@@ -26,6 +26,7 @@ FROM ${PYTHON_IMAGE}
 COPY --from=build /out/credit-demo /opt/aha/run/credit/credit-demo
 COPY schema/*.schema.json /opt/aha/schema/
 COPY schema/examples/judgment/valid/judgment-spec-credit.json /opt/aha/run/credit/
+COPY go/cmd/credit-demo/deploy/scenarios/ /opt/aha/run/credit/scenarios/
 WORKDIR /opt/aha/run/credit
 ENV CREDIT_DATA=/data CREDIT_ADDR=:8091
 EXPOSE 8091

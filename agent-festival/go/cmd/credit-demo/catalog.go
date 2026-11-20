@@ -29,6 +29,7 @@ type Expert struct {
 	Tools       []string `json:"tools,omitempty"`
 	Prompt      string   `json:"-"`
 	MaxIter     int      `json:"-"`
+	Package     string   `json:"package,omitempty"` // scenario package that provides it
 	requires    []grant
 	effectLevel string
 	compensate  string
@@ -56,56 +57,8 @@ func (g grant) doc() map[string]any {
 	return m
 }
 
-func read(sel, purpose string) grant {
-	return grant{kind: "data", selector: sel, actions: []string{"read"}, effect: "none", purpose: purpose}
-}
-
-// experts is the demo catalog. Selectors follow the repo's credit slice
-// fixture (compose/valid/credit-slice-a001.json).
-var experts = []*Expert{
-	{ID: "intake", Name: "材料受理", Kind: "investigate", Tools: []string{"get_application"},
-		Summary:     "读取申请材料，整理成结构化字段",
-		Prompt:      "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
-		requires:    []grant{read("data:credit/applications/*", "application materials")},
-		effectLevel: "none", costCents: 20, calls: 1, seconds: 120},
-	{ID: "financial-analyst", Name: "财务分析师", Kind: "investigate", Tools: []string{"get_financials"},
-		Summary:     "读取资产与经营数据，计算资产规模和偿债指标",
-		Prompt:      "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
-		requires:    []grant{read("data:credit/financials/*", "asset valuation and financials")},
-		effectLevel: "none", costCents: 40, calls: 2, seconds: 180},
-	{ID: "industry-researcher", Name: "行业研究员", Kind: "investigate", Tools: []string{"get_industry_report"},
-		Summary:     "查询行业景气度与同业风险",
-		Prompt:      "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
-		requires:    []grant{read("data:industry/*", "industry report")},
-		effectLevel: "none", costCents: 30, calls: 1, seconds: 120},
-	{ID: "bureau-full", Name: "征信全量查询员", Kind: "investigate", Tools: []string{"query_bureau_full"},
-		Summary:     "调取完整征信报告（逐笔还款记录）",
-		Prompt:      "你是征信查询员。必须调用 query_bureau_full 调取完整征信报告，列出全部逾期记录（逾期时长、距今月数）。只依据工具返回的内容。",
-		requires:    []grant{read("data:credit/bureau/full/*", "full credit bureau report")},
-		effectLevel: "none", costCents: 50, calls: 1, seconds: 120},
-	{ID: "bureau-summary", Name: "征信摘要查询员", Kind: "investigate", Tools: []string{"query_bureau_summary"},
-		Summary:     "调取征信摘要（近六个月逾期、历史最长逾期）",
-		Prompt:      "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
-		requires:    []grant{read("data:credit/bureau/summary/*", "credit bureau summary")},
-		effectLevel: "none", costCents: 20, calls: 1, seconds: 120},
-	{ID: "related-party", Name: "关联方排查", Kind: "blackbox", Tools: []string{"get_related_parties", "query_company_bureau"},
-		Summary:     "黑盒节点（Loop Forest）：自主拆分，先查关联方名单，再逐个分叉排查征信，运行时才展开",
-		requires:    []grant{read("data:credit/related/*", "related-party list"), read("data:credit/related-bureau/*", "credit summary of related companies")},
-		effectLevel: "none", costCents: 80, calls: 5, seconds: 300},
-	{ID: "risk-judge", Name: "风险判断", Kind: "judge",
-		Summary:     "按已发布的授信判断规约，对上游证据给出结构化判断",
-		requires:    []grant{read("data:credit/evidence/*", "upstream evidence of this case")},
-		effectLevel: "none", costCents: 30, calls: 0, seconds: 120},
-	{ID: "report-writer", Name: "报告撰写人", Kind: "write",
-		Summary:     "汇总各步结论，写出尽调报告",
-		Prompt:      "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
-		requires:    []grant{read("data:credit/evidence/*", "upstream evidence of this case")},
-		effectLevel: "none", costCents: 30, calls: 0, seconds: 180},
-	{ID: "credit-submitter", Name: "授信申请提交", Kind: "effect", Tools: []string{"credit.apply"},
-		Summary:     "按已采纳的判断，经网关向银行提交授信申请（不可逆）",
-		requires:    []grant{{kind: "tool", selector: "credit.apply", actions: []string{"execute"}, effect: "irreversible", purpose: "submit the credit application"}},
-		effectLevel: "irreversible", compensate: "manual", costCents: 0, calls: 1, seconds: 60},
-}
+// experts (the catalog) is derived from the approved scenario packages; see
+// scenario.go. The credit due-diligence experts live in scenarios/credit-dd.json.
 
 func expertByID(id string) *Expert {
 	for _, e := range experts {
@@ -217,7 +170,7 @@ func (c *Catalog) Cards() []map[string]any {
 	for _, e := range experts {
 		doc := e.contract()
 		out = append(out, map[string]any{
-			"id": e.ID, "name": e.Name, "kind": e.Kind, "summary": e.Summary, "tools": e.Tools,
+			"id": e.ID, "name": e.Name, "kind": e.Kind, "summary": e.Summary, "tools": e.Tools, "package": e.Package,
 			"requires": doc["requires"], "effects": doc["effects"], "bounds": doc["bounds"],
 			"contract_hash": c.Hashes[e.ID],
 		})

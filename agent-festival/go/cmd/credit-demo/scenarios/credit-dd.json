@@ -1,0 +1,405 @@
+{
+  "caller_holds": [
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/applications/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/financials/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:industry/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/bureau/summary/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/evidence/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/related/*"
+    },
+    {
+      "actions": [
+        "read"
+      ],
+      "effect": "none",
+      "kind": "data",
+      "selector": "data:credit/related-bureau/*"
+    },
+    {
+      "actions": [
+        "execute"
+      ],
+      "effect": "irreversible",
+      "kind": "tool",
+      "selector": "credit.apply"
+    }
+  ],
+  "capabilities": [
+    {
+      "bounds": {
+        "calls": 1,
+        "cost_cents": 20,
+        "seconds": 120
+      },
+      "bus_agent": "credit-material",
+      "effects": {
+        "level": "none"
+      },
+      "id": "intake",
+      "instruction": "你是授信材料受理员。必须调用 get_application 读取申请材料，再把申请人、申请额度、用途、资产申报等字段整理成清单。只依据工具返回的内容，不要编造。",
+      "kind": "investigate",
+      "name": "材料受理",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "application materials",
+          "selector": "data:credit/applications/*"
+        }
+      ],
+      "summary": "读取申请材料，整理成结构化字段",
+      "tools": [
+        "get_application"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 2,
+        "cost_cents": 40,
+        "seconds": 180
+      },
+      "bus_agent": "credit-analysis",
+      "effects": {
+        "level": "none"
+      },
+      "id": "financial-analyst",
+      "instruction": "你是财务分析师。必须调用 get_financials 读取该申请人的资产与经营数据，给出资产规模（USD-millions）、负债率、经营现金流等结论。只依据工具返回的内容。",
+      "kind": "investigate",
+      "name": "财务分析师",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "asset valuation and financials",
+          "selector": "data:credit/financials/*"
+        }
+      ],
+      "summary": "读取资产与经营数据，计算资产规模和偿债指标",
+      "tools": [
+        "get_financials"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 1,
+        "cost_cents": 30,
+        "seconds": 120
+      },
+      "bus_agent": "credit-analysis",
+      "effects": {
+        "level": "none"
+      },
+      "id": "industry-researcher",
+      "instruction": "你是行业研究员。必须调用 get_industry_report（参数为案件号 case_id）读取申请人所在行业的报告，概括景气度和主要风险。只依据工具返回的内容。",
+      "kind": "investigate",
+      "name": "行业研究员",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "industry report",
+          "selector": "data:industry/*"
+        }
+      ],
+      "summary": "查询行业景气度与同业风险",
+      "tools": [
+        "get_industry_report"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 1,
+        "cost_cents": 50,
+        "seconds": 120
+      },
+      "bus_agent": "credit-analysis",
+      "effects": {
+        "level": "none"
+      },
+      "id": "bureau-full",
+      "instruction": "你是征信查询员。必须调用 query_bureau_full 调取完整征信报告，列出全部逾期记录（逾期时长、距今月数）。只依据工具返回的内容。",
+      "kind": "investigate",
+      "name": "征信全量查询员",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "full credit bureau report",
+          "selector": "data:credit/bureau/full/*"
+        }
+      ],
+      "summary": "调取完整征信报告（逐笔还款记录）",
+      "tools": [
+        "query_bureau_full"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 1,
+        "cost_cents": 20,
+        "seconds": 120
+      },
+      "bus_agent": "credit-analysis",
+      "effects": {
+        "level": "none"
+      },
+      "id": "bureau-summary",
+      "instruction": "你是征信查询员。必须调用 query_bureau_summary 调取征信摘要，给出近六个月是否有逾期、历史最长逾期月数。只依据工具返回的内容。",
+      "kind": "investigate",
+      "name": "征信摘要查询员",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "credit bureau summary",
+          "selector": "data:credit/bureau/summary/*"
+        }
+      ],
+      "summary": "调取征信摘要（近六个月逾期、历史最长逾期）",
+      "tools": [
+        "query_bureau_summary"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 5,
+        "cost_cents": 80,
+        "seconds": 300
+      },
+      "effects": {
+        "level": "none"
+      },
+      "id": "related-party",
+      "instruction": "",
+      "kind": "blackbox",
+      "name": "关联方排查",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "related-party list",
+          "selector": "data:credit/related/*"
+        },
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "credit summary of related companies",
+          "selector": "data:credit/related-bureau/*"
+        }
+      ],
+      "summary": "黑盒节点（Loop Forest）：自主拆分，先查关联方名单，再逐个分叉排查征信，运行时才展开",
+      "tools": [
+        "get_related_parties",
+        "query_company_bureau"
+      ],
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 0,
+        "cost_cents": 30,
+        "seconds": 120
+      },
+      "effects": {
+        "level": "none"
+      },
+      "id": "risk-judge",
+      "instruction": "你是风险判断员，按已发布的授信判断规约给出结构化判断。",
+      "kind": "judge",
+      "name": "风险判断",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "upstream evidence of this case",
+          "selector": "data:credit/evidence/*"
+        }
+      ],
+      "summary": "按已发布的授信判断规约，对上游证据给出结构化判断",
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 0,
+        "cost_cents": 30,
+        "seconds": 180
+      },
+      "bus_agent": "credit-writer",
+      "effects": {
+        "level": "none"
+      },
+      "id": "report-writer",
+      "instruction": "你是授信尽调报告撰写人。根据上游各步产物写一份简明的尽调报告：申请概况、财务、行业、征信、判断结论与依据。不要引入上游没有的信息。",
+      "kind": "write",
+      "name": "报告撰写人",
+      "requires": [
+        {
+          "actions": [
+            "read"
+          ],
+          "effect": "none",
+          "kind": "data",
+          "purpose": "upstream evidence of this case",
+          "selector": "data:credit/evidence/*"
+        }
+      ],
+      "summary": "汇总各步结论，写出尽调报告",
+      "version": "1.0.0"
+    },
+    {
+      "bounds": {
+        "calls": 1,
+        "cost_cents": 0,
+        "seconds": 60
+      },
+      "effects": {
+        "compensation": "manual",
+        "level": "irreversible"
+      },
+      "id": "credit-submitter",
+      "instruction": "你是授信申请提交节点，只按已采纳的判断经网关提交申请。",
+      "kind": "effect",
+      "name": "授信申请提交",
+      "requires": [
+        {
+          "actions": [
+            "execute"
+          ],
+          "effect": "irreversible",
+          "kind": "tool",
+          "purpose": "submit the credit application",
+          "selector": "credit.apply"
+        }
+      ],
+      "summary": "按已采纳的判断，经网关向银行提交授信申请（不可逆）",
+      "tools": [
+        "credit.apply"
+      ],
+      "version": "1.0.0"
+    }
+  ],
+  "governance": {
+    "approved_at": "2026-11-17",
+    "approved_by": "迁移自 7dfd061 内置目录（逐项摘要比对一致）",
+    "state": "approved"
+  },
+  "package": "credit-dd",
+  "parent_bounds": {
+    "max_cost": {
+      "amount": 500,
+      "unit": "USD-cents"
+    },
+    "max_downstream_calls": 36,
+    "max_seconds": 1800
+  },
+  "rules": {
+    "coverage": [
+      {
+        "name": "申请材料",
+        "selectors": [
+          "data:credit/applications/*"
+        ]
+      },
+      {
+        "name": "财务",
+        "selectors": [
+          "data:credit/financials/*"
+        ]
+      },
+      {
+        "name": "行业",
+        "selectors": [
+          "data:industry/*"
+        ]
+      },
+      {
+        "name": "征信",
+        "selectors": [
+          "data:credit/bureau/full/*",
+          "data:credit/bureau/summary/*"
+        ]
+      },
+      {
+        "name": "关联方",
+        "selectors": [
+          "data:credit/related/*"
+        ]
+      }
+    ],
+    "effect_marker": "DECISION=GRANT",
+    "judge_kind": "judge",
+    "rule_set": "evidence-coverage-v1"
+  },
+  "title": "授信尽调（W02 原型场景）",
+  "version": "1.0.0"
+}

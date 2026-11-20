@@ -1,0 +1,121 @@
+{
+  "package": "annual-report-cmb-2025",
+  "version": "0.1.0",
+  "title": "公开年报经营与资产质量简报（#16 / W01）",
+  "governance": {
+    "state": "approved",
+    "approved_by": "演示审批人（受治理导入，非生产身份）",
+    "approved_at": "2026-11-17"
+  },
+  "rules": {
+    "rule_set": "annual-report-selection-v1",
+    "coverage": [
+      {"name": "年报快照", "selectors": ["data:annual-report/cmb-2025/*"]}
+    ]
+  },
+  "caller_holds": [
+    {"kind": "data", "selector": "data:annual-report/cmb-2025/*", "actions": ["read"], "effect": "none"},
+    {"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none"}
+  ],
+  "parent_bounds": {
+    "max_cost": {"amount": 300, "unit": "USD-cents"},
+    "max_downstream_calls": 20,
+    "max_seconds": 1200
+  },
+  "materials": [
+    {"id": "cmb-2025-annual-report-a", "sha256": "52c49dcdc00d4f5436adabc6561044d7a539e9bb0a8ebbdb692a1da6237459da", "source": "PR #21 source.json"}
+  ],
+  "selection": {
+    "recall": "在获准场景包内按能力卡召回全部候选（有限配置，未做语义召回）",
+    "source_schema": "material-ref",
+    "must_declare": {
+      "material-ref": ["entities", "basis", "periods", "materials"],
+      "indicator-set": ["basis", "periods"],
+      "findings": ["templates"]
+    },
+    "weights": {"focus": 0.6, "io": 0.3, "current": 0.1},
+    "min_score": 0.5
+  },
+  "capabilities": [
+    {
+      "id": "ar.material-extractor", "version": "1.0.0", "node": "extract",
+      "name": "年报指标抽取", "kind": "investigate",
+      "summary": "从固定年报快照抽取指标及原文引用",
+      "instruction": "你是年报资料员。只依据给定的固定年报快照抽取指标，每个数值都给出单位、期间、PDF 页、印刷页和原文行；快照里找不到的指标写明缺失，不要编造。正文印刷页 = PDF 页 - 1。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/cmb-2025/*", "actions": ["read"], "effect": "none", "purpose": "fixed annual report snapshot"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 40, "calls": 2, "seconds": 300},
+      "applicability": {
+        "entities": ["招商银行股份有限公司"], "basis": ["本集团"], "periods": ["2025", "2024"],
+        "units": ["人民币百万元", "%"], "materials": ["cmb-2025-annual-report-a"]
+      },
+      "input": {"schema": "material-ref"},
+      "output": {"schema": "indicator-set", "provides": ["operating_income", "net_profit_attributable", "net_interest_margin", "cost_income_ratio", "npl_balance", "npl_ratio", "provision_coverage", "cet1_advanced"]},
+      "limits": ["只读快照，不联网", "页码按 PR #21 的规则：正文印刷页 = PDF 页 - 1"]
+    },
+    {
+      "id": "ar.operating-analyst", "version": "1.0.0", "node": "operating",
+      "name": "经营分析", "kind": "investigate",
+      "summary": "分析营收、归母净利润、净息差和成本收入比的变化",
+      "instruction": "你是经营分析员。只用上游抽取的指标和引用作分析；比率变化用百分点表述；每条结论都标明所依据的指标和原文页码。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none", "purpose": "upstream indicators of this task"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 30, "calls": 0, "seconds": 180},
+      "focus": ["经营"],
+      "applicability": {"basis": ["本集团"], "periods": ["2025", "2024"]},
+      "input": {"schema": "indicator-set", "requires": ["operating_income", "net_profit_attributable", "net_interest_margin", "cost_income_ratio"]},
+      "output": {"schema": "findings", "section": "operating"},
+      "limits": ["比率变化用百分点表述"]
+    },
+    {
+      "id": "ar.asset-quality-analyst", "version": "1.0.0", "node": "asset_quality",
+      "name": "资产质量分析", "kind": "investigate",
+      "summary": "分析不良余额与不良率、拨备覆盖率和核心一级资本充足率",
+      "instruction": "你是资产质量分析员。只用上游抽取的指标和引用作分析；核心一级资本充足率取高级法，与权重法区分；每条结论都标明所依据的指标和原文页码。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none", "purpose": "upstream indicators of this task"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 30, "calls": 0, "seconds": 180},
+      "focus": ["资产质量"],
+      "applicability": {"basis": ["本集团"], "periods": ["2025", "2024"]},
+      "input": {"schema": "indicator-set", "requires": ["npl_balance", "npl_ratio", "provision_coverage", "cet1_advanced"]},
+      "output": {"schema": "findings", "section": "asset_quality"},
+      "limits": ["核心一级资本充足率取高级法，与权重法区分"]
+    },
+    {
+      "id": "ar.report-writer", "version": "1.0.0", "node": "write",
+      "name": "年报简报写作", "kind": "write",
+      "summary": "按 W01 模板把分析段落写成结构化简报",
+      "instruction": "你是简报撰写人。按交付模板组织上游分析段落；每个数字和结论都要回到快照的页与原文行，没有出处的内容不写。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none", "purpose": "upstream findings of this task"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 30, "calls": 0, "seconds": 180},
+      "applicability": {"templates": ["demo/annual-report/report.schema.json"]},
+      "input": {"schema": "findings", "requires_sections_any": ["operating", "asset_quality"]},
+      "output": {"schema": "report", "ref": "demo/annual-report/report.schema.json"},
+      "limits": ["每个数字和结论都要回到快照的页与原文行"]
+    },
+    {
+      "id": "ar.parent-only-analyst", "version": "2.3.0", "node": "parent_analysis",
+      "name": "母公司口径财务分析", "kind": "investigate",
+      "summary": "母公司口径的经营与资产质量分析（演示：应被排除的候选）",
+      "instruction": "你是母公司口径财务分析员。只分析母公司报表口径的指标。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none", "purpose": "upstream indicators of this task"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 30, "calls": 0, "seconds": 180},
+      "focus": ["经营", "资产质量"],
+      "applicability": {"basis": ["母公司"], "periods": ["2025", "2024"]},
+      "input": {"schema": "indicator-set", "requires": ["operating_income", "net_profit_attributable"]},
+      "output": {"schema": "findings", "section": "operating"},
+      "limits": ["只支持母公司口径"]
+    },
+    {
+      "id": "ar.generic-finance-qa", "version": "0.9.0", "node": "generic_qa",
+      "name": "通用财报问答", "kind": "investigate",
+      "summary": "通用财报问答（演示：口径、期间、输入输出均未声明的候选）",
+      "instruction": "你是通用财报问答助手。",
+      "requires": [{"kind": "data", "selector": "data:annual-report/evidence/*", "actions": ["read"], "effect": "none", "purpose": "upstream indicators of this task"}],
+      "effects": {"level": "none"},
+      "bounds": {"cost_cents": 20, "calls": 0, "seconds": 120}
+    }
+  ]
+}

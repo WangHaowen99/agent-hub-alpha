@@ -37,6 +37,7 @@ type Config struct {
 	BusRegistryURL     string
 	BusRegistryToken   string
 	BusTenant          string
+	ScenarioDir        string // operator-imported approved scenario packages (*.json); built-in packages always load
 }
 
 // StepRec is the authoritative record of one blueprint step in a run.
@@ -101,6 +102,9 @@ type State struct {
 	Runs     map[string]*Run    `json:"runs"`
 	NextPlan int                `json:"next_plan"`
 	NextRun  int                `json:"next_run"`
+	// Selections are the capability selection records plans were proposed from.
+	Selections    map[string]*SelectionRecord `json:"selections,omitempty"`
+	NextSelection int                         `json:"next_selection,omitempty"`
 	// Rev counts saved changes. It is persisted, so it only grows, even across
 	// restarts: a front end drops any snapshot older than one it has shown.
 	Rev int64 `json:"rev"`
@@ -126,6 +130,9 @@ type Service struct {
 func OpenService(cfg Config) (*Service, error) {
 	compose.RegisterGraph()
 	if err := os.MkdirAll(filepath.Join(cfg.DataDir, "runs"), 0o755); err != nil {
+		return nil, err
+	}
+	if err := loadScenarioDir(cfg.ScenarioDir); err != nil {
 		return nil, err
 	}
 	cat, err := LoadCatalog(cfg.DataDir)
@@ -237,18 +244,31 @@ func (s *Service) evidLog(runID, step string) (*evidlog.Log, error) {
 // ---------- plans ----------
 
 type ProposeInput struct {
-	CaseID string      `json:"case_id" jsonschema:"case id such as C006"`
-	Goal   string      `json:"goal" jsonschema:"what the team must deliver"`
-	PlanID string      `json:"plan_id,omitempty" jsonschema:"set to revise an existing plan (creates a new version)"`
-	Agents []PlanAgent `json:"agents" jsonschema:"team members, each bound to a registered expert"`
+	CaseID      string      `json:"case_id,omitempty" jsonschema:"case id such as C006; leave empty with selection_id"`
+	Goal        string      `json:"goal" jsonschema:"what the team must deliver"`
+	PlanID      string      `json:"plan_id,omitempty" jsonschema:"set to revise an existing plan (creates a new version)"`
+	SelectionID string      `json:"selection_id,omitempty" jsonschema:"selection record from select_capabilities; required for scenarios that publish a selection policy"`
+	Agents      []PlanAgent `json:"agents,omitempty" jsonschema:"team members, each bound to a registered expert; with selection_id, may be omitted to adopt the selected team"`
 }
 
 func (s *Service) Propose(in ProposeInput) (*Plan, error) {
-	in.CaseID = strings.ToUpper(strings.TrimSpace(in.CaseID))
-	if _, ok := cases[in.CaseID]; !ok {
-		return nil, fmt.Errorf("unknown case %q", in.CaseID)
+	pkg := scenarios.get(defaultScenario)
+	var sel *SelectionRecord
+	if in.SelectionID != "" {
+		var err error
+		if pkg, sel, err = s.fromSelection(&in); err != nil {
+			return nil, err
+		}
+	} else {
+		in.CaseID = strings.ToUpper(strings.TrimSpace(in.CaseID))
+		if _, ok := cases[in.CaseID]; !ok {
+			return nil, fmt.Errorf("unknown case %q", in.CaseID)
+		}
 	}
-	if err := checkAgents(in.Agents); err != nil {
+	if pkg == nil {
+		return nil, fmt.Errorf("scenario %s is not loaded", defaultScenario)
+	}
+	if err := checkAgents(pkg, in.Agents); err != nil {
 		return nil, err
 	}
 	res, team, err := s.compile(in.Agents)
@@ -256,7 +276,10 @@ func (s *Service) Propose(in ProposeInput) (*Plan, error) {
 		return nil, err
 	}
 	p := &Plan{CaseID: in.CaseID, Goal: in.Goal, Agents: in.Agents, Blueprint: res.Blueprint, SpecDigest: res.SpecDigest,
-		Team: team, Type: res.Type, Steps: res.Steps, ProposedAt: now()}
+		Team: team, Type: res.Type, Steps: res.Steps, ProposedAt: now(), Scenario: pkg.Package}
+	if sel != nil {
+		p.Selection = &SelectionRef{ID: sel.ID, Digest: sel.Digest}
+	}
 	if p.Layers, err = layers(p.Steps); err != nil {
 		return nil, err
 	}
@@ -272,8 +295,12 @@ func (s *Service) Propose(in ProposeInput) (*Plan, error) {
 		return nil, s.storageErr
 	}
 	if in.PlanID != "" {
-		if _, ok := s.st.Plans[in.PlanID]; !ok {
+		vs, ok := s.st.Plans[in.PlanID]
+		if !ok {
 			return nil, fmt.Errorf("unknown plan %q", in.PlanID)
+		}
+		if prev := vs[len(vs)-1].scenario(); prev != nil && prev.Package != p.Scenario {
+			return nil, fmt.Errorf("plan %s belongs to scenario %s; propose a new plan for %s", in.PlanID, prev.Package, p.Scenario)
 		}
 		p.ID = in.PlanID
 	} else {
@@ -375,6 +402,11 @@ func (s *Service) Approve(planID string, version int, hash, user string, via *Vi
 	defer s.mu.Unlock()
 	if s.storageErr != nil {
 		return nil, s.storageErr
+	}
+	if p.Selection != nil {
+		if rec := s.st.Selections[p.Selection.ID]; rec == nil || rec.Digest != p.Selection.Digest || rec.digest() != rec.Digest {
+			return nil, fmt.Errorf("the capability selection behind this plan is missing or changed — select and propose again")
+		}
 	}
 	if p.RunID != "" {
 		return s.st.Runs[p.RunID], nil
@@ -535,8 +567,20 @@ func (s *Service) LeaseAs(worker, executorModel string) (*Job, error) {
 			}
 			members[a.ID] = m
 		}
+		input := fmt.Sprintf("案件号：%s。任务：%s", r.CaseID, p.Goal)
+		if p.Selection != nil {
+			if rec := s.st.Selections[p.Selection.ID]; rec != nil {
+				q := rec.Query
+				period := q.Period
+				if q.ComparePeriod != "" {
+					period += "（对比 " + q.ComparePeriod + "）"
+				}
+				input = fmt.Sprintf("主体：%s。口径：%s。期间：%s。材料：%s。交付模板：%s。任务：%s",
+					q.Entity, q.Basis, period, strings.Join(q.Materials, "、"), q.Deliverable, p.Goal)
+			}
+		}
 		return &Job{RunID: r.ID, Token: r.Token, Epoch: r.Epoch, Mode: "graph", Team: p.Team, SpecDigest: p.SpecDigest,
-			UserInput: fmt.Sprintf("案件号：%s。任务：%s", r.CaseID, p.Goal),
+			UserInput: input,
 			Members:   members, MemberMCPURL: s.cfg.MemberMCPURL, LeaseSeconds: s.cfg.LeaseSeconds, GraphRevision: p.Key(),
 			Model: executorModel}, nil
 	}
@@ -796,9 +840,10 @@ func sha(parts ...string) string {
 
 var effectGrants = []ledger.Grant{{Kind: "tool", Selector: "credit.apply", Actions: []string{"execute"}, Effect: "irreversible"}}
 
-func liveGrants() []ledger.Grant {
+// liveGrants are the approver's grants under the run's scenario package.
+func (s *Service) liveGrants(r *Run) []ledger.Grant {
 	out := []ledger.Grant{}
-	for _, g := range callerHolds {
+	for _, g := range s.st.Plans[r.PlanID][r.PlanVersion-1].scenario().holds() {
 		out = append(out, ledger.Grant{Kind: g.kind, Selector: g.selector, Actions: g.actions, Effect: g.effect})
 	}
 	return out
@@ -936,8 +981,8 @@ func (s *Service) Effect(runID, token, step string) (string, error) {
 	op, br := r.DecisionOp, r.BusinessReq
 	state := m.State(op)
 	if state == adopt.StateAdopted {
-		out := m.Dispatch(op, liveGrants())
-		s.record(r, "dispatch", map[string]any{"grants": liveGrants()})
+		out := m.Dispatch(op, s.liveGrants(r))
+		s.record(r, "dispatch", map[string]any{"grants": s.liveGrants(r)})
 		if st := r.Steps[step]; st != nil {
 			st.Activity = "已派发，等银行回执"
 		}

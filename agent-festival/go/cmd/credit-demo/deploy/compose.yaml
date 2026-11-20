@@ -23,6 +23,7 @@ services:
       CREDIT_MODEL: ${SWARM_MODEL_NAME:-qwen-plus}
       CREDIT_LEASE_SECONDS: 20
       CREDIT_DEMO_PASSWORD: ${CREDIT_DEMO_PASSWORD:-demo}
+      CREDIT_SCENARIO_DIR: /opt/aha/run/credit/scenarios
     volumes:
       - credit-data:/data
     ports:

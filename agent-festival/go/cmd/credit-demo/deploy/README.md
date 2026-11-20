@@ -60,6 +60,8 @@ python3 agent-festival/go/cmd/credit-demo/deploy/demo.py --bus status
 对话示例：为客户 C006 做授信尽调，使用权限范围内的征信摘要，先给出候选图，等待我批准。
 演示确认账号为 `alice`；密码由 `CREDIT_DEMO_PASSWORD` 配置。
 
+场景包：授信尽调场景（`scenarios/credit-dd.json`）随程序内置。其它场景包由运维放入 `CREDIT_SCENARIO_DIR` 导入，镜像内为 `deploy/scenarios/`，当前只有年报场景 `annual-report-cmb-2025`。只有治理状态为 `approved` 的包会被加载；包按 RFC 8785 规范化后的 SHA-256 摘要固定，批准摘要覆盖它。发布了选择策略的场景（年报场景）先调用 `select_capabilities` 生成选择记录，再用 `propose_plan` 的 `selection_id` 提交计划；选择依据显示在确认页和 `/api/graph` 的 `selection` 中。
+
 默认仅绑定回环地址；端口可用 `CREDIT_SWARM_PORT` / `CREDIT_PORT` 调整，允许来源随前端端口一致变化。模型密钥通过运行时配置注入，不进入镜像。Compose 中未提供配置时允许构建，完整启动前会检查各服务实际解析出的模型配置并拒绝缺失值；不要求必须有配置文件。WorkSwarm 自身会将运行配置写入受保护的数据卷文件。
 
 ## 无模型的接口验证

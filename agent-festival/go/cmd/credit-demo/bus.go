@@ -15,14 +15,8 @@ import (
 
 // Only logical capabilities are configured here. RDC owns cards and instances;
 // neither the planner nor this control overlay supplies a runtime address.
-var busAgents = map[string]string{
-	"intake":              "credit-material",
-	"financial-analyst":   "credit-analysis",
-	"industry-researcher": "credit-analysis",
-	"bureau-summary":      "credit-analysis",
-	"bureau-full":         "credit-analysis",
-	"report-writer":       "credit-writer",
-}
+// busAgents (expert id -> RDC agent id) comes from the capability cards'
+// bus_agent field; see scenario.go.
 
 type BusBinding struct {
 	AgentID        string `json:"agent_id"`

@@ -68,12 +68,18 @@ type Plan struct {
 	ApprovedBy  string                `json:"approved_by,omitempty"`
 	RunID       string                `json:"run_id,omitempty"`
 	BusBindings map[string]BusBinding `json:"bus_bindings,omitempty"`
+	Scenario    string                `json:"scenario,omitempty"`  // package id; empty for plans proposed before packages
+	Selection   *SelectionRef         `json:"selection,omitempty"` // the capability selection the team came from
 	// Binding is the judgment spec and execution config the plan was proposed
 	// under; the approval digest covers it (AR-04).
 	Binding *ExecBinding `json:"exec_binding,omitempty"`
 }
 
 func (p *Plan) Key() string { return fmt.Sprintf("%s-v%d", p.ID, p.Version) }
+
+// scenario is the package whose rules, grants and budget the plan is checked
+// against; nil if that package is no longer loaded.
+func (p *Plan) scenario() *ScenarioPackage { return scenarios.get(p.Scenario) }
 
 func (p *Plan) agent(id string) *PlanAgent {
 	for i := range p.Agents {
@@ -84,25 +90,10 @@ func (p *Plan) agent(id string) *PlanAgent {
 	return nil
 }
 
-// The customer manager's grants and budget: what compose checks against.
-var callerHolds = []grant{
-	read("data:credit/applications/*", ""),
-	read("data:credit/financials/*", ""),
-	read("data:industry/*", ""),
-	read("data:credit/bureau/summary/*", ""),
-	read("data:credit/evidence/*", ""),
-	read("data:credit/related/*", ""),
-	read("data:credit/related-bureau/*", ""),
-	{kind: "tool", selector: "credit.apply", actions: []string{"execute"}, effect: "irreversible"},
-}
+// The approver's grants and the budget that compose checks against come from
+// the plan's scenario package; see scenario.go.
 
-var parentBounds = map[string]any{
-	"max_cost":             map[string]any{"amount": 500, "unit": "USD-cents"},
-	"max_downstream_calls": 36, // parallel siblings split it evenly; 36 keeps a 7-wide layer above the black box's 5
-	"max_seconds":          1800,
-}
-
-func checkAgents(agents []PlanAgent) error {
+func checkAgents(pkg *ScenarioPackage, agents []PlanAgent) error {
 	if len(agents) == 0 {
 		return fmt.Errorf("agents is empty")
 	}
@@ -115,8 +106,12 @@ func checkAgents(agents []PlanAgent) error {
 			return fmt.Errorf("duplicate agent id %q", a.ID)
 		}
 		seen[a.ID] = true
-		if expertByID(a.Expert) == nil {
+		e := expertByID(a.Expert)
+		if e == nil {
 			return fmt.Errorf("agent %s: %q is not a registered capability (use list_capabilities)", a.ID, a.Expert)
+		}
+		if e.Package != pkg.Package {
+			return fmt.Errorf("agent %s: %s belongs to scenario %s, not %s", a.ID, a.Expert, e.Package, pkg.Package)
 		}
 	}
 	for _, a := range agents {
@@ -176,13 +171,7 @@ func (s *Service) compile(agents []PlanAgent) (*compileResult, []map[string]any,
 }
 
 func expertInstruction(e *Expert) string {
-	if e.Kind == "judge" {
-		return "你是风险判断员，按已发布的授信判断规约给出结构化判断。"
-	}
-	if e.Kind == "effect" {
-		return "你是授信申请提交节点，只按已采纳的判断经网关提交申请。"
-	}
-	return e.Prompt
+	return e.Prompt // the capability card's instruction
 }
 
 // layers orders steps topologically; steps in one layer may run in parallel.
@@ -244,38 +233,44 @@ func execGraph(p *Plan) map[string]any {
 	if len(seq) == 1 {
 		plan = seq[0]
 	}
+	pkg := p.scenario()
 	holds := []any{}
-	for _, g := range callerHolds {
+	for _, g := range pkg.holds() {
 		holds = append(holds, g.doc())
 	}
-	return jsonDoc(map[string]any{"nodes": nodes, "plan": plan, "caller_holds": holds, "parent_bounds": parentBounds})
+	var bounds map[string]any
+	if pkg != nil {
+		bounds = pkg.ParentBounds
+	}
+	return jsonDoc(map[string]any{"nodes": nodes, "plan": plan, "caller_holds": holds, "parent_bounds": bounds})
 }
 
-// ddCoverage is the published due-diligence rule: every evidence class must be
-// read by some member. list_capabilities shows it and precheck enforces it, so
-// a plan cannot pass by leaving evidence out.
-var ddCoverage = []struct {
-	Name      string
-	Selectors []string // reading any one covers the class
-}{
-	{"申请材料", []string{"data:credit/applications/*"}},
-	{"财务", []string{"data:credit/financials/*"}},
-	{"行业", []string{"data:industry/*"}},
-	{"征信", []string{"data:credit/bureau/full/*", "data:credit/bureau/summary/*"}},
-	{"关联方", []string{"data:credit/related/*"}},
-}
-
-func ddRules() []string {
+// planRules are the package's published rules: the evidence classes some
+// member must read, the judgment every investigation feeds, and the guard on
+// irreversible effects. list_capabilities shows them and precheck enforces them.
+func (pkg *ScenarioPackage) planRules() []string {
 	out := []string{}
-	for _, c := range ddCoverage {
+	for _, c := range pkg.Rules.Coverage {
 		out = append(out, fmt.Sprintf("要有成员读取%s证据（%s）", c.Name, strings.Join(c.Selectors, " 或 ")))
 	}
-	return append(out,
-		"风险判断（kind=judge）直接或间接依赖全部调查步骤和黑盒步骤",
-		"有不可逆效果的步骤依赖风险判断，并设 run_if 含 DECISION=GRANT")
+	if pkg.Rules.JudgeKind != "" {
+		out = append(out, fmt.Sprintf("风险判断（kind=%s）直接或间接依赖全部调查步骤和黑盒步骤", pkg.Rules.JudgeKind))
+	}
+	if pkg.Rules.EffectMarker != "" {
+		out = append(out, "有不可逆效果的步骤依赖风险判断，并设 run_if 含 "+pkg.Rules.EffectMarker)
+	}
+	if pkg.Selection != nil {
+		out = append(out, "成员只能来自 select_capabilities 的选择记录；数据绑定在采纳前检查")
+	}
+	return out
 }
 
 func ruleViolations(p *Plan) []string {
+	pkg := p.scenario()
+	if pkg == nil {
+		return []string{fmt.Sprintf("场景包 %s 未加载，无法按其规约检查", p.Scenario)}
+	}
+	judgeKind, marker := pkg.Rules.JudgeKind, pkg.Rules.EffectMarker
 	var errs []string
 	kind := map[string]string{}
 	deps := map[string][]string{}
@@ -290,7 +285,7 @@ func ruleViolations(p *Plan) []string {
 		}
 		deps[st.ID] = st.DependsOn
 	}
-	for _, c := range ddCoverage {
+	for _, c := range pkg.Rules.Coverage {
 		covered := false
 		for _, sel := range c.Selectors {
 			covered = covered || reads[sel]
@@ -314,7 +309,7 @@ func ruleViolations(p *Plan) []string {
 	}
 	judges := 0
 	for _, st := range p.Steps {
-		if kind[st.ID] != "judge" {
+		if judgeKind == "" || kind[st.ID] != judgeKind {
 			continue
 		}
 		judges++
@@ -325,22 +320,23 @@ func ruleViolations(p *Plan) []string {
 			}
 		}
 	}
-	if judges == 0 {
-		errs = append(errs, "缺少风险判断步骤（kind=judge）")
+	if judgeKind != "" && judges == 0 {
+		errs = append(errs, fmt.Sprintf("缺少风险判断步骤（kind=%s）", judgeKind))
 	}
 	for _, st := range p.Steps {
 		if kind[st.ID] != "effect" {
 			continue
 		}
 		w := st.When
-		if w == nil || w.Negate || kind[w.Step] != "judge" || !strings.Contains(w.Contains, "DECISION=GRANT") || !ancestors(st.ID)[w.Step] {
-			errs = append(errs, fmt.Sprintf("%s 有不可逆效果，要依赖风险判断并设 run_if 含 DECISION=GRANT", st.ID))
+		if judgeKind == "" || marker == "" || w == nil || w.Negate || kind[w.Step] != judgeKind || !strings.Contains(w.Contains, marker) || !ancestors(st.ID)[w.Step] {
+			errs = append(errs, fmt.Sprintf("%s 有不可逆效果，要依赖风险判断并设 run_if 含 %s", st.ID, marker))
 		}
 	}
 	return errs
 }
 
 func precheck(p *Plan) Precheck {
+	pkg := p.scenario()
 	res := compose.ComposeErrors(execGraph(p))
 	pc := Precheck{OK: len(res.Errors) == 0, Errors: res.Errors, Composed: res.Composed, CheckedAt: now()}
 	if pc.Rules = ruleViolations(p); len(pc.Rules) > 0 {
@@ -352,7 +348,7 @@ func precheck(p *Plan) Precheck {
 			continue
 		}
 		for _, g := range expertByID(a.Expert).requires {
-			if !held(g) {
+			if !pkg.held(g) {
 				pc.NotHeld = append(pc.NotHeld, fmt.Sprintf("%s（%s）需要 %s %s，客户经理没有这项权限", st.ID, expertByID(a.Expert).Name, g.selector, strings.Join(g.actions, ",")))
 			}
 		}
@@ -360,17 +356,10 @@ func precheck(p *Plan) Precheck {
 	return pc
 }
 
-func held(g grant) bool {
-	for _, h := range callerHolds {
-		if h.kind == g.kind && h.selector == g.selector {
-			return true
-		}
-	}
-	return false
-}
-
 // planHash binds what is approved: case, goal, the compiled blueprint (by
-// its digest), and which signed contract each member runs under.
+// its digest), and which signed contract each member runs under; for plans
+// proposed under a scenario package also the package digest, and for plans
+// from a capability selection the digest of that selection record.
 func planHash(p *Plan, contractHashes map[string]string) string {
 	members := map[string]any{}
 	for _, a := range p.Agents {
@@ -380,6 +369,16 @@ func planHash(p *Plan, contractHashes map[string]string) string {
 		}
 	}
 	doc := map[string]any{"case": p.CaseID, "goal": p.Goal, "spec_digest": p.SpecDigest, "members": members}
+	if p.Scenario != "" {
+		scenario := map[string]any{"package": p.Scenario}
+		if pkg := p.scenario(); pkg != nil {
+			scenario["ref"], scenario["digest"] = pkg.Ref(), pkg.Digest()
+		}
+		doc["scenario"] = scenario
+	}
+	if p.Selection != nil {
+		doc["selection"] = map[string]any{"id": p.Selection.ID, "digest": p.Selection.Digest}
+	}
 	if p.Binding != nil {
 		doc["exec_binding"] = p.Binding
 	}
