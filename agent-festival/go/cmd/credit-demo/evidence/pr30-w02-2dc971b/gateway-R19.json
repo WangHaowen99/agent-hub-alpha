@@ -1,0 +1,59 @@
+{
+ "bureau": {
+  "request_id": "88dba47c374d5c86b53c1ef0",
+  "remote_task_id": "db961b5c-f8ac-4b47-bfe3-36195925b349",
+  "status": "completed",
+  "attempt": 1,
+  "exchanges": {
+   "GetTask/task_received/200": 3,
+   "SendMessage/task_received/200": 1
+  },
+  "end_before_start": 0
+ },
+ "financial": {
+  "request_id": "1fb23a9ebfe221812571d505",
+  "remote_task_id": "4620dbc1-e089-4ac0-a07c-d01e74d580d9",
+  "status": "completed",
+  "attempt": 1,
+  "exchanges": {
+   "GetTask/task_received/200": 4,
+   "SendMessage/task_received/200": 1,
+   "GetTask/http_error/503": 1
+  },
+  "end_before_start": 0
+ },
+ "industry": {
+  "request_id": "a5fcab2674737df260c09a45",
+  "remote_task_id": "5ca19f4d-a100-4158-ae1b-0d3dbb59a65b",
+  "status": "completed",
+  "attempt": 1,
+  "exchanges": {
+   "GetTask/task_received/200": 3,
+   "SendMessage/task_received/200": 1
+  },
+  "end_before_start": 0
+ },
+ "intake": {
+  "request_id": "d85b7df5cc1c676a7e891042",
+  "remote_task_id": "cddeffca-59b6-4a51-b77c-8ae6aa794d5c",
+  "status": "completed",
+  "attempt": 1,
+  "exchanges": {
+   "GetTask/task_received/200": 4,
+   "SendMessage/task_received/200": 1
+  },
+  "end_before_start": 0
+ },
+ "report": {
+  "request_id": "b64a53486ddbcc0bba28d5bd",
+  "remote_task_id": "8485932e-99cd-41b2-91da-aca6f90c8fcc",
+  "status": "completed",
+  "attempt": 1,
+  "exchanges": {
+   "GetTask/task_received/200": 11,
+   "SendMessage/task_received/200": 1
+  },
+  "end_before_start": 0
+ }
+}
+epoch 2 leases ["2026-11-20T06:03:47Z 第 1 次领取（orchestrator-1，模型 qwen-plus）", "2026-11-20T06:03:57Z 第 2 次领取（orchestrator-1，模型 qwen-plus）"]

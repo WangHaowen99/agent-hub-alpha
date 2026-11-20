@@ -1,0 +1,215 @@
+{
+ "source": "2dc971b1fa9d592bb6d61b7f61c398856cae056f",
+ "plugin": "2c022ea26a97630e827b05e68777e50a668e88ee",
+ "run": "R20",
+ "plan": "P20",
+ "created_at": "2026-11-20T06:07:45.281Z",
+ "armed": {
+  "at": "2026-11-20T06:07:50.331Z",
+  "calls": {
+   "bureau": {
+    "step": "waiting",
+    "call": "waiting",
+    "request_id": "3eb0e5df11f6979ef1153ec9",
+    "task_id": "6a3e095e-7e4f-4142-a2c0-78659a881e20",
+    "agent_started_at": "2026-11-20T06:07:50Z",
+    "intent_saved_at": "2026-11-20T06:07:49Z",
+    "gateway": {
+     "SendMessage/task_received": 1
+    }
+   },
+   "financial": {
+    "step": "waiting",
+    "call": "waiting",
+    "request_id": "bbd6ba24cee6f30810af1cec",
+    "task_id": "0bdee040-b922-48f1-ac44-9b999e663e35",
+    "agent_started_at": "2026-11-20T06:07:49Z",
+    "intent_saved_at": "2026-11-20T06:07:49Z",
+    "gateway": {
+     "SendMessage/task_received": 1
+    }
+   },
+   "industry": {
+    "step": "waiting",
+    "call": "waiting",
+    "request_id": "0535047be12e0a0090290ecc",
+    "task_id": "9a82aefc-aa9a-4474-b038-3de5727e2059",
+    "agent_started_at": "2026-11-20T06:07:49Z",
+    "intent_saved_at": "2026-11-20T06:07:49Z",
+    "gateway": {
+     "SendMessage/task_received": 1
+    }
+   },
+   "intake": {
+    "step": "done",
+    "call": "completed",
+    "request_id": "0abad69d0f40ed4482d65e8d",
+    "task_id": "3daa643c-4af9-4892-bcf6-2ff0855c6c70",
+    "agent_started_at": "2026-11-20T06:07:45Z",
+    "intent_saved_at": "2026-11-20T06:07:45Z",
+    "gateway": {
+     "SendMessage/task_received": 1,
+     "GetTask/task_received": 4
+    }
+   }
+  }
+ },
+ "status_at_halt": "waiting",
+ "halted_at": "2026-11-20T06:07:55.305Z",
+ "steps_at_halt": {
+  "bureau": "done",
+  "financial": "done",
+  "industry": "unknown",
+  "intake": "done",
+  "judge": "pending",
+  "related": "running",
+  "report": "pending"
+ },
+ "calls_at_halt": {
+  "bureau": {
+   "step": "done",
+   "call": "completed",
+   "request_id": "3eb0e5df11f6979ef1153ec9",
+   "task_id": "6a3e095e-7e4f-4142-a2c0-78659a881e20",
+   "agent_started_at": "2026-11-20T06:07:50Z",
+   "intent_saved_at": "2026-11-20T06:07:49Z",
+   "gateway": {
+    "SendMessage/task_received": 1,
+    "GetTask/task_received": 3
+   }
+  },
+  "financial": {
+   "step": "done",
+   "call": "completed",
+   "request_id": "bbd6ba24cee6f30810af1cec",
+   "task_id": "0bdee040-b922-48f1-ac44-9b999e663e35",
+   "agent_started_at": "2026-11-20T06:07:49Z",
+   "intent_saved_at": "2026-11-20T06:07:49Z",
+   "gateway": {
+    "GetTask/task_received": 5,
+    "SendMessage/task_received": 1
+   }
+  },
+  "industry": {
+   "step": "unknown",
+   "call": "unknown",
+   "request_id": "0535047be12e0a0090290ecc",
+   "task_id": "9a82aefc-aa9a-4474-b038-3de5727e2059",
+   "agent_started_at": "2026-11-20T06:07:49Z",
+   "intent_saved_at": "2026-11-20T06:07:49Z",
+   "gateway": {
+    "SendMessage/task_received": 1,
+    "GetTask/http_error": 1
+   }
+  },
+  "intake": {
+   "step": "done",
+   "call": "completed",
+   "request_id": "0abad69d0f40ed4482d65e8d",
+   "task_id": "3daa643c-4af9-4892-bcf6-2ff0855c6c70",
+   "agent_started_at": "2026-11-20T06:07:45Z",
+   "intent_saved_at": "2026-11-20T06:07:45Z",
+   "gateway": {
+    "SendMessage/task_received": 1,
+    "GetTask/task_received": 4
+   }
+  }
+ },
+ "view_1": {
+  "材料受理": {
+   "text": "材料受理 | 总线 | 使用 get_application 核对本案件申请材料 | 申请人：王某（个体经营，汽车零部件批发）",
+   "note_titles": [
+    "申请人：王某（个体经营，汽车零部件批发）"
+   ],
+   "spinning": 0
+  },
+  "财务分析师": {
+   "text": "财务分析师 | 总线 | 使用 get_financials 分析本案件财务数据，明确资产单位 | 模拟授信报告（财务分析部分）：",
+   "note_titles": [
+    "模拟授信报告（财务分析部分）："
+   ],
+   "spinning": 0
+  },
+  "行业研究员": {
+   "text": "行业研究员 | 总线 | 待核对 | 使用 get_industry_report 分析本案件行业依据 | 结果未知 · 最后观察 14:07:50",
+   "note_titles": [
+    "本步骤远端调用的结果未确认。保留原请求（0535047be12e0a0090290ecc），不会自动重发，只按原请求查询原任务。最近记录：读行业报告 · C006。最后观察 2026/11/20 14:07:50：本步骤远端调用最近一次有记录的时间（浏览器时区）。"
+   ],
+   "spinning": 0
+  },
+  "征信摘要查询员": {
+   "text": "征信摘要查询员 | 总线 | 使用 query_bureau_summary 核对本案件征信摘要 | 近六个月无逾期；历史最长逾期月数为1个月。",
+   "note_titles": [
+    "近六个月无逾期；历史最长逾期月数为1个月。"
+   ],
+   "spinning": 0
+  },
+  "黑盒 · Loop Forest": {
+   "text": "黑盒 · Loop Forest | 分叉 0 | 等待分叉",
+   "note_titles": [],
+   "spinning": 0
+  },
+  "关联方排查": {
+   "text": "关联方排查 | 逐家核对本案件关联方证据 | 已停止 · 最后观察 14:07:55",
+   "note_titles": [
+    "任务已停止，本步骤不再推进。停止前记录：读关联方名单 · C006。最后观察 2026/11/20 14:07:55：本任务最近一次有记录的远端调用时间（浏览器时区）。"
+   ],
+   "spinning": 0
+  }
+ },
+ "view_old_unknown": {
+  "材料受理": {
+   "text": "材料受理 | 总线 | 待核对 | 使用 get_application 核对本案件申请材料 | 结果未知 · 最后观察 14:03:46",
+   "note_titles": [
+    "本步骤远端调用的结果未确认。保留原请求（5d8767249819a18631260c42），不会自动重发，只按原请求查询原任务。最近记录：读申请材料 · C006。最后观察 2026/11/20 14:03:46：本步骤远端调用最近一次有记录的时间（浏览器时区）。"
+   ],
+   "spinning": 0
+  }
+ },
+ "view_2_after_reload": {
+  "材料受理": {
+   "text": "材料受理 | 总线 | 使用 get_application 核对本案件申请材料 | 申请人：王某（个体经营，汽车零部件批发）",
+   "note_titles": [
+    "申请人：王某（个体经营，汽车零部件批发）"
+   ],
+   "spinning": 0
+  },
+  "财务分析师": {
+   "text": "财务分析师 | 总线 | 使用 get_financials 分析本案件财务数据，明确资产单位 | 模拟授信报告（财务分析部分）：",
+   "note_titles": [
+    "模拟授信报告（财务分析部分）："
+   ],
+   "spinning": 0
+  },
+  "行业研究员": {
+   "text": "行业研究员 | 总线 | 待核对 | 使用 get_industry_report 分析本案件行业依据 | 结果未知 · 最后观察 14:07:50",
+   "note_titles": [
+    "本步骤远端调用的结果未确认。保留原请求（0535047be12e0a0090290ecc），不会自动重发，只按原请求查询原任务。最近记录：读行业报告 · C006。最后观察 2026/11/20 14:07:50：本步骤远端调用最近一次有记录的时间（浏览器时区）。"
+   ],
+   "spinning": 0
+  },
+  "征信摘要查询员": {
+   "text": "征信摘要查询员 | 总线 | 使用 query_bureau_summary 核对本案件征信摘要 | 近六个月无逾期；历史最长逾期月数为1个月。",
+   "note_titles": [
+    "近六个月无逾期；历史最长逾期月数为1个月。"
+   ],
+   "spinning": 0
+  },
+  "黑盒 · Loop Forest": {
+   "text": "黑盒 · Loop Forest | 分叉 0 | 等待分叉",
+   "note_titles": [],
+   "spinning": 0
+  },
+  "关联方排查": {
+   "text": "关联方排查 | 逐家核对本案件关联方证据 | 已停止 · 最后观察 14:07:55",
+   "note_titles": [
+    "任务已停止，本步骤不再推进。停止前记录：读关联方名单 · C006。最后观察 2026/11/20 14:07:55：本任务最近一次有记录的远端调用时间（浏览器时区）。"
+   ],
+   "spinning": 0
+  }
+ },
+ "display_same_after_reload": true,
+ "proxy_events_during_display": 0,
+ "run_unchanged_by_display": true,
+ "old_unknown_unchanged_by_display": true
+}

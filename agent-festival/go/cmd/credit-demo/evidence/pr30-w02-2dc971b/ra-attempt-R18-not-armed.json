@@ -1,0 +1,21 @@
+{
+ "attempt": 1,
+ "source": "2dc971b1fa9d592bb6d61b7f61c398856cae056f",
+ "operator": "WangHaowen99 (plugin page, scripted)",
+ "identity_before": {
+  "at": "2026-11-20T06:03:45.011Z",
+  "started_at": "2026-11-20T06:03:04.332547087Z",
+  "restart_count": "0",
+  "host_pid": "3752178",
+  "image": "1e8e5d7e9ea1",
+  "pid1_starttime_ticks": "2831759"
+ },
+ "log_since": "2026-11-20T06:03:44.011Z",
+ "run": "R18",
+ "plan": "P18",
+ "created_at": "2026-11-20T06:03:45.011Z",
+ "selected_at": "2026-11-20T06:03:47.386Z",
+ "armed": null,
+ "skipped": "related was not running while a remote call was in flight",
+ "final_status": "waiting"
+}

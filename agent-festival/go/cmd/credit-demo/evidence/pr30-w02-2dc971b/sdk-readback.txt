@@ -1,0 +1,5 @@
+image: agent-hub-issue16/orchestrator:bus-v1 (sha256:1e8e5d7e9ea1)
+nested jars: []
+com/openjiuwen/agents/orchestration/BlueprintScheduler.class True True
+pom.properties: artifactId=agent-core-ext-orchestration | groupId=com.openjiuwen | version=0.1.3-aha-drain1
+com/openjiuwen/demo/credit/RemoteAgentMember.class nanoTime True

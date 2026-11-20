@@ -1,0 +1,22 @@
+rev before 1059 after 1059
+R1: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R2: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R3: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R4: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R5: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R6: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R7: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R8: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R9: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R10: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R11: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R12: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R13: blocked -> blocked | final_changed=False | RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。
+R14: done -> done | final_changed=False | [step:report]
+**授信尽调报告**  
+**案件号：C006**  
+
+---
+
+**一、申请概况**  
+- 申请人身份验证已完成（任务ID：Agent Bus ra-e196-e196-1，手机号：1795133743）；

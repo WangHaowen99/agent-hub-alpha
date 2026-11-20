@@ -1,0 +1,24 @@
+{
+ "R18": {
+  "final": "done",
+  "kept_identity": true,
+  "send_counts": {
+   "5d8767249819a18631260c42": 1,
+   "a3ec3d3a6f0be8a77dc22321": 1,
+   "264347b2ebb81e23f6cf80ad": 1,
+   "3969ea24e5a7583f19c7f9ba": 1,
+   "5ec200102840da0710addb4a": 1
+  }
+ },
+ "R20": {
+  "final": "done",
+  "kept_identity": true,
+  "send_counts": {
+   "0abad69d0f40ed4482d65e8d": 1,
+   "0535047be12e0a0090290ecc": 1,
+   "bbd6ba24cee6f30810af1cec": 1,
+   "3eb0e5df11f6979ef1153ec9": 1,
+   "0b0bd00fe38463651c4192e3": 1
+  }
+ }
+}
