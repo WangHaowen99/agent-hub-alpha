@@ -1,0 +1,66 @@
+{
+  "schema_version": "report-platform-smoke/1",
+  "phases": [
+    {
+      "phase": "new_dialogue_submitted",
+      "at": 1795132354.6909058
+    },
+    {
+      "phase": "fresh_candidate",
+      "at": 1795132365.785776,
+      "task_id": "T-6fe980b52406393ddd4d1f2cc35ccc65",
+      "nodes": 8
+    },
+    {
+      "phase": "plugin_admission_submitted",
+      "at": 1795132366.4736319
+    },
+    {
+      "phase": "task_status",
+      "at": 1795132366.478954,
+      "status": "AWAITING_APPROVAL"
+    },
+    {
+      "phase": "task_status",
+      "at": 1795132367.485628,
+      "status": "QUEUED"
+    },
+    {
+      "phase": "task_status",
+      "at": 1795132368.4906998,
+      "status": "RUNNING"
+    },
+    {
+      "phase": "task_status",
+      "at": 1795132416.4872086,
+      "status": "AWAITING_ACCEPTANCE"
+    },
+    {
+      "phase": "completed",
+      "at": 1795132419.9303696,
+      "task_id": "T-6fe980b52406393ddd4d1f2cc35ccc65",
+      "status": "DELIVERED",
+      "all_passed": true
+    }
+  ],
+  "checks": {
+    "zero_calls_before_confirmation": true,
+    "four_real_experts": true,
+    "all_calls_have_unique_completed_remote_tasks": true,
+    "formally_delivered": true,
+    "download_exact_formal_bytes": true,
+    "evidence_intact": true
+  },
+  "limits": [
+    "Actual local model/services; not peer independent replay or business signoff"
+  ],
+  "task_id": "T-6fe980b52406393ddd4d1f2cc35ccc65",
+  "graph_digest": "sha256:feac3701ebb2945501bb90c08aaa8308ac324f1cbc12733b64f40dcf15e646d2",
+  "execution_profile": "sha256:85a94a6b68f1b08b623de2d3aaa3856fa5279e0752ff9325077cfddb1a9e1341",
+  "model_binding_digest": "sha256:230d3e4739e7cbea7d3037ccd9cf3874d914f8277fc5b8b5167dd526d6ea720f",
+  "session_url": "http://127.0.0.1:5173/chat/web_1a1f639f086_14bd463f84cb",
+  "report_digest": "sha256:ef142a8dceef63b2644a74643bd41cbd686d78e0dcddf8e612c8476c300104df",
+  "remote_calls": 4,
+  "status": "DELIVERED",
+  "all_passed": true
+}

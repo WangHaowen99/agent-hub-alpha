@@ -1,0 +1,258 @@
+{
+ "source": "yougq/agent-hub-alpha 0358acbad0ce1b0ce73772f31eda845057ba4dc5",
+ "old_task": "T-3f848f8ea6c880aa3427333dd6abb04a",
+ "started_at": 1795133262.673629,
+ "plugin_frame_url": "http://127.0.0.1:5173/api/application-plugins/credit-workbench/assets/index.html",
+ "old_before": {
+  "status": "WAITING_INPUT",
+  "binding": "sha256:823b2fd0c50631ac189cf3a687d7ed85a858a2efcac1dc32a215160bdec4339c",
+  "current_binding": "sha256:230d3e4739e7cbea7d3037ccd9cf3874d914f8277fc5b8b5167dd526d6ea720f",
+  "generation": "297",
+  "nodes": {
+   "business": [
+    "COMMITTED",
+    null
+   ],
+   "check": [
+    "COMMITTED",
+    null
+   ],
+   "extract": [
+    "COMMITTED",
+    null
+   ],
+   "quality": [
+    "COMMITTED",
+    null
+   ],
+   "select": [
+    "WAITING_INPUT",
+    "INPUT_REQUIRED"
+   ],
+   "write": [
+    "COMMITTED",
+    null
+   ]
+  }
+ },
+ "old_ui_before": {
+  "resume_control": 1,
+  "blocked_banner": 0,
+  "head": "生成招商银行本集团2025对比2024经营与资产质量简报，覆盖八项指标及来源\n等待核对远端结果\ncmb-2025-annual-report-a · T-3f848f8ea6c880aa3427333dd6abb04a v1"
+ },
+ "old_second_client_resume": {
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": "{\"pause_requested\":false,\"status\":\"QUEUED\",\"task_id\":\"T-3f848f8ea6c880aa3427333dd6abb04a\"}"
+ },
+ "old_notice": "T-3f848f8ea6c880aa3427333dd6abb04a：恢复请求已接受，正在核对原任务；这不表示任务已完成。",
+ "old_status_sequence": [
+  "RUNNING"
+ ],
+ "old_after": {
+  "status": "RUNNING",
+  "generation": "307",
+  "nodes": {
+   "business": [
+    "COMMITTED",
+    null
+   ],
+   "check": [
+    "COMMITTED",
+    null
+   ],
+   "extract": [
+    "COMMITTED",
+    null
+   ],
+   "quality": [
+    "COMMITTED",
+    null
+   ],
+   "select": [
+    "WAITING_INPUT",
+    "INPUT_REQUIRED"
+   ],
+   "write": [
+    "COMMITTED",
+    null
+   ]
+  }
+ },
+ "old_ui_after": {
+  "resume_control": 0,
+  "blocked_banner": null,
+  "list_chip": "T-3f848f8ea6c880aa3427333dd6abb04a v1\n执行中\n生成招商银行本集团2025对比2024经营与资产质量简报，覆盖八项指标及来源",
+  "head": "生成招商银行本集团2025对比2024经营与资产质量简报，覆盖八项指标及来源\n执行中 5/6\ncmb-2025-annual-report-a · T-3f848f8ea6c880aa3427333dd6abb04a v1"
+ },
+ "dialogue_submitted_at": 1795133374.1127841,
+ "task": "T-af0c870c7329e59587fea9d0d0cc1cea",
+ "candidate_nodes": 8,
+ "zero_calls_before_confirmation": true,
+ "admit_dup_same_hash": {
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": "{\"graph_digest\":\"sha256:ef31fe565ea325c84a7c690126b13c44e09857c8962b42386507650dbde3612c\",\"status\":\"QUEUED\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+ },
+ "admit_after": {
+  "status": "QUEUED",
+  "approved_by": "demo",
+  "generation": "3"
+ },
+ "run_status_sequence": [
+  "QUEUED",
+  "RUNNING",
+  "AWAITING_ACCEPTANCE"
+ ],
+ "calls_after_run": [
+  {
+   "agent_id": "asset-quality-analyst",
+   "state": "COMPLETED",
+   "remote_task_id": "42c4095c-df25-4c36-bdbb-7c09d006c2fe",
+   "conflicted": false
+  },
+  {
+   "agent_id": "report-extractor",
+   "state": "COMPLETED",
+   "remote_task_id": "8cd0b1b7-ea2e-4cbd-801d-a044cbf54a02",
+   "conflicted": false
+  },
+  {
+   "agent_id": "business-analyst",
+   "state": "COMPLETED",
+   "remote_task_id": "3076d87c-d934-4243-9d61-19532b98451b",
+   "conflicted": false
+  },
+  {
+   "agent_id": "report-writer",
+   "state": "COMPLETED",
+   "remote_task_id": "6748944d-9c38-44de-83f2-5c32006bb046",
+   "conflicted": false
+  }
+ ],
+ "human_review": null,
+ "artifact": "b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794",
+ "projection_report_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794",
+ "approve_report_dup": {
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": "{\"approval_id\":\"approval-c496e0a7d7fc80d757b88c8944f1ba47\",\"artifact_digest\":\"sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"artifact_id\":\"b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+ },
+ "deliver_ui_command_id_present": true,
+ "deliver_dup_same_command_id": {
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": "{\"epoch\":\"1\",\"status\":\"DELIVERED\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\",\"renderer\":\"structured-json/1\",\"receipt_id\":\"delivery-receipt-3f72b72dd5197ecfa3932dd82bc2e15b\",\"artifact_id\":\"b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"delivery_id\":\"faac6b7e-da2e-468d-8213-15ae7db010cd\",\"recorded_at\":\"2026-11-20T00:12:09.394651794Z\",\"artifact_digest\":\"sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\"}"
+ },
+ "deliver_other_command_id": {
+  "ok": true,
+  "code": null,
+  "error": null,
+  "payload": "{\"artifact_digest\":\"sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"artifact_id\":\"b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"delivery_id\":\"w02-dup-1795133529\",\"epoch\":\"2\",\"receipt_id\":\"delivery-receipt-946255b899cd39df9491380297abe6d4\",\"recorded_at\":\"2026-11-20T00:12:09.304661156Z\",\"renderer\":\"structured-json/1\",\"status\":\"DELIVERED\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+ },
+ "delivered": {
+  "status": "DELIVERED",
+  "delivery_receipts": [
+   {
+    "epoch": "1",
+    "status": "DELIVERED",
+    "task_id": "T-af0c870c7329e59587fea9d0d0cc1cea",
+    "renderer": "structured-json/1",
+    "receipt_id": "delivery-receipt-3f72b72dd5197ecfa3932dd82bc2e15b",
+    "artifact_id": "b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794",
+    "delivery_id": "faac6b7e-da2e-468d-8213-15ae7db010cd",
+    "recorded_at": "2026-11-20T00:12:09.394651794Z",
+    "artifact_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794"
+   },
+   {
+    "epoch": "2",
+    "status": "DELIVERED",
+    "task_id": "T-af0c870c7329e59587fea9d0d0cc1cea",
+    "renderer": "structured-json/1",
+    "receipt_id": "delivery-receipt-946255b899cd39df9491380297abe6d4",
+    "artifact_id": "b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794",
+    "delivery_id": "w02-dup-1795133529",
+    "recorded_at": "2026-11-20T00:12:09.304661156Z",
+    "artifact_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794"
+   }
+  ],
+  "report_approvals": [
+   {
+    "principal": "demo",
+    "expires_at": "2026-11-20T01:12:08.298436+00:00",
+    "approval_id": "approval-302a31037a6775924ba6d833f98dd618",
+    "artifact_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794"
+   },
+   {
+    "principal": "demo",
+    "expires_at": "2026-11-20T01:12:09.303204+00:00",
+    "approval_id": "approval-c496e0a7d7fc80d757b88c8944f1ba47",
+    "artifact_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794"
+   }
+  ]
+ },
+ "download_digest": "sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794",
+ "download_equals_projection": true,
+ "verify": {
+  "audit_events": 203,
+  "authorized_skips": 2,
+  "claim": "artifact integrity and recorded formal facts; not independent business acceptance",
+  "evidence_intact": true,
+  "formal_nodes": 6,
+  "generation": "203",
+  "observations": 148,
+  "read_only": true,
+  "remote_calls": 4,
+  "status": "DELIVERED",
+  "task_id": "T-af0c870c7329e59587fea9d0d0cc1cea"
+ },
+ "graph_replies_for_task": 117,
+ "rev_first_last": [
+  1,
+  203
+ ],
+ "rev_non_decreasing_in_arrival_order": true,
+ "final_generation": "203",
+ "all_plugin_rpc_replies": [
+  {
+   "method": "plugin.credit_workbench.resume",
+   "ok": true,
+   "code": null,
+   "error": null,
+   "receipt": "{\"pause_requested\":false,\"status\":\"QUEUED\",\"task_id\":\"T-3f848f8ea6c880aa3427333dd6abb04a\"}"
+  },
+  {
+   "method": "plugin.credit_workbench.approve",
+   "ok": true,
+   "code": null,
+   "error": null,
+   "receipt": "{\"graph_digest\":\"sha256:ef31fe565ea325c84a7c690126b13c44e09857c8962b42386507650dbde3612c\",\"status\":\"QUEUED\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+  },
+  {
+   "method": "plugin.credit_workbench.command",
+   "ok": true,
+   "code": null,
+   "error": null,
+   "receipt": "{\"approval_id\":\"approval-302a31037a6775924ba6d833f98dd618\",\"artifact_digest\":\"sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"artifact_id\":\"b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+  },
+  {
+   "method": "plugin.credit_workbench.command",
+   "ok": true,
+   "code": null,
+   "error": null,
+   "receipt": "{\"artifact_digest\":\"sha256:b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"artifact_id\":\"b9b68fafeb36eb0a470e655a43a4220130aff86ce5d0b7d4825646b7d32a9794\",\"delivery_id\":\"faac6b7e-da2e-468d-8213-15ae7db010cd\",\"epoch\":\"1\",\"receipt_id\":\"delivery-receipt-3f72b72dd5197ecfa3932dd82bc2e15b\",\"recorded_at\":\"2026-11-20T00:12:09.394651794Z\",\"renderer\":\"structured-json/1\",\"status\":\"DELIVERED\",\"task_id\":\"T-af0c870c7329e59587fea9d0d0cc1cea\"}"
+  },
+  {
+   "method": "plugin.credit_workbench.command",
+   "ok": true,
+   "code": null,
+   "error": null,
+   "receipt": "{\"content_base64\":\"eyJzbmFwc2hvdCI6ImNtYi0yMDI1LWFubnVhbC1yZXBvcnQtYSIsInNjb3BlIjp7ImVudGl0eSI6IuaLm+WVhumTtuihjOiCoeS7veaciemZkOWFrOWPuCIsImJhc2lzIjoi5pys6ZuG5ZuiIiwiY3VycmVuY3lfdW5pdCI6IuS6uuawkeW4geeZvuS4h+WFgyIsInBlcmlvZCI6IjIwMjUiLCJjb21wYXJlX3BlcmlvZCI6IjIwMjQifSwiaW5kaWNhdG9ycyI6W3siaWQiOiJyZXZlbnVlIiwidmFsdWVzIjp7IjIwMjUiOjMzNzUzMiwiMjAyNCI6MzM3NDg4fSwidW5pdCI6IuS6uuawkeW4geeZvuS4h+WFgyIsImNoYW5nZSI6eyJraW5kIjoicGN0IiwidmFsdWUiOjAuMDF9LCJjaXRhdGlvbiI6eyJwZGZfcGFnZSI6MTQsInByaW50ZWRfcGFnZSI6MTMsInF1b3RlIjoi6JCl5Lia5pS25YWlIDMzNyw1MzIgMzM3LDQ4OCAwLjAxIDMzOSwxMjMifX0seyJpZCI6Im5ldF9wcm9ma"
+  }
+ ],
+ "finished_at": 1795133529.6183681
+}
