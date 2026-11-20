@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openjiuwen.agents.reactrails.loopforest.execution.SubAgentExecutor;
 import java.net.URI;
 import java.net.http.*;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.io.IOException;
@@ -17,8 +18,12 @@ final class RemoteAgentMember implements SubAgentExecutor {
     private final String run,token,step,gateway,credential;
     private Map<String,Object> observation;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    private final Clock clock;
     RemoteAgentMember(GoClient go,String run,String token,String step,Map<String,String> env) {
-        this.go=go; this.run=run; this.token=token; this.step=step;
+        this(go,run,token,step,env,Clock.systemUTC());
+    }
+    RemoteAgentMember(GoClient go,String run,String token,String step,Map<String,String> env,Clock clock) {
+        this.go=go; this.run=run; this.token=token; this.step=step; this.clock=clock;
         gateway=env.getOrDefault("CREDIT_BUS_GATEWAY",""); credential=env.getOrDefault("CREDIT_BUS_TOKEN","");
         if (gateway.isBlank() || credential.isBlank()) throw new IllegalStateException("Agent Bus configuration missing; local fallback forbidden");
     }
@@ -45,7 +50,12 @@ final class RemoteAgentMember implements SubAgentExecutor {
         observation = new LinkedHashMap<>();
         observation.put("rpc_id", id);
         observation.put("method", method);
-        observation.put("started_at", Instant.now().toString());
+        // The interval is measured on the monotonic clock: a wall-clock step back
+        // during the call (VM time correction) would otherwise record finished_at
+        // before started_at, and Go rejects the whole update (time_order).
+        Instant started = clock.instant();
+        long startedNanos = System.nanoTime();
+        observation.put("started_at", started.toString());
         observation.put("outcome", "invalid_response");
         observation.put("error_code", "INVALID_A2A_RESPONSE");
         try {
@@ -70,7 +80,7 @@ final class RemoteAgentMember implements SubAgentExecutor {
             }
             throw e;
         } finally {
-            observation.put("finished_at", Instant.now().toString());
+            observation.put("finished_at", started.plusNanos(System.nanoTime() - startedNanos).toString());
         }
     }
 
