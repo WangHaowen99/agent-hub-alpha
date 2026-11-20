@@ -1,0 +1,38 @@
+{
+ "blocked_reasons": {
+  "RECONCILIATION_REQUIRED: 采纳账本与快照操作序列不一致；保留原账本与快照，需人工核对，不能重新生成决策。": [
+   "R1",
+   "R10",
+   "R11",
+   "R12",
+   "R13",
+   "R2",
+   "R3",
+   "R4",
+   "R5",
+   "R6",
+   "R7",
+   "R8",
+   "R9"
+  ]
+ },
+ "statuses": {
+  "R1": "blocked",
+  "R10": "blocked",
+  "R11": "blocked",
+  "R12": "blocked",
+  "R13": "blocked",
+  "R2": "blocked",
+  "R3": "blocked",
+  "R4": "blocked",
+  "R5": "blocked",
+  "R6": "blocked",
+  "R7": "blocked",
+  "R8": "blocked",
+  "R9": "blocked"
+ },
+ "P9_list_chip": "任务受阻",
+ "P9_head_chip": "任务受阻",
+ "P9_resume_form": 0,
+ "P9_blocked_banner": "R9 任务受阻。请由维护人员核对绑定版本与配置；此处不能按普通等待任务恢复。"
+}

@@ -1,0 +1,7 @@
+image: agent-hub-issue16/orchestrator:bus-v1 (sha256:099f844293e2)
+entries matching agent-core-ext/orchestration:
+   META-INF/maven/com.openjiuwen/agent-core-ext-orchestration/pom.properties
+   META-INF/maven/com.openjiuwen/agent-core-ext-react-rails/pom.properties
+   META-INF/maven/com.openjiuwen/agent-core-ext-tool-guardrail/pom.properties
+pom.properties: artifactId=agent-core-ext-orchestration | groupId=com.openjiuwen | version=0.1.3-aha-drain1
+com/openjiuwen/agents/orchestration/BlueprintScheduler.class True True

@@ -1,0 +1,53 @@
+2026-11-20T00:15:44.168184579Z 00:15:44.167 INFO  c.o.d.credit.Worker - run R14 leased (epoch 1)
+2026-11-20T00:15:54.238950000Z 00:15:54.238 INFO  c.o.d.credit.Worker - run R14 step related: executing
+2026-11-20T00:15:54.323973053Z 00:15:54.323 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:15:55.197816606Z 00:15:55.196 ERROR agent - ReAct iteration 1/10 failed
+2026-11-20T00:15:55.197874427Z java.util.concurrent.CancellationException: model call interrupted
+2026-11-20T00:15:55.197880355Z 	at com.openjiuwen.core.foundation.llm.classification.ClassifiedModelErrors.toCancellation(ClassifiedModelErrors.java:59)
+2026-11-20T00:15:55.197884203Z 	at com.openjiuwen.core.foundation.llm.classification.ModelCallRetrier.cancellation(ModelCallRetrier.java:161)
+2026-11-20T00:15:55.197887946Z 	at com.openjiuwen.core.foundation.llm.classification.ModelCallRetrier.execute(ModelCallRetrier.java:83)
+2026-11-20T00:15:55.197891066Z 	at com.openjiuwen.core.foundation.llm.modelclients.OpenAIModelClient.postJson(OpenAIModelClient.java:1507)
+2026-11-20T00:15:55.197894706Z 	at com.openjiuwen.core.foundation.llm.modelclients.OpenAIModelClient.postJson(OpenAIModelClient.java:1485)
+2026-11-20T00:15:55.197898762Z 	at com.openjiuwen.core.foundation.llm.modelclients.OpenAIModelClient.invoke(OpenAIModelClient.java:540)
+2026-11-20T00:15:55.197905730Z 	at com.openjiuwen.core.foundation.llm.modelclients.BaseModelClient.invoke(BaseModelClient.java:406)
+2026-11-20T00:15:55.197909265Z 	at com.openjiuwen.core.foundation.llm.Model.invoke(Model.java:319)
+2026-11-20T00:15:55.197911969Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.invokeNonStreaming(ReActAgent.java:685)
+2026-11-20T00:15:55.197914985Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.doRailedModelCall(ReActAgent.java:523)
+2026-11-20T00:15:55.197917897Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent$1.execute(ReActAgent.java:479)
+2026-11-20T00:15:55.197920497Z 	at com.openjiuwen.core.singleagent.rail.Rails.run(Rails.java:65)
+2026-11-20T00:15:55.197925697Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.railedModelCall(ReActAgent.java:462)
+2026-11-20T00:15:55.197929232Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.callModel(ReActAgent.java:441)
+2026-11-20T00:15:55.197932664Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.innerInvoke(ReActAgent.java:2304)
+2026-11-20T00:15:55.197935680Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.invoke(ReActAgent.java:2047)
+2026-11-20T00:15:55.197938592Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.invoke(ReActAgent.java:1988)
+2026-11-20T00:15:55.197941504Z 	at com.openjiuwen.core.singleagent.agents.ReActAgent.invoke(ReActAgent.java:1994)
+2026-11-20T00:15:55.197944728Z 	at com.openjiuwen.agents.orchestration.ReActAgentMember.execute(ReActAgentMember.java:59)
+2026-11-20T00:15:55.197970934Z 	at com.openjiuwen.agents.orchestration.ActivityAwareExecutor.execute(ActivityAwareExecutor.java:29)
+2026-11-20T00:15:55.197976862Z 	at com.openjiuwen.demo.credit.Worker.lambda$member$3(Worker.java:192)
+2026-11-20T00:15:55.197979046Z 	at com.openjiuwen.demo.credit.Worker$Ledgered.execute(Worker.java:333)
+2026-11-20T00:15:55.197981334Z 	at com.openjiuwen.agents.orchestration.ActivityAwareExecutor.execute(ActivityAwareExecutor.java:29)
+2026-11-20T00:15:55.197983206Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.runStep(BlueprintScheduler.java:186)
+2026-11-20T00:15:55.197986118Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.lambda$submitSteps$0(BlueprintScheduler.java:171)
+2026-11-20T00:15:55.197987886Z 	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+2026-11-20T00:15:55.197989862Z 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+2026-11-20T00:15:55.197991525Z 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+2026-11-20T00:15:55.197994021Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-11-20T00:15:55.204463764Z 00:15:55.203 ERROR c.o.d.credit.Worker - run R14 failed
+2026-11-20T00:15:55.204497874Z com.openjiuwen.agents.orchestration.BlueprintException: blueprint id=team-graph step id=financial failed: Remote outcome unresolved; original task retained
+2026-11-20T00:15:55.204502034Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.awaitStepResult(BlueprintScheduler.java:253)
+2026-11-20T00:15:55.204504738Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.collectOneResult(BlueprintScheduler.java:226)
+2026-11-20T00:15:55.204506921Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.collectResults(BlueprintScheduler.java:212)
+2026-11-20T00:15:55.204508897Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.runLayer(BlueprintScheduler.java:139)
+2026-11-20T00:15:55.204510249Z 	at com.openjiuwen.agents.orchestration.BlueprintScheduler.execute(BlueprintScheduler.java:113)
+2026-11-20T00:15:55.204511601Z 	at com.openjiuwen.demo.credit.Worker.execute(Worker.java:124)
+2026-11-20T00:15:55.204512849Z 	at com.openjiuwen.demo.credit.Worker.run(Worker.java:70)
+2026-11-20T00:15:55.204513993Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-11-20T00:15:56.256136415Z 00:15:56.255 INFO  c.o.d.credit.Worker - run R14 leased (epoch 2)
+2026-11-20T00:15:56.349958908Z 00:15:56.349 INFO  c.o.d.credit.Worker - run R14 step related: executing
+2026-11-20T00:15:56.352341851Z 00:15:56.350 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:16:00.190093914Z 00:16:00.189 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:16:00.219471428Z 00:16:00.218 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:16:00.233850356Z 00:16:00.233 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:16:09.213027684Z 00:16:09.212 INFO  c.o.d.credit.Worker - run R14 step judge: executing
+2026-11-20T00:16:09.213630051Z 00:16:09.213 WARN  llm - Legacy ModelClientConfig.timeout is deprecated and now only overrides the response-header wait window; migrate to connectTimeoutSeconds and streamIdleSeconds
+2026-11-20T00:16:23.530911212Z 00:16:23.530 INFO  c.o.d.credit.Worker - run R14 done (skipped [])
